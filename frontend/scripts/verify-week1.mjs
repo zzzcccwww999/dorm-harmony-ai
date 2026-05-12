@@ -130,15 +130,18 @@ requireRegex(
 requireCssRuleIncludes('src/styles/main.css', '.sidebar', [
   'position: relative',
   'align-self: flex-start',
-  'height: fit-content',
+  'flex: 0 0 32rem',
+  'width: 32rem',
+  'height: 100vh',
 ])
 requireCssRuleExcludes('src/styles/main.css', '.sidebar', [
   'position: sticky',
   'position: fixed',
   'top: 0',
-  'height: 100vh',
+  'height: fit-content',
   'min-height: 100vh',
 ])
+requireCssRuleIncludes('src/styles/main.css', '.sidebar-cta', ['margin-top: auto'])
 
 requireIncludes('src/views/HomeView.vue', [
   '舍友心晴',
