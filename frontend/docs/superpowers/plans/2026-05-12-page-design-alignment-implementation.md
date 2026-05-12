@@ -1,5 +1,9 @@
 # Page Design Alignment Implementation Plan
 
+## Closure
+- Status: 2026-05-12 页面设计对齐验收通过。
+- Note: 本轮实施中涉及 `frontend/src` 的实际落地调整（如侧边栏固定布局、文案与间距收口），与本文件早期条目“Do not modify frontend/src/**”存在范围冲突；后续以已提交的源码为准，文档中仅保留静态稿校验与对齐记录。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Create a new static page-design set that strictly aligns with the product plan while preserving the original visual style and leaving `frontend/页面设计/` unchanged.
