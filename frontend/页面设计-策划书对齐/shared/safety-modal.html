@@ -1,0 +1,26 @@
+<!-- 首次进入安全说明弹窗：静态设计稿片段，后续 Vue 实现时用 localStorage 控制只弹一次 -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center bg-on-surface/45 p-4">
+  <section class="w-full max-w-2xl bg-card border-[3px] border-on-surface rounded-2xl shadow-[8px_8px_0px_0px] shadow-on-surface p-6 md:p-8">
+    <div class="inline-flex items-center gap-2 rounded-full border-2 border-on-surface bg-tertiary px-4 py-2 text-label-bold font-label-bold text-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface">
+      <span class="material-symbols-outlined text-[18px]">verified_user</span>
+      首次使用提示
+    </div>
+    <h2 class="mt-5 text-headline-md font-headline-md text-on-surface">使用前请了解安全边界</h2>
+    <p class="mt-4 text-body-md font-body-md text-on-surface-variant">
+      舍友心晴仅用于宿舍压力趋势提示和沟通练习，不进行心理疾病诊断，也不评价任何舍友的人格或心理状态。
+    </p>
+    <ul class="mt-5 space-y-3 text-body-md font-body-md text-on-surface">
+      <li>压力值只用于关系压力趋势提示，不作为医学或心理诊断依据。</li>
+      <li>如果出现高压力、严重冲突、持续失眠、强烈焦虑或暴力风险，请及时联系辅导员、心理老师、家人或可信任同学。</li>
+      <li>Demo 阶段不采集真实身份信息，演示数据使用虚拟样例。</li>
+    </ul>
+    <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+      <button class="bg-primary text-on-primary border-2 border-on-surface rounded-full px-6 py-3 font-label-bold text-label-bold shadow-[4px_4px_0px_0px] shadow-on-surface">
+        我已了解，开始使用
+      </button>
+      <button class="bg-surface text-on-surface border-2 border-on-surface rounded-full px-6 py-3 font-label-bold text-label-bold shadow-[4px_4px_0px_0px] shadow-on-surface">
+        查看隐私原则
+      </button>
+    </div>
+  </section>
+</div>
