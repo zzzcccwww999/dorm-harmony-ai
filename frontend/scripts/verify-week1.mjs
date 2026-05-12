@@ -159,7 +159,24 @@ requireIncludes('src/views/HomeView.vue', [
   'Demo 阶段不采集真实身份信息',
   '我已了解，开始使用',
 ])
-requireExcludes('src/views/HomeView.vue', ['flow-section', 'flowSteps', '开始记录宿舍事件'])
+requireIncludes('src/views/HomeView.vue', [
+  'SAFETY_ACK_STORAGE_KEY',
+  'localStorage.getItem',
+  'localStorage.setItem',
+  'openSafetyModal',
+  '@click="openSafetyModal"',
+])
+requireRegex(
+  'src/views/HomeView.vue',
+  /function closeSafetyModal\(\)[\s\S]*localStorage\.setItem/,
+  'safety acknowledgement persistence when the modal closes',
+)
+requireExcludes('src/views/HomeView.vue', [
+  'flow-section',
+  'flowSteps',
+  '开始记录宿舍事件',
+  'const showSafetyModal = ref(true)',
+])
 
 requireIncludes('src/views/RecordView.vue', [
   '事件类型',

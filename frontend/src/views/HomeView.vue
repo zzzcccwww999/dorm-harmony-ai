@@ -25,7 +25,9 @@ const featureCards = [
   },
 ]
 
-const showSafetyModal = ref(true)
+const SAFETY_ACK_STORAGE_KEY = 'dorm-harmony:safety-acknowledged'
+
+const showSafetyModal = ref(false)
 const safetyModalRef = ref<HTMLElement | null>(null)
 const safetyConfirmRef = ref<HTMLButtonElement | null>(null)
 const restoreFocusTarget = ref<HTMLElement | null>(null)
@@ -51,9 +53,26 @@ function focusInitialModalControl() {
   })
 }
 
-function closeSafetyModal() {
-  showSafetyModal.value = false
+function hasAcknowledgedSafetyModal() {
+  try {
+    return window.localStorage.getItem(SAFETY_ACK_STORAGE_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
 
+function openSafetyModal(event?: MouseEvent) {
+  restoreFocusTarget.value =
+    event?.currentTarget instanceof HTMLElement
+      ? event.currentTarget
+      : document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null
+  showSafetyModal.value = true
+  focusInitialModalControl()
+}
+
+function restoreFocusAfterModalClose() {
   nextTick(() => {
     const target = restoreFocusTarget.value
 
@@ -64,6 +83,17 @@ function closeSafetyModal() {
 
     document.querySelector<HTMLElement>('.primary-action, a, button')?.focus()
   })
+}
+
+function closeSafetyModal() {
+  try {
+    window.localStorage.setItem(SAFETY_ACK_STORAGE_KEY, 'true')
+  } catch {
+    // Ignore storage failures so the modal can still be dismissed in restricted browsers.
+  }
+
+  showSafetyModal.value = false
+  restoreFocusAfterModalClose()
 }
 
 function handleModalKeydown(event: KeyboardEvent) {
@@ -102,7 +132,11 @@ function handleModalKeydown(event: KeyboardEvent) {
 
 onMounted(() => {
   restoreFocusTarget.value = document.activeElement instanceof HTMLElement ? document.activeElement : null
-  focusInitialModalControl()
+
+  if (!hasAcknowledgedSafetyModal()) {
+    showSafetyModal.value = true
+    focusInitialModalControl()
+  }
 })
 </script>
 
@@ -184,7 +218,7 @@ onMounted(() => {
             开始记录
             <span class="action-icon material-symbol" aria-hidden="true">arrow_forward</span>
           </RouterLink>
-          <a class="secondary-action" href="#safety-note">安全说明</a>
+          <button class="secondary-action" type="button" @click="openSafetyModal">安全说明</button>
         </div>
       </div>
     </section>
