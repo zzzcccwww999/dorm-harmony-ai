@@ -3,7 +3,6 @@ import { computed, onMounted, ref } from 'vue'
 
 import {
   LAST_EVENT_STORAGE_KEY,
-  emotionOptions,
   eventTypeOptions,
   frequencyOptions,
   mockAnalyzeResult,
@@ -71,7 +70,6 @@ onMounted(() => {
 
 const eventTypeLabel = computed(() => optionLabel(eventTypeOptions, eventRecord.value.event_type))
 const frequencyLabel = computed(() => optionLabel(frequencyOptions, eventRecord.value.frequency))
-const emotionLabel = computed(() => optionLabel(emotionOptions, eventRecord.value.emotion))
 const communicationLabel = computed(() => (eventRecord.value.has_communicated ? '已沟通' : '尚未沟通'))
 </script>
 
@@ -86,7 +84,7 @@ const communicationLabel = computed(() => (eventRecord.value.has_communicated ? 
           宿舍压力分析报告
           <span class="update-chip card-border">本周更新</span>
         </h1>
-        <p>通过对近期宿舍动态的分析，我们为你生成了这份专属的压力评估。保持关注，及时沟通。</p>
+        <p>通过对近期宿舍动态的分析，我们为您生成了这份专属的压力评估。保持关注，及时沟通！</p>
       </div>
     </section>
 
@@ -136,19 +134,11 @@ const communicationLabel = computed(() => (eventRecord.value.has_communicated ? 
           <div class="insight-list">
             <p>
               <strong>主要压力来源：</strong>
-              作息冲突、噪音问题
+              {{ result.main_reasons.join('、') }}
             </p>
             <p>
               <strong>情绪关键词：</strong>
-              {{ emotionLabel }}、无奈、压抑
-            </p>
-            <p>
-              <strong>事件摘要：</strong>
-              {{ eventTypeLabel }}，{{ frequencyLabel }}，当前情绪为{{ emotionLabel }}，{{ communicationLabel }}。
-            </p>
-            <p>
-              <strong>风险等级：</strong>
-              {{ result.risk_level }}
+              {{ result.emotion_keywords.join('、') }}
             </p>
             <p>
               <strong>冲突风险趋势提示：</strong>
@@ -176,25 +166,5 @@ const communicationLabel = computed(() => (eventRecord.value.has_communicated ? 
       </div>
     </section>
 
-    <section class="analysis-grid">
-      <article class="result-panel pop-card">
-        <p class="panel-label">主要压力来源</p>
-        <ul>
-          <li v-for="reason in result.main_reasons" :key="reason">{{ reason }}</li>
-        </ul>
-      </article>
-
-      <article class="result-panel pop-card">
-        <p class="panel-label">系统建议</p>
-        <ul>
-          <li v-for="suggestion in result.suggestions" :key="suggestion">{{ suggestion }}</li>
-        </ul>
-      </article>
-    </section>
-
-    <section class="safety-strip pop-shadow">
-      <strong>安全提示</strong>
-      <span>{{ result.safety_notice }}</span>
-    </section>
   </main>
 </template>

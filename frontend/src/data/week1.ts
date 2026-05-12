@@ -12,6 +12,7 @@ export interface AnalyzeResult {
   pressure_score: number
   risk_level: string
   main_reasons: string[]
+  emotion_keywords: string[]
   suggestions: string[]
   safety_notice: string
   trend_notice: string
@@ -56,14 +57,15 @@ export const sampleAnalyzeRequest: AnalyzeRequest = {
 export const mockAnalyzeResult: AnalyzeResult = {
   pressure_score: 76,
   risk_level: '冲突风险较高',
-  main_reasons: ['夜间噪音影响休息', '问题每周多次出现', '尚未形成有效沟通'],
+  main_reasons: ['作息冲突', '噪音问题'],
+  emotion_keywords: ['无奈', '压抑', '烦躁'],
   suggestions: [
-    '先选择双方情绪较平稳的时间沟通。',
+    '先表达感受，再提出具体可执行请求。',
     '表达自己的睡眠受影响，再提出 12 点后戴耳机的具体请求。',
     '如果沟通后仍持续影响生活，可联系辅导员或宿舍管理人员协助。',
   ],
   safety_notice: '本结果仅用于宿舍关系压力趋势提示，不作为医学或心理诊断依据。',
-  trend_notice: '问题发生频率较高，且已经出现关系紧张迹象，建议先进行沟通演练。',
+  trend_notice: '该问题发生频率较高，且尚未进行有效沟通。建议先进行沟通演练，再选择舍友情绪较平稳的时间进行现实沟通。',
 }
 
 export function optionLabel(options: Array<{ value: string; label: string }>, value: string) {

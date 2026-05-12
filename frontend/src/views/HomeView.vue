@@ -12,14 +12,14 @@ const featureCards = [
   {
     title: '沟通模拟器',
     icon: 'forum',
-    text: '在安全的沙盒环境中练习对话，提前整理感受、需求和具体请求。',
+    text: '在安全的沙盒环境中练习对话。模拟不同语气的反馈效果，掌握非暴力沟通技巧。',
     action: '进入沙盒',
     tone: 'purple',
   },
   {
     title: '关系改善趋势',
     icon: 'trending_up',
-    text: '追踪长期互动数据，生成可视化的关系健康报告，观察沟通后的变化。',
+    text: '追踪长期互动数据，生成可视化的关系健康报告，见证你们的共同成长。',
     action: '查看报告',
     tone: 'yellow',
   },
@@ -30,6 +30,9 @@ const SAFETY_ACK_STORAGE_KEY = 'dorm-harmony:safety-acknowledged'
 const showSafetyModal = ref(false)
 const safetyModalRef = ref<HTMLElement | null>(null)
 const safetyConfirmRef = ref<HTMLButtonElement | null>(null)
+const showPrivacyModal = ref(false)
+const privacyModalRef = ref<HTMLElement | null>(null)
+const privacyConfirmRef = ref<HTMLButtonElement | null>(null)
 const restoreFocusTarget = ref<HTMLElement | null>(null)
 
 const focusableSelector = [
@@ -41,8 +44,8 @@ const focusableSelector = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(',')
 
-function getModalFocusableElements() {
-  return Array.from(safetyModalRef.value?.querySelectorAll<HTMLElement>(focusableSelector) ?? []).filter(
+function getModalFocusableElements(modalRef: HTMLElement | null) {
+  return Array.from(modalRef?.querySelectorAll<HTMLElement>(focusableSelector) ?? []).filter(
     (element) => !element.hasAttribute('disabled') && element.tabIndex !== -1,
   )
 }
@@ -50,6 +53,12 @@ function getModalFocusableElements() {
 function focusInitialModalControl() {
   nextTick(() => {
     safetyConfirmRef.value?.focus()
+  })
+}
+
+function focusPrivacyModalControl() {
+  nextTick(() => {
+    privacyConfirmRef.value?.focus()
   })
 }
 
@@ -70,6 +79,18 @@ function openSafetyModal(event?: MouseEvent) {
         : null
   showSafetyModal.value = true
   focusInitialModalControl()
+}
+
+function openPrivacyModal(event?: MouseEvent) {
+  restoreFocusTarget.value =
+    event?.currentTarget instanceof HTMLElement
+      ? event.currentTarget
+      : document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null
+  showSafetyModal.value = false
+  showPrivacyModal.value = true
+  focusPrivacyModalControl()
 }
 
 function restoreFocusAfterModalClose() {
@@ -96,6 +117,11 @@ function closeSafetyModal() {
   restoreFocusAfterModalClose()
 }
 
+function closePrivacyModal() {
+  showPrivacyModal.value = false
+  restoreFocusAfterModalClose()
+}
+
 function handleModalKeydown(event: KeyboardEvent) {
   if (event.key === 'Escape') {
     event.preventDefault()
@@ -107,11 +133,45 @@ function handleModalKeydown(event: KeyboardEvent) {
     return
   }
 
-  const focusableElements = getModalFocusableElements()
+  const focusableElements = getModalFocusableElements(safetyModalRef.value)
 
   if (focusableElements.length === 0) {
     event.preventDefault()
     safetyModalRef.value?.focus()
+    return
+  }
+
+  const firstElement = focusableElements[0]!
+  const lastElement = focusableElements[focusableElements.length - 1]!
+
+  if (event.shiftKey && document.activeElement === firstElement) {
+    event.preventDefault()
+    lastElement.focus()
+    return
+  }
+
+  if (!event.shiftKey && document.activeElement === lastElement) {
+    event.preventDefault()
+    firstElement.focus()
+  }
+}
+
+function handlePrivacyKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    closePrivacyModal()
+    return
+  }
+
+  if (event.key !== 'Tab') {
+    return
+  }
+
+  const focusableElements = getModalFocusableElements(privacyModalRef.value)
+
+  if (focusableElements.length === 0) {
+    event.preventDefault()
+    privacyModalRef.value?.focus()
     return
   }
 
@@ -165,10 +225,15 @@ onMounted(() => {
           首次使用提示
         </p>
         <h2 id="safety-modal-title">使用前请了解安全边界</h2>
+        <p class="safety-intro">
+          舍友心晴仅用于宿舍压力趋势提示和沟通练习，不进行心理疾病诊断，也不评价任何舍友的人格或心理状态。
+        </p>
         <ul class="safety-modal-list">
-          <li>不进行心理疾病诊断，只提供宿舍关系压力趋势提示。</li>
-          <li>不评价任何舍友的人格或心理状态，只帮助你整理事件和表达方式。</li>
-          <li>Demo 阶段不采集真实身份信息，请避免填写姓名、学号、电话等敏感内容。</li>
+          <li>压力值只用于关系压力趋势提示，不作为医学或心理诊断依据。</li>
+          <li>
+            如果出现高压力、严重冲突、持续失眠、强烈焦虑或暴力风险，请及时联系辅导员、心理老师、家人或可信任同学。
+          </li>
+          <li>Demo 阶段不采集真实身份信息，演示数据使用虚拟样例。</li>
         </ul>
         <div class="modal-actions">
           <button
@@ -179,6 +244,54 @@ onMounted(() => {
           >
             我已了解，开始使用
             <span class="action-icon material-symbol" aria-hidden="true">arrow_forward</span>
+          </button>
+          <button
+            class="secondary-action"
+            type="button"
+            @click="openPrivacyModal"
+          >
+            查看隐私原则
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <div v-if="showPrivacyModal" class="safety-modal-overlay" role="presentation">
+      <section
+        ref="privacyModalRef"
+        class="safety-modal pop-card pop-shadow"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="privacy-modal-title"
+        tabindex="-1"
+        @keydown="handlePrivacyKeydown"
+      >
+        <button
+          class="modal-close material-symbol"
+          type="button"
+          aria-label="关闭隐私说明"
+          @click="closePrivacyModal"
+        >
+          close
+        </button>
+        <p class="eyebrow pill-label">
+          <span class="material-symbol" aria-hidden="true">verified_user</span>
+          隐私说明
+        </p>
+        <h2 id="privacy-modal-title">查看隐私原则</h2>
+        <ul class="safety-modal-list">
+          <li>演示数据使用虚拟样例，不采集真实姓名、学号、电话等真实身份信息。</li>
+          <li>仅保留支持关系趋势分析所需的最小字段。</li>
+          <li>本建议用于沟通练习，不作为心理诊断或医学判断依据。</li>
+        </ul>
+        <div class="modal-actions">
+          <button
+            ref="privacyConfirmRef"
+            class="primary-action pop-shadow"
+            type="button"
+            @click="closePrivacyModal"
+          >
+            我已了解
           </button>
         </div>
       </section>
@@ -193,7 +306,7 @@ onMounted(() => {
         <h1>
           舍友心晴：<br />
           <span class="hero-highlight">
-            大学生宿舍压力预警与沟通演练助手
+            宿舍压力预警与沟通演练助手
             <svg
               class="hero-squiggle"
               viewBox="0 0 100 20"
@@ -265,13 +378,16 @@ onMounted(() => {
         >
           {{ card.action }}
         </RouterLink>
+        <RouterLink
+          v-else-if="card.action === '查看报告'"
+          class="feature-action"
+          :to="{ name: 'analysis' }"
+        >
+          {{ card.action }}
+        </RouterLink>
         <button v-else class="feature-action" type="button">{{ card.action }}</button>
       </article>
     </section>
 
-    <section class="safety-strip pop-shadow">
-      <strong>安全边界</strong>
-      <span>仅提供压力趋势提示和沟通练习，不进行心理疾病诊断，不评价用户或舍友人格。</span>
-    </section>
   </main>
 </template>
