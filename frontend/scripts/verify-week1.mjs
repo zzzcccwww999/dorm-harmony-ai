@@ -127,12 +127,17 @@ requireRegex(
   /\.sidebar\.pop-shadow:hover[\s\S]*transform:\s*none/,
   'sidebar hover override that prevents whole-sidebar movement',
 )
-requireCssRuleIncludes('src/styles/main.css', '.sidebar', ['position: relative', 'min-height: 100vh'])
+requireCssRuleIncludes('src/styles/main.css', '.sidebar', [
+  'position: relative',
+  'align-self: flex-start',
+  'height: fit-content',
+])
 requireCssRuleExcludes('src/styles/main.css', '.sidebar', [
   'position: sticky',
   'position: fixed',
   'top: 0',
   'height: 100vh',
+  'min-height: 100vh',
 ])
 
 requireIncludes('src/views/HomeView.vue', [
