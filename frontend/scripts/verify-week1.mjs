@@ -127,17 +127,26 @@ requireRegex(
   /\.sidebar\.pop-shadow:hover[\s\S]*transform:\s*none/,
   'sidebar hover override that prevents whole-sidebar movement',
 )
+requireCssRuleIncludes('src/styles/main.css', '.sidebar.pop-shadow', [
+  'box-shadow: 4px 0 0 0 var(--shadow-dark)',
+])
+requireCssRuleIncludes('src/styles/main.css', '.sidebar.pop-shadow:hover', [
+  'box-shadow: 4px 0 0 0 var(--shadow-dark)',
+  'transform: none',
+])
 requireCssRuleIncludes('src/styles/main.css', '.sidebar', [
+  'position: sticky',
+  'top: 0',
+  'flex: 0 0 16rem',
+  'width: 16rem',
+  'height: 100vh',
+])
+requireCssRuleExcludes('src/styles/main.css', '.sidebar', [
+  'position: fixed',
   'position: relative',
   'align-self: flex-start',
   'flex: 0 0 32rem',
   'width: 32rem',
-  'height: 100vh',
-])
-requireCssRuleExcludes('src/styles/main.css', '.sidebar', [
-  'position: sticky',
-  'position: fixed',
-  'top: 0',
   'height: fit-content',
   'min-height: 100vh',
 ])
