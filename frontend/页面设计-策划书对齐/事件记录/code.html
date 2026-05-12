@@ -239,7 +239,7 @@
 <input checked="" class="peer sr-only" name="event_type" type="radio" value="routine"/>
 <div class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface-container card-border peer-checked:bg-primary peer-checked:text-white transition-all peer-checked:shadow-[4px_4px_0px_0px] peer-checked:shadow-on-surface hover:-translate-y-1">
 <span class="material-symbols-outlined text-3xl">schedule</span>
-<span class="font-bold">作息</span>
+<span class="font-bold">作息冲突</span>
 </div>
 </label>
 <!-- 卫生 -->
@@ -247,7 +247,7 @@
 <input class="peer sr-only" name="event_type" type="radio" value="hygiene"/>
 <div class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface-container card-border peer-checked:bg-primary peer-checked:text-white transition-all peer-checked:shadow-[4px_4px_0px_0px] peer-checked:shadow-on-surface hover:-translate-y-1">
 <span class="material-symbols-outlined text-3xl">cleaning_services</span>
-<span class="font-bold">卫生</span>
+<span class="font-bold">卫生冲突</span>
 </div>
 </label>
 <!-- 噪音 -->
@@ -255,7 +255,7 @@
 <input class="peer sr-only" name="event_type" type="radio" value="noise"/>
 <div class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface-container card-border peer-checked:bg-primary peer-checked:text-white transition-all peer-checked:shadow-[4px_4px_0px_0px] peer-checked:shadow-on-surface hover:-translate-y-1">
 <span class="material-symbols-outlined text-3xl">volume_up</span>
-<span class="font-bold">噪音</span>
+<span class="font-bold">噪音冲突</span>
 </div>
 </label>
 <!-- 费用 -->
@@ -263,7 +263,7 @@
 <input class="peer sr-only" name="event_type" type="radio" value="finance"/>
 <div class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface-container card-border peer-checked:bg-primary peer-checked:text-white transition-all peer-checked:shadow-[4px_4px_0px_0px] peer-checked:shadow-on-surface hover:-translate-y-1">
 <span class="material-symbols-outlined text-3xl">payments</span>
-<span class="font-bold">费用</span>
+<span class="font-bold">费用冲突</span>
 </div>
 </label>
 <!-- 隐私 -->
@@ -271,7 +271,7 @@
 <input class="peer sr-only" name="event_type" type="radio" value="privacy"/>
 <div class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface-container card-border peer-checked:bg-primary peer-checked:text-white transition-all peer-checked:shadow-[4px_4px_0px_0px] peer-checked:shadow-on-surface hover:-translate-y-1">
 <span class="material-symbols-outlined text-3xl">visibility_off</span>
-<span class="font-bold">隐私</span>
+<span class="font-bold">隐私边界</span>
 </div>
 </label>
 <!-- 情绪 -->
@@ -279,7 +279,7 @@
 <input class="peer sr-only" name="event_type" type="radio" value="emotion"/>
 <div class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface-container card-border peer-checked:bg-primary peer-checked:text-white transition-all peer-checked:shadow-[4px_4px_0px_0px] peer-checked:shadow-on-surface hover:-translate-y-1">
 <span class="material-symbols-outlined text-3xl">mood_bad</span>
-<span class="font-bold">情绪</span>
+<span class="font-bold">情绪冲突</span>
 </div>
 </label>
 </div>
@@ -291,7 +291,7 @@
 <div class="w-8 h-8 rounded-full bg-quaternary flex items-center justify-center card-border">
 <span class="material-symbols-outlined text-white text-sm">trending_up</span>
 </div>
-                            影响程度
+                            严重程度
                         </legend>
 <div class="relative pt-6 pb-2">
 <input class="w-full h-4 bg-white rounded-full appearance-none cursor-pointer card-border outline-none focus:ring-4 focus:ring-primary-fixed-dim shadow-[2px_2px_0px_0px_rgba(30,41,59,1)]" max="5" min="1" type="range" value="3"/>
@@ -314,16 +314,16 @@
                         </legend>
 <div class="flex flex-wrap gap-4 mt-2">
 <label class="cursor-pointer">
-<input checked="" class="peer sr-only" name="frequency" type="radio" value="first_time"/>
-<div class="px-6 py-3 rounded-full bg-white card-border peer-checked:bg-accent peer-checked:text-white font-bold transition-colors shadow-[2px_2px_0px_0px_rgba(30,41,59,1)]">首次</div>
-</label>
-<label class="cursor-pointer">
-<input class="peer sr-only" name="frequency" type="radio" value="occasional"/>
+<input checked="" class="peer sr-only" name="frequency" type="radio" value="occasional"/>
 <div class="px-6 py-3 rounded-full bg-white card-border peer-checked:bg-accent peer-checked:text-white font-bold transition-colors shadow-[2px_2px_0px_0px_rgba(30,41,59,1)]">偶尔</div>
 </label>
 <label class="cursor-pointer">
-<input class="peer sr-only" name="frequency" type="radio" value="frequent"/>
-<div class="px-6 py-3 rounded-full bg-white card-border peer-checked:bg-accent peer-checked:text-white font-bold transition-colors shadow-[2px_2px_0px_0px_rgba(30,41,59,1)]">频繁</div>
+<input class="peer sr-only" name="frequency" type="radio" value="weekly_multiple"/>
+<div class="px-6 py-3 rounded-full bg-white card-border peer-checked:bg-accent peer-checked:text-white font-bold transition-colors shadow-[2px_2px_0px_0px_rgba(30,41,59,1)]">每周多次</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="frequency" type="radio" value="daily"/>
+<div class="px-6 py-3 rounded-full bg-white card-border peer-checked:bg-accent peer-checked:text-white font-bold transition-colors shadow-[2px_2px_0px_0px_rgba(30,41,59,1)]">几乎每天</div>
 </label>
 </div>
 </fieldset>
@@ -339,31 +339,87 @@
 <div class="flex gap-4 overflow-x-auto pb-4 px-2">
 <!-- Emotion 1 -->
 <label class="cursor-pointer shrink-0">
-<input class="peer sr-only" name="emotion" type="radio" value="happy"/>
-<div class="w-16 h-16 rounded-full bg-white card-border flex items-center justify-center peer-checked:bg-tertiary transition-all peer-checked:shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] hover:-translate-y-1">
-<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">sentiment_very_satisfied</span>
+<input checked="" class="peer sr-only" name="emotion" type="radio" value="irritable"/>
+<div class="min-w-24 px-4 py-3 rounded-full bg-white card-border flex items-center justify-center gap-2 peer-checked:bg-tertiary transition-all peer-checked:shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] hover:-translate-y-1">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">sentiment_dissatisfied</span>
+<span class="font-bold">烦躁</span>
 </div>
 </label>
 <!-- Emotion 2 -->
 <label class="cursor-pointer shrink-0">
-<input checked="" class="peer sr-only" name="emotion" type="radio" value="neutral"/>
-<div class="w-16 h-16 rounded-full bg-white card-border flex items-center justify-center peer-checked:bg-tertiary transition-all peer-checked:shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] hover:-translate-y-1">
-<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">sentiment_neutral</span>
+<input class="peer sr-only" name="emotion" type="radio" value="anxious"/>
+<div class="min-w-24 px-4 py-3 rounded-full bg-white card-border flex items-center justify-center gap-2 peer-checked:bg-tertiary transition-all peer-checked:shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] hover:-translate-y-1">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<span class="font-bold">焦虑</span>
 </div>
 </label>
 <!-- Emotion 3 -->
 <label class="cursor-pointer shrink-0">
-<input class="peer sr-only" name="emotion" type="radio" value="sad"/>
-<div class="w-16 h-16 rounded-full bg-white card-border flex items-center justify-center peer-checked:bg-tertiary transition-all peer-checked:shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] hover:-translate-y-1">
-<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">sentiment_dissatisfied</span>
+<input class="peer sr-only" name="emotion" type="radio" value="wronged"/>
+<div class="min-w-24 px-4 py-3 rounded-full bg-white card-border flex items-center justify-center gap-2 peer-checked:bg-tertiary transition-all peer-checked:shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] hover:-translate-y-1">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">sentiment_sad</span>
+<span class="font-bold">委屈</span>
 </div>
 </label>
 <!-- Emotion 4 -->
 <label class="cursor-pointer shrink-0">
 <input class="peer sr-only" name="emotion" type="radio" value="angry"/>
-<div class="w-16 h-16 rounded-full bg-white card-border flex items-center justify-center peer-checked:bg-tertiary transition-all peer-checked:shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] hover:-translate-y-1">
-<span class="material-symbols-outlined text-4xl text-error" style="font-variation-settings: 'FILL' 1;">sentiment_extremely_dissatisfied</span>
+<div class="min-w-24 px-4 py-3 rounded-full bg-white card-border flex items-center justify-center gap-2 peer-checked:bg-tertiary transition-all peer-checked:shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] hover:-translate-y-1">
+<span class="material-symbols-outlined text-2xl text-error" style="font-variation-settings: 'FILL' 1;">sentiment_extremely_dissatisfied</span>
+<span class="font-bold">愤怒</span>
 </div>
+</label>
+<!-- Emotion 5 -->
+<label class="cursor-pointer shrink-0">
+<input class="peer sr-only" name="emotion" type="radio" value="helpless"/>
+<div class="min-w-24 px-4 py-3 rounded-full bg-white card-border flex items-center justify-center gap-2 peer-checked:bg-tertiary transition-all peer-checked:shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] hover:-translate-y-1">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">sentiment_neutral</span>
+<span class="font-bold">无奈</span>
+</div>
+</label>
+<!-- Emotion 6 -->
+<label class="cursor-pointer shrink-0">
+<input class="peer sr-only" name="emotion" type="radio" value="repressed"/>
+<div class="min-w-24 px-4 py-3 rounded-full bg-white card-border flex items-center justify-center gap-2 peer-checked:bg-tertiary transition-all peer-checked:shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] hover:-translate-y-1">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">sentiment_stressed</span>
+<span class="font-bold">压抑</span>
+</div>
+</label>
+</div>
+</fieldset>
+<fieldset class="bg-surface-container-low p-6 rounded-xl card-border">
+<legend class="text-label-bold font-label-bold text-on-surface uppercase tracking-wider mb-4 flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-quaternary flex items-center justify-center card-border">
+<span class="material-symbols-outlined text-white text-sm">forum</span>
+</div>
+    是否已经沟通
+  </legend>
+<div class="flex flex-wrap gap-4">
+<label class="cursor-pointer">
+<input class="peer sr-only" name="has_communicated" type="radio" value="yes"/>
+<div class="px-6 py-3 rounded-full bg-white card-border peer-checked:bg-quaternary font-bold">是</div>
+</label>
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" name="has_communicated" type="radio" value="no"/>
+<div class="px-6 py-3 rounded-full bg-white card-border peer-checked:bg-secondary peer-checked:text-white font-bold">否</div>
+</label>
+</div>
+</fieldset>
+<fieldset class="bg-surface-container-low p-6 rounded-xl card-border">
+<legend class="text-label-bold font-label-bold text-on-surface uppercase tracking-wider mb-4 flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-error flex items-center justify-center card-border">
+<span class="material-symbols-outlined text-white text-sm">warning</span>
+</div>
+    是否出现争吵或冷战
+  </legend>
+<div class="flex flex-wrap gap-4">
+<label class="cursor-pointer">
+<input class="peer sr-only" name="has_conflict" type="radio" value="yes"/>
+<div class="px-6 py-3 rounded-full bg-white card-border peer-checked:bg-error peer-checked:text-white font-bold">是</div>
+</label>
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" name="has_conflict" type="radio" value="no"/>
+<div class="px-6 py-3 rounded-full bg-white card-border peer-checked:bg-quaternary font-bold">否</div>
 </label>
 </div>
 </fieldset>
