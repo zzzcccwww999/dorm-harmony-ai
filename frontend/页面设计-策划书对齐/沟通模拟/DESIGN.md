@@ -282,3 +282,7 @@ No blur. Solid offset colors.
 - **Color**: Never rely *only* on color. Use shapes and text labels.
 - **Motion**: Respect `prefers-reduced-motion`. Disable the "bounce" and "wiggle" effects if preferred.
 - **Focus**: The focus state is high-contrast (thick colored border + hard shadow).
+
+## 策划书对齐说明
+
+本页保留原沟通模拟页的角色卡片和聊天界面结构，补充场景选择，并将交互状态调整为三位 AI 舍友基于同一句用户话术分别回应。
