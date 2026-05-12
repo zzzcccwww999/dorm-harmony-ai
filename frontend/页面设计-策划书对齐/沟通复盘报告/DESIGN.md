@@ -282,3 +282,7 @@ No blur. Solid offset colors.
 - **Color**: Never rely *only* on color. Use shapes and text labels.
 - **Motion**: Respect `prefers-reduced-motion`. Disable the "bounce" and "wiggle" effects if preferred.
 - **Focus**: The focus state is high-contrast (thick colored border + hard shadow).
+
+## 策划书对齐说明
+
+本页保留原复盘报告页的评分卡、闪光点与注意点、建议话术布局，补齐策划书要求的感受表达、具体请求、沟通空间、后续行动建议和安全提示。
