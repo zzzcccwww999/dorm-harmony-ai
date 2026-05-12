@@ -169,20 +169,26 @@ requireCssRuleIncludes('src/styles/main.css', '.sidebar', [
   'position: fixed',
   'top: 0',
   'left: 0',
-  'flex: 0 0 16rem',
-  'width: 16rem',
+  'flex: 0 0 20rem',
+  'width: 20rem',
   'height: 100vh',
 ])
 requireCssRuleExcludes('src/styles/main.css', '.sidebar', [
   'position: sticky',
   'position: relative',
   'align-self: flex-start',
+  'flex: 0 0 16rem',
+  'width: 16rem',
   'flex: 0 0 32rem',
   'width: 32rem',
   'height: fit-content',
   'min-height: 100vh',
 ])
-requireCssRuleIncludes('src/styles/main.css', '.content-shell', ['margin-left: 16rem'])
+requireCssRuleIncludes('src/styles/main.css', '.content-shell', ['margin-left: 20rem'])
+requireCssRuleExcludes('src/styles/main.css', '.content-shell', [
+  'margin-left: 16rem',
+  'margin-left: 32rem',
+])
 requireCssRuleIncludesAfter(
   'src/styles/main.css',
   '@media (max-width: 1040px) {',
@@ -191,6 +197,12 @@ requireCssRuleIncludesAfter(
   'mobile layout media query',
 )
 requireCssRuleIncludes('src/styles/main.css', '.sidebar-cta', ['margin-top: auto'])
+requireCssRuleIncludes('src/styles/main.css', '.sidebar .nav-pill .material-symbol', [
+  'font-size: 1.5rem',
+])
+requireCssRuleIncludes('src/styles/main.css', '.sidebar-cta .material-symbol', [
+  'font-size: 1rem',
+])
 
 requireIncludes('src/views/HomeView.vue', [
   '舍友心晴',
