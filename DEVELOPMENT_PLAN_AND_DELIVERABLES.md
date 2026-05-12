@@ -86,6 +86,21 @@
 | 压力分析页基础版 | 曹乐 | 能展示压力分析结果区域 |
 | 前端接口字段对照表 | 曹乐 | 说明前端字段如何对应后端接口 |
 
+### 4.4 第一阶段后端 / 基础文档状态记录
+
+本次后端文档整理只覆盖朱春雯负责的 B1-1 至 B1-6，不修改曹乐负责的前端页面、前端文档或展示材料。
+
+| 任务编号 | 当前状态 | 证据 |
+| --- | --- | --- |
+| B1-1 | 已完成 | `README.md`、本文件和 `docs/phase1-status.md` 已明确 Demo 核心范围与第一阶段边界 |
+| B1-2 | 已完成接口字段草案 | `docs/backend-api-contract.md` 记录 `/health`、`/api/analyze` 已实现接口，并为 `/api/simulate`、`/api/review` 补充请求 / 响应 JSON 草案；两者仍标明为第二阶段草案，第一阶段未实现运行时路由 |
+| B1-3 | 已完成 | `docs/scoring-model.md` 记录第一阶段规则评分模型、风险区间和典型案例 |
+| B1-4 | 已完成 | `backend/app/main.py`、`backend/app/schemas.py`、`backend/app/scoring.py`、`backend/app/safety.py` 已形成 FastAPI 后端基础结构 |
+| B1-5 | 已完成 | `POST /api/analyze` 已返回结构化压力分析结果，`backend/tests/test_api.py` 覆盖典型 76 分案例 |
+| B1-6 | 已完成 | `README.md`、`docs/backend-api-contract.md`、`docs/scoring-model.md`、`docs/phase1-status.md` 已补齐第一阶段基础文档 |
+
+第一阶段未完成或未覆盖内容：`/api/simulate` 运行时、`/api/review` 运行时、LangChain / 大模型调用、历史记录存储与查询均未实现；曹乐负责的前端任务状态保持原计划描述，不在本次后端文档任务中变更。
+
 ## 5. 第二阶段：核心功能开发
 
 时间：第 3-4 天
@@ -229,4 +244,3 @@
 | 复盘报告 | 能输出表达总结、优点、问题、优化话术、后续建议和安全提示 |
 | 安全边界 | 不输出心理诊断、人格评价或攻击性建议 |
 | 线上材料 | 策划文档、网页 Demo、演示视频、宣传海报、创意与场景说明准备完整 |
-
