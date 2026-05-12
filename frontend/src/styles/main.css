@@ -144,15 +144,14 @@ h3,
 }
 
 .sidebar {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 30;
   display: flex;
   flex: 0 0 16rem;
   flex-direction: column;
   gap: 24px;
   width: 16rem;
-  height: 100vh;
+  min-height: 100vh;
   padding: 24px;
   border-width: 0 2px 0 0;
   border-radius: 0;

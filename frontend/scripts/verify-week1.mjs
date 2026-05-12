@@ -44,6 +44,48 @@ function requireRegex(relativePath, pattern, description) {
   }
 }
 
+function requireCssRuleIncludes(relativePath, selector, declarations) {
+  const content = read(relativePath)
+  const rule = content.match(new RegExp(`${selector.replaceAll('.', '\\.')}\\s*\\{([^}]*)\\}`))
+
+  if (!rule) {
+    failures.push(`${relativePath} is missing ${selector} rule`)
+    return
+  }
+
+  const ruleDeclarations = rule[1]
+    .split(';')
+    .map((declaration) => declaration.trim())
+    .filter(Boolean)
+
+  for (const declaration of declarations) {
+    if (!ruleDeclarations.includes(declaration)) {
+      failures.push(`${relativePath} ${selector} rule is missing "${declaration}"`)
+    }
+  }
+}
+
+function requireCssRuleExcludes(relativePath, selector, declarations) {
+  const content = read(relativePath)
+  const rule = content.match(new RegExp(`${selector.replaceAll('.', '\\.')}\\s*\\{([^}]*)\\}`))
+
+  if (!rule) {
+    failures.push(`${relativePath} is missing ${selector} rule`)
+    return
+  }
+
+  const ruleDeclarations = rule[1]
+    .split(';')
+    .map((declaration) => declaration.trim())
+    .filter(Boolean)
+
+  for (const declaration of declarations) {
+    if (ruleDeclarations.includes(declaration)) {
+      failures.push(`${relativePath} ${selector} rule should not include "${declaration}"`)
+    }
+  }
+}
+
 requireIncludes('src/router/index.ts', ['/', '/record', '/analysis', 'HomeView', 'RecordView', 'AnalysisView'])
 requireIncludes('index.html', [
   'fonts.googleapis.com/css2',
@@ -85,6 +127,13 @@ requireRegex(
   /\.sidebar\.pop-shadow:hover[\s\S]*transform:\s*none/,
   'sidebar hover override that prevents whole-sidebar movement',
 )
+requireCssRuleIncludes('src/styles/main.css', '.sidebar', ['position: relative', 'min-height: 100vh'])
+requireCssRuleExcludes('src/styles/main.css', '.sidebar', [
+  'position: sticky',
+  'position: fixed',
+  'top: 0',
+  'height: 100vh',
+])
 
 requireIncludes('src/views/HomeView.vue', [
   '舍友心晴',
