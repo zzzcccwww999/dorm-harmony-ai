@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DormHarmony - 压力分析页面</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800&amp;family=Plus+Jakarta+Sans:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-container": "#fc79bd",
+                    "on-primary-container": "#fffbff",
+                    "on-secondary-fixed-variant": "#85145a",
+                    "secondary-fixed": "#ffd8e7",
+                    "card": "#FFFFFF",
+                    "on-surface": "#1d1a23",
+                    "surface-dim": "#ded7e4",
+                    "surface-tint": "#6d3bd7",
+                    "on-tertiary-container": "#fffbff",
+                    "on-primary-fixed": "#23005c",
+                    "surface-variant": "#e7e0ed",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "shadow-dark": "#1E293B",
+                    "surface-container": "#f3ebf8",
+                    "inverse-primary": "#d0bcff",
+                    "on-tertiary-fixed-variant": "#673d00",
+                    "on-surface-variant": "#494454",
+                    "on-background": "#1d1a23",
+                    "error": "#ba1a1a",
+                    "muted": "#F1F5F9",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed-variant": "#5516be",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed": "#2c1700",
+                    "secondary-fixed-dim": "#ffafd3",
+                    "surface-container-high": "#ede5f3",
+                    "inverse-surface": "#322f39",
+                    "surface": "#fef7ff",
+                    "inverse-on-surface": "#f5eefb",
+                    "surface-container-low": "#f8f1fe",
+                    "primary": "#6b38d4",
+                    "secondary": "#F472B6",
+                    "primary-fixed-dim": "#d0bcff",
+                    "primary-container": "#8455ef",
+                    "tertiary-container": "#a76500",
+                    "tertiary-fixed": "#ffdcbb",
+                    "outline": "#7b7486",
+                    "border": "#E2E8F0",
+                    "tertiary-fixed-dim": "#ffb869",
+                    "on-secondary": "#ffffff",
+                    "surface-container-highest": "#e7e0ed",
+                    "tertiary": "#FBBF24",
+                    "background": "#FFFDF5",
+                    "quaternary": "#34D399",
+                    "accent": "#8B5CF6",
+                    "surface-bright": "#fef7ff",
+                    "outline-variant": "#cbc3d7",
+                    "primary-fixed": "#e9ddff",
+                    "foreground": "#1E293B",
+                    "on-secondary-fixed": "#3d0026",
+                    "on-secondary-container": "#76014e",
+                    "muted-foreground": "#64748B"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit-md": "1.5rem",
+                    "container-max": "1152px",
+                    "gutter": "1.5rem",
+                    "unit-lg": "2rem",
+                    "unit-sm": "1rem",
+                    "shadow-offset": "4px",
+                    "shadow-offset-hover": "6px",
+                    "unit-xs": "0.5rem",
+                    "section-padding": "6rem"
+            },
+            "fontFamily": {
+                    "body-md": ["Plus Jakarta Sans"],
+                    "label-bold": ["Plus Jakarta Sans"],
+                    "headline-md": ["Outfit"],
+                    "headline-lg": ["Outfit"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "headline-xl": ["Outfit"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-bold": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-md": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "headline-lg": ["48px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-xl": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .bg-diagonal-stripes {
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(107, 56, 212, 0.05) 20px, rgba(107, 56, 212, 0.05) 22px);
+        }
+        .bezier-bounce {
+            transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--tw-colors-background); 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--tw-colors-surface-variant); 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--tw-colors-outline); 
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased overflow-x-hidden light">
+<div class="flex h-screen overflow-hidden">
+<!-- Desktop SideNavBar -->
+<aside class="hidden lg:flex flex-col gap-unit-md p-unit-md h-screen sticky left-0 w-64 border-r-2 border-on-surface shadow-[4px_0px_0px_0px] shadow-on-surface bg-surface dark:bg-inverse-surface z-40">
+<!-- Header -->
+<div class="flex items-center gap-3 mb-6">
+<div class="w-12 h-12 rounded-full border-2 border-on-surface overflow-hidden shadow-[2px_2px_0px_0px] shadow-on-surface bg-tertiary">
+<img alt="DormHarmony Mascot" class="w-full h-full object-cover" data-alt="A stylized, cheerful cartoon mascot character representing a friendly dorm companion, designed in a bold Pop-Art style with thick black outlines, bright solid colors (primary purple and yellow), set against a clean studio lighting background. The expression is welcoming and optimistic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEfiEXKcVsYCS3SsRBq07pSOVZCFrCkf_La95TmB9d1lGxBtVN8DOrAmwZ7z5KUEuFeww5F585cZPOBlQMlBZ8CSkcXOL-bu4GIHAYv4X0YSQm45AEOeAkLLhs5h3PagHAsI7WJNq8qK4QZSeALAHLctzYblmNX4cyJQiWAoUKYckXZYf2XciwBpE77ue5mFP1Blp7yzvaqg8uOpdEzkqCSMe4PWGa4oUR96N2Wxj5PH9Ac9ec6zEk0FeBKmZdm3Yz7U-pHawVKsg"/>
+</div>
+<div>
+<h1 class="text-headline-sm font-headline-sm font-black text-on-surface dark:text-surface-bright text-xl">舍友心晴</h1>
+<p class="text-label-bold font-label-bold text-on-surface-variant text-xs mt-1">Harmony Hub</p>
+</div>
+</div>
+<!-- Navigation Tabs -->
+<nav class="flex-1 flex flex-col gap-2">
+<!-- Home (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:scale-105 transition-transform bezier-bounce active:scale-95 text-label-bold font-label-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+                Home
+            </a>
+<!-- Record (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:scale-105 transition-transform bezier-bounce active:scale-95 text-label-bold font-label-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">edit_note</span>
+                Record
+            </a>
+<!-- Analysis (Active) -->
+<a class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container rounded-xl border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface text-label-bold font-label-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+                Analysis
+            </a>
+<!-- Sandbox (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:scale-105 transition-transform bezier-bounce active:scale-95 text-label-bold font-label-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">psychology</span>
+                Sandbox
+            </a>
+<!-- Report (Inactive) -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:scale-105 transition-transform bezier-bounce active:scale-95 text-label-bold font-label-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">summarize</span>
+                Report
+            </a>
+</nav>
+<!-- CTA -->
+<button class="mt-auto flex items-center justify-center gap-2 w-full bg-primary text-on-primary rounded-full px-4 py-3 border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface font-label-bold hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px] active:translate-y-0.5 active:shadow-[2px_2px_0px_0px] transition-all bezier-bounce">
+<span class="material-symbols-outlined text-[18px]">add</span>
+            Log Incident
+        </button>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-full overflow-y-auto relative bg-diagonal-stripes pb-24 lg:pb-0">
+<!-- Mobile TopAppBar -->
+<header class="flex lg:hidden justify-between items-center w-full px-gutter h-16 sticky top-0 z-50 bg-background dark:bg-inverse-surface border-b-2 border-on-surface dark:border-outline-variant shadow-[4px_4px_0px_0px] shadow-on-surface dark:shadow-shadow-dark">
+<div class="text-headline-md font-headline-md font-extrabold text-primary dark:text-primary-fixed text-2xl tracking-tight">
+                DormHarmony
+            </div>
+<div class="flex items-center gap-3">
+<button class="w-10 h-10 flex items-center justify-center rounded-full border-2 border-on-surface text-on-surface bg-card hover:bg-secondary-container hover:text-on-secondary-container transition-all duration-200 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none shadow-[2px_2px_0px_0px] shadow-on-surface">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full border-2 border-on-surface overflow-hidden shadow-[2px_2px_0px_0px] shadow-on-surface bg-tertiary">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A stylized, cheerful cartoon mascot character representing a friendly dorm companion, designed in a bold Pop-Art style with thick black outlines, bright solid colors (primary purple and yellow), set against a clean studio lighting background. The expression is welcoming and optimistic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuApScC6mJfE1MwlRLM5jpNWxkPtQJkxdyU1zeuHpA3cWSzZ2LCEq12o-P4MXJiA-pOb25fzdvbLhx-KywBd7X9u50GQ0Jpxb2IhLpbUx9d5tKjhe7ECbHW5tqcHyo-_ELmq_5MIvxpbfYIpaZaEs5xpfGdVOmcyyxWcyB3v2EizyMGdu1HxKRHWjarWeSvsgedZr2njJg8M582gXHhF6FzpFiFokIUprhqClH9nurZm0WRIvZ6iqPwaAqczn_AYlSVGx-6ZA7_f4xw"/>
+</div>
+</div>
+</header>
+<!-- Decorative Wild Elements -->
+<div class="absolute inset-0 pointer-events-none overflow-hidden z-0 hidden md:block">
+<!-- Squiggle -->
+<svg class="absolute top-20 right-20 w-32 h-32 text-secondary opacity-50" fill="none" viewbox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+<path d="M20 100 Q 50 20, 100 100 T 180 100" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="12"></path>
+</svg>
+<!-- Circle -->
+<div class="absolute bottom-40 left-10 w-16 h-16 rounded-full border-4 border-quaternary opacity-60"></div>
+<!-- Dots -->
+<div class="absolute top-1/2 right-10 w-24 h-24" style="background-image: radial-gradient(var(--tw-colors-tertiary) 3px, transparent 3px); background-size: 16px 16px; opacity: 0.4;"></div>
+</div>
+<!-- Canvas Content -->
+<div class="max-w-[1152px] w-full mx-auto px-gutter py-unit-lg z-10">
+<!-- Page Header -->
+<div class="mb-unit-lg flex items-center justify-between">
+<div>
+<h2 class="text-headline-lg font-headline-lg text-on-surface flex items-center gap-4">
+                        宿舍压力分析报告
+                        <span class="inline-block bg-tertiary text-on-surface px-3 py-1 rounded-full border-2 border-on-surface text-label-bold font-label-bold shadow-[2px_2px_0px_0px] shadow-on-surface transform -rotate-3">
+                            本周更新
+                        </span>
+</h2>
+<p class="text-body-lg font-body-lg text-on-surface-variant mt-2 max-w-2xl">
+                        通过对近期宿舍动态的分析，我们为您生成了这份专属的压力评估。保持关注，及时沟通！
+                    </p>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-unit-md md:gap-unit-lg">
+<!-- Core Metric Card (Current Stress Index) -->
+<div class="md:col-span-5 bg-card border-[3px] border-secondary rounded-2xl p-unit-lg relative shadow-[4px_4px_0px_0px] shadow-on-surface hover:shadow-[6px_6px_0px_0px] hover:-translate-y-1 transition-all bezier-bounce flex flex-col items-center justify-center text-center mt-6 md:mt-0">
+<!-- Icon Badge Header -->
+<div class="absolute -top-6 left-1/2 transform -translate-x-1/2 w-12 h-12 rounded-full border-2 border-on-surface bg-secondary flex items-center justify-center shadow-[2px_2px_0px_0px] shadow-on-surface">
+<span class="material-symbols-outlined text-on-primary text-[24px]" style="font-variation-settings: 'FILL' 1;">vital_signs</span>
+</div>
+<h3 class="text-headline-md font-headline-md text-on-surface mt-4 mb-6">当前压力指数</h3>
+<!-- Giant Circular Ring Metric -->
+<div class="relative w-48 h-48 mb-4">
+<svg class="w-full h-full transform -rotate-90">
+<!-- Background track -->
+<circle class="text-surface-variant" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" stroke-width="16"></circle>
+<!-- Progress track (76% of circumference 2 * pi * 80 ≈ 502.6) => 502.6 * 0.76 ≈ 382 -->
+<circle class="text-secondary stroke-current transition-all duration-1000 ease-out" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" stroke-dasharray="502.6" stroke-dashoffset="120.6" stroke-linecap="round" stroke-width="16"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center pt-2">
+<span class="text-headline-xl font-headline-xl text-on-surface leading-none tracking-tighter">76</span>
+<span class="text-label-bold font-label-bold text-on-surface-variant mt-1">/100</span>
+</div>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant font-medium">
+                        状态：<span class="text-error font-bold px-2 py-0.5 rounded bg-error-container border border-error">中度偏高</span>
+</p>
+</div>
+<!-- Stress Sources & Insights Column -->
+<div class="md:col-span-7 flex flex-col gap-unit-md mt-6 md:mt-0">
+<!-- Stress Sources Card (Bar Chart) -->
+<div class="bg-card border-[3px] border-primary rounded-2xl p-unit-lg relative shadow-[4px_4px_0px_0px] shadow-on-surface hover:shadow-[6px_6px_0px_0px] hover:-translate-y-1 transition-all bezier-bounce">
+<div class="absolute -top-6 left-6 w-12 h-12 rounded-full border-2 border-on-surface bg-primary flex items-center justify-center shadow-[2px_2px_0px_0px] shadow-on-surface">
+<span class="material-symbols-outlined text-on-primary text-[24px]" style="font-variation-settings: 'FILL' 1;">bar_chart</span>
+</div>
+<h3 class="text-headline-md font-headline-md text-on-surface mt-2 mb-6">主要压力来源</h3>
+<div class="space-y-6">
+<!-- Bar 1: Noise -->
+<div>
+<div class="flex justify-between text-label-bold font-label-bold text-on-surface mb-2 uppercase">
+<span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-error border border-on-surface"></span> 噪音 (Noise)</span>
+<span>45%</span>
+</div>
+<div class="w-full bg-surface-variant h-4 rounded-full border border-on-surface overflow-hidden">
+<div class="bg-error h-full border-r border-on-surface rounded-r-full" style="width: 45%;"></div>
+</div>
+</div>
+<!-- Bar 2: Schedule -->
+<div>
+<div class="flex justify-between text-label-bold font-label-bold text-on-surface mb-2 uppercase">
+<span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-tertiary border border-on-surface"></span> 作息 (Schedule)</span>
+<span>35%</span>
+</div>
+<div class="w-full bg-surface-variant h-4 rounded-full border border-on-surface overflow-hidden">
+<div class="bg-tertiary h-full border-r border-on-surface rounded-r-full" style="width: 35%;"></div>
+</div>
+</div>
+<!-- Bar 3: Hygiene -->
+<div>
+<div class="flex justify-between text-label-bold font-label-bold text-on-surface mb-2 uppercase">
+<span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-quaternary border border-on-surface"></span> 卫生 (Hygiene)</span>
+<span>20%</span>
+</div>
+<div class="w-full bg-surface-variant h-4 rounded-full border border-on-surface overflow-hidden">
+<div class="bg-quaternary h-full border-r border-on-surface rounded-r-full" style="width: 20%;"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- AI Insights Card -->
+<div class="bg-card border-[3px] border-accent rounded-2xl p-unit-lg relative shadow-[4px_4px_0px_0px] shadow-on-surface hover:shadow-[6px_6px_0px_0px] hover:-translate-y-1 transition-all bezier-bounce flex-1 flex flex-col">
+<div class="absolute -top-6 left-6 w-12 h-12 rounded-full border-2 border-on-surface bg-accent flex items-center justify-center shadow-[2px_2px_0px_0px] shadow-on-surface">
+<span class="material-symbols-outlined text-on-primary text-[24px]" style="font-variation-settings: 'FILL' 1;">tips_and_updates</span>
+</div>
+<h3 class="text-headline-md font-headline-md text-on-surface mt-2 mb-4">AI 心晴见解</h3>
+<p class="text-body-md font-body-md text-on-surface-variant mb-6 leading-relaxed flex-1">
+                            近期的噪音和作息差异是拉高宿舍压力指数的主要原因。建议在不影响彼此情绪的前提下，坦诚地表达您的感受。一次友好的沟通往往能化解大多数误会。
+                        </p>
+<!-- Candy Button CTA -->
+<button class="group self-start bg-on-surface text-surface rounded-full pl-6 pr-2 py-2 border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface font-label-bold flex items-center gap-4 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px] active:translate-y-0.5 active:shadow-[2px_2px_0px_0px] transition-all bezier-bounce">
+<span>进入沟通演练</span>
+<div class="w-10 h-10 bg-card rounded-full flex items-center justify-center border-2 border-on-surface text-on-surface group-hover:bg-tertiary transition-colors">
+<span class="material-symbols-outlined text-[20px] transform group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 lg:hidden bg-surface-container dark:bg-inverse-surface rounded-t-xl border-t-2 border-on-surface shadow-[0px_-4px_0px_0px] shadow-on-surface">
+<!-- Home (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-secondary-fixed dark:hover:bg-on-secondary-fixed-variant transition-colors rounded-lg p-2 active:translate-y-1 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="text-label-bold font-label-bold text-[10px] mt-1">Home</span>
+</a>
+<!-- Record (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-secondary-fixed dark:hover:bg-on-secondary-fixed-variant transition-colors rounded-lg p-2 active:translate-y-1 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">history_edu</span>
+<span class="text-label-bold font-label-bold text-[10px] mt-1">Record</span>
+</a>
+<!-- Analysis (Active) -->
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface active:translate-y-1 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">equalizer</span>
+<span class="text-label-bold font-label-bold text-[10px] mt-1">Analysis</span>
+</a>
+<!-- AI Sandbox (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-secondary-fixed dark:hover:bg-on-secondary-fixed-variant transition-colors rounded-lg p-2 active:translate-y-1 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">forum</span>
+<span class="text-label-bold font-label-bold text-[10px] mt-1">AI Sandbox</span>
+</a>
+<!-- Performance (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-secondary-fixed dark:hover:bg-on-secondary-fixed-variant transition-colors rounded-lg p-2 active:translate-y-1 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">assessment</span>
+<span class="text-label-bold font-label-bold text-[10px] mt-1">Performance</span>
+</a>
+</nav>
+</div>
+</body></html>

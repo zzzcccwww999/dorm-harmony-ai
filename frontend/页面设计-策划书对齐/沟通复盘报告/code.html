@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>沟通复盘报告 - DormHarmony</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&amp;family=Outfit:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-container": "#fc79bd",
+                    "on-primary-container": "#fffbff",
+                    "on-secondary-fixed-variant": "#85145a",
+                    "secondary-fixed": "#ffd8e7",
+                    "card": "#FFFFFF",
+                    "on-surface": "#1d1a23",
+                    "surface-dim": "#ded7e4",
+                    "surface-tint": "#6d3bd7",
+                    "on-tertiary-container": "#fffbff",
+                    "on-primary-fixed": "#23005c",
+                    "surface-variant": "#e7e0ed",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "shadow-dark": "#1E293B",
+                    "surface-container": "#f3ebf8",
+                    "inverse-primary": "#d0bcff",
+                    "on-tertiary-fixed-variant": "#673d00",
+                    "on-surface-variant": "#494454",
+                    "on-background": "#1d1a23",
+                    "error": "#ba1a1a",
+                    "muted": "#F1F5F9",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed-variant": "#5516be",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed": "#2c1700",
+                    "secondary-fixed-dim": "#ffafd3",
+                    "surface-container-high": "#ede5f3",
+                    "inverse-surface": "#322f39",
+                    "surface": "#fef7ff",
+                    "inverse-on-surface": "#f5eefb",
+                    "surface-container-low": "#f8f1fe",
+                    "primary": "#6b38d4",
+                    "secondary": "#F472B6",
+                    "primary-fixed-dim": "#d0bcff",
+                    "primary-container": "#8455ef",
+                    "tertiary-container": "#a76500",
+                    "tertiary-fixed": "#ffdcbb",
+                    "outline": "#7b7486",
+                    "border": "#E2E8F0",
+                    "tertiary-fixed-dim": "#ffb869",
+                    "on-secondary": "#ffffff",
+                    "surface-container-highest": "#e7e0ed",
+                    "tertiary": "#FBBF24",
+                    "background": "#FFFDF5",
+                    "quaternary": "#34D399",
+                    "accent": "#8B5CF6",
+                    "surface-bright": "#fef7ff",
+                    "outline-variant": "#cbc3d7",
+                    "primary-fixed": "#e9ddff",
+                    "foreground": "#1E293B",
+                    "on-secondary-fixed": "#3d0026",
+                    "on-secondary-container": "#76014e",
+                    "muted-foreground": "#64748B"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit-md": "1.5rem",
+                    "container-max": "1152px",
+                    "gutter": "1.5rem",
+                    "unit-lg": "2rem",
+                    "unit-sm": "1rem",
+                    "shadow-offset": "4px",
+                    "shadow-offset-hover": "6px",
+                    "unit-xs": "0.5rem",
+                    "section-padding": "6rem"
+            },
+            "fontFamily": {
+                    "body-md": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "label-bold": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "headline-md": [
+                            "Outfit"
+                    ],
+                    "headline-lg": [
+                            "Outfit"
+                    ],
+                    "body-lg": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "headline-xl": [
+                            "Outfit"
+                    ]
+            },
+            "fontSize": {
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-bold": [
+                            "14px",
+                            {
+                                    "lineHeight": "1",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-md": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-xl": [
+                            "64px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "800"
+                            }
+                    ]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .dot-pattern {
+            background-image: radial-gradient(circle, #E2E8F0 2px, transparent 2px);
+            background-size: 24px 24px;
+        }
+        .squiggle-bg {
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='12' viewBox='0 0 40 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 6c5 0 5-6 10-6s5 6 10 6 5-6 10-6 5 6 10 6' stroke='%23E2E8F0' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen relative overflow-x-hidden dot-pattern">
+<!-- Top Navigation (Mobile/Tablet Hidden) -->
+<header class="flex justify-between items-center w-full px-gutter h-16 sticky top-0 z-50 bg-background border-b-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface hidden md:flex">
+<div class="text-headline-md font-headline-md font-extrabold text-primary">DormHarmony</div>
+<div class="flex items-center gap-unit-sm">
+<button class="p-2 border-2 border-on-surface rounded-full bg-surface hover:bg-secondary-container hover:text-on-secondary-container transition-all duration-200 shadow-[2px_2px_0px_0px] shadow-on-surface active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_0px]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">notifications</span>
+</button>
+<button class="p-2 border-2 border-on-surface rounded-full bg-surface hover:bg-secondary-container hover:text-on-secondary-container transition-all duration-200 shadow-[2px_2px_0px_0px] shadow-on-surface active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_0px]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+</button>
+<div class="w-10 h-10 rounded-full border-2 border-on-surface overflow-hidden shadow-[2px_2px_0px_0px] shadow-on-surface ml-2">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A brightly lit, optimistic headshot of a young student in a pop-art style setting. The background is a flat, vibrant color. The lighting is even and flat, emphasizing the playful, sticker-book aesthetic of the DormHarmony app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCok3Htz5mnagFD4edyXp_HwL9ejekaGswgQgJ4EeFpx17j7YhFAq9trtFiAqRIClBK_rLnfj0CXpmlGcemdzt-z_iFasRATIEeOPlsaWRFUEdAiodJjKiKDl8qXQmj3Jr8u9X5LThDvgv157J_34jwtA557-l216NO81v8RJ78B8BNB3v9CboLOp6RdCTdQt88IZOqkFOibm2K9y3DWq7ivfCrRa6MVEyxEtcGx8a4gOiN5d39jGW3q9YAjnD-oh-9RFL8dqHyBjs"/>
+</div>
+</div>
+</header>
+<div class="flex max-w-container-max mx-auto">
+<!-- Side Navigation (Web) -->
+<nav class="hidden lg:flex flex-col gap-unit-md p-unit-md h-screen sticky left-0 w-64 border-r-2 border-on-surface shadow-[4px_0px_0px_0px] shadow-on-surface bg-surface z-40">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-12 h-12 rounded-full border-2 border-on-surface bg-tertiary flex items-center justify-center shadow-[2px_2px_0px_0px] shadow-on-surface">
+<span class="material-symbols-outlined text-on-surface">psychology</span>
+</div>
+<div>
+<h2 class="text-headline-sm font-headline-sm font-black text-on-surface">舍友心晴</h2>
+<p class="text-label-bold font-label-bold text-on-surface-variant">Harmony Hub</p>
+</div>
+</div>
+<div class="flex flex-col gap-2 flex-grow">
+<a class="flex items-center gap-3 p-3 rounded-xl text-on-surface-variant hover:text-on-surface hover:scale-105 transition-transform cubic-bezier(0.34,1.56,0.64,1)" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-label-bold font-label-bold">Home</span>
+</a>
+<a class="flex items-center gap-3 p-3 rounded-xl text-on-surface-variant hover:text-on-surface hover:scale-105 transition-transform cubic-bezier(0.34,1.56,0.64,1)" href="#">
+<span class="material-symbols-outlined">edit_note</span>
+<span class="text-label-bold font-label-bold">Record</span>
+</a>
+<a class="flex items-center gap-3 p-3 bg-primary-container text-on-primary-container rounded-xl border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface hover:scale-105 transition-transform cubic-bezier(0.34,1.56,0.64,1) active:scale-95" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="text-label-bold font-label-bold">Analysis</span>
+</a>
+<a class="flex items-center gap-3 p-3 rounded-xl text-on-surface-variant hover:text-on-surface hover:scale-105 transition-transform cubic-bezier(0.34,1.56,0.64,1)" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="text-label-bold font-label-bold">Sandbox</span>
+</a>
+<a class="flex items-center gap-3 p-3 rounded-xl text-on-surface-variant hover:text-on-surface hover:scale-105 transition-transform cubic-bezier(0.34,1.56,0.64,1)" href="#">
+<span class="material-symbols-outlined">summarize</span>
+<span class="text-label-bold font-label-bold">Report</span>
+</a>
+</div>
+<button class="mt-auto w-full py-3 rounded-full border-2 border-on-surface bg-primary text-on-primary font-label-bold text-label-bold shadow-[4px_4px_0px_0px] shadow-on-surface hover:shadow-[6px_6px_0px_0px] hover:-translate-y-1 hover:-translate-x-1 active:shadow-[2px_2px_0px_0px] active:translate-y-0 active:translate-x-0 transition-all flex items-center justify-center gap-2">
+<span class="bg-card text-primary rounded-full w-6 h-6 flex items-center justify-center border-2 border-on-surface">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</span>
+                Log Incident
+            </button>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow p-gutter md:p-section-padding pb-32 md:pb-gutter relative">
+<!-- Decorative Elements -->
+<div class="absolute top-20 right-10 w-24 h-24 rounded-full border-4 border-on-surface bg-secondary-container shadow-[4px_4px_0px_0px] shadow-on-surface hidden lg:block -z-10 animate-bounce" style="animation-duration: 3s;"></div>
+<div class="absolute bottom-40 left-10 w-16 h-16 border-4 border-on-surface bg-quaternary shadow-[4px_4px_0px_0px] shadow-on-surface rotate-12 hidden lg:block -z-10"></div>
+<div class="max-w-4xl mx-auto">
+<!-- Page Header -->
+<div class="mb-12 relative inline-block">
+<h1 class="text-headline-xl font-headline-xl text-on-background relative z-10">沟通复盘报告</h1>
+<div class="absolute -bottom-4 -right-8 w-full h-8 bg-tertiary-fixed-dim -z-10 border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface"></div>
+</div>
+<!-- Performance Summary Area -->
+<section class="mb-16">
+<h2 class="text-headline-md font-headline-md mb-6 inline-block border-b-4 border-primary">表现总结</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Clarity Score -->
+<div class="bg-card p-6 rounded-2xl border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface flex flex-col items-center justify-center hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0px_0px] transition-all duration-300 relative overflow-hidden group">
+<div class="absolute -right-6 -top-6 w-20 h-20 bg-secondary-fixed rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+<div class="w-32 h-32 rounded-full border-4 border-on-surface flex items-center justify-center bg-surface relative z-10 mb-4 shadow-[inset_0px_0px_0px_8px_#34D399]">
+<span class="text-headline-lg font-headline-lg text-on-surface">85%</span>
+</div>
+<h3 class="text-headline-sm font-headline-md font-bold mb-1">Clarity</h3>
+<p class="text-body-md font-body-md text-on-surface-variant text-center">表达清晰度</p>
+</div>
+<!-- Empathy Score -->
+<div class="bg-card p-6 rounded-2xl border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface flex flex-col items-center justify-center hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0px_0px] transition-all duration-300 relative overflow-hidden group">
+<div class="absolute -left-6 -bottom-6 w-24 h-24 bg-tertiary-fixed rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+<div class="w-32 h-32 rounded-full border-4 border-on-surface flex items-center justify-center bg-surface relative z-10 mb-4 shadow-[inset_0px_0px_0px_8px_#FBBF24]">
+<span class="text-headline-lg font-headline-lg text-on-surface">72%</span>
+</div>
+<h3 class="text-headline-sm font-headline-md font-bold mb-1">Empathy</h3>
+<p class="text-body-md font-body-md text-on-surface-variant text-center">共情能力</p>
+</div>
+<!-- Resolution Score -->
+<div class="bg-card p-6 rounded-2xl border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface flex flex-col items-center justify-center hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[6px_6px_0px_0px] transition-all duration-300 relative overflow-hidden group">
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary-fixed opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
+<div class="w-32 h-32 rounded-full border-4 border-on-surface flex items-center justify-center bg-surface relative z-10 mb-4 shadow-[inset_0px_0px_0px_8px_#8B5CF6]">
+<span class="text-headline-lg font-headline-lg text-on-surface">90%</span>
+</div>
+<h3 class="text-headline-sm font-headline-md font-bold mb-1">Resolution</h3>
+<p class="text-body-md font-body-md text-on-surface-variant text-center">问题解决度</p>
+</div>
+</div>
+</section>
+<div class="w-full h-8 squiggle-bg mb-16 opacity-50"></div>
+<!-- Highlights & Areas for Improvement (Sticker Cards) -->
+<section class="mb-16">
+<h2 class="text-headline-md font-headline-md mb-8 inline-block border-b-4 border-secondary">闪光点与注意点</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Highlights Column -->
+<div class="space-y-6">
+<!-- Sticker Card: Highlight 1 -->
+<div class="bg-card rounded-xl border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface p-6 pt-8 relative mt-4">
+<!-- Top Icon Circle -->
+<div class="absolute -top-6 left-6 w-12 h-12 bg-quaternary rounded-full border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface font-bold">thumb_up</span>
+</div>
+<h3 class="text-body-lg font-body-lg font-bold mb-2">明确表达需求</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">在对话初期，你清晰地指出了希望对方在晚上11点后降低音量，没有含糊其辞。</p>
+</div>
+<!-- Sticker Card: Highlight 2 -->
+<div class="bg-card rounded-xl border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface p-6 pt-8 relative mt-6">
+<div class="absolute -top-6 left-6 w-12 h-12 bg-quaternary rounded-full border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface font-bold">favorite</span>
+</div>
+<h3 class="text-body-lg font-body-lg font-bold mb-2">保持情绪稳定</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">即使对方一开始有些抵触，你依然保持了平静的语气，没有使用攻击性语言。</p>
+</div>
+</div>
+<!-- Improvements Column -->
+<div class="space-y-6">
+<!-- Sticker Card: Improvement 1 -->
+<div class="bg-card rounded-xl border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-secondary p-6 pt-8 relative mt-4">
+<!-- Top Icon Square -->
+<div class="absolute -top-6 right-6 w-12 h-12 bg-secondary rounded-lg border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface flex items-center justify-center rotate-6">
+<span class="material-symbols-outlined text-on-surface font-bold">priority_high</span>
+</div>
+<h3 class="text-body-lg font-body-lg font-bold mb-2">避免使用绝对词</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">使用了“你总是”、“每次都”等夸张词汇，这容易引起对方的防备心理。</p>
+</div>
+<!-- Sticker Card: Improvement 2 -->
+<div class="bg-card rounded-xl border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-secondary p-6 pt-8 relative mt-6">
+<div class="absolute -top-6 right-6 w-12 h-12 bg-secondary rounded-lg border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface flex items-center justify-center -rotate-6">
+<span class="material-symbols-outlined text-on-surface font-bold">hearing</span>
+</div>
+<h3 class="text-body-lg font-body-lg font-bold mb-2">缺乏主动倾听</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">在对方解释原因时，打断了对方一次，建议多给对方表达的空间。</p>
+</div>
+</div>
+</div>
+</section>
+<div class="w-full h-8 squiggle-bg mb-16 opacity-50"></div>
+<!-- Suggested Scripting Area -->
+<section class="mb-16">
+<h2 class="text-headline-md font-headline-md mb-8 inline-block border-b-4 border-tertiary">建议话术</h2>
+<div class="bg-surface-container rounded-2xl border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface p-6 md:p-8">
+<!-- Dialogue Row 1 -->
+<div class="flex flex-col md:flex-row gap-6 mb-8 items-center">
+<!-- Instead of saying -->
+<div class="w-full md:w-5/12 bg-error-container p-4 rounded-xl rounded-tl-none border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface relative">
+<div class="absolute -top-3 -left-3 bg-card px-2 py-1 text-xs font-bold border-2 border-on-surface rounded shadow-[1px_1px_0px_0px] shadow-on-surface">而不是这样说</div>
+<p class="text-body-md font-body-md text-on-surface mt-2">“你每天晚上打游戏那么大声，烦不烦啊？能不能考虑下别人？”</p>
+</div>
+<!-- Arrow -->
+<div class="w-full md:w-2/12 flex justify-center py-2 md:py-0">
+<div class="w-10 h-10 bg-primary rounded-full border-2 border-on-surface flex items-center justify-center shadow-[2px_2px_0px_0px] shadow-on-surface transform rotate-90 md:rotate-0">
+<span class="material-symbols-outlined text-on-primary">arrow_forward</span>
+</div>
+</div>
+<!-- Try saying -->
+<div class="w-full md:w-5/12 bg-quaternary/20 p-4 rounded-xl rounded-tr-none border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface relative">
+<div class="absolute -top-3 -right-3 bg-card px-2 py-1 text-xs font-bold border-2 border-on-surface rounded shadow-[1px_1px_0px_0px] shadow-on-surface">建议这样说</div>
+<p class="text-body-md font-body-md text-on-surface mt-2">“我最近睡眠不太好，晚上11点后有点声音就容易醒，这段时间能麻烦你尽量带耳机吗？”</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Action Buttons -->
+<section class="flex flex-col sm:flex-row justify-center gap-6 mt-12">
+<button class="px-8 py-4 rounded-full border-2 border-on-surface bg-primary text-on-primary font-headline-sm text-headline-sm shadow-[4px_4px_0px_0px] shadow-on-surface hover:shadow-[6px_6px_0px_0px] hover:-translate-y-1 hover:-translate-x-1 active:shadow-[2px_2px_0px_0px] active:translate-y-0 active:translate-x-0 transition-all flex items-center justify-center gap-3">
+                        再次演练
+                        <span class="bg-card text-primary rounded-full w-8 h-8 flex items-center justify-center border-2 border-on-surface">
+<span class="material-symbols-outlined">refresh</span>
+</span>
+</button>
+<button class="px-8 py-4 rounded-full border-2 border-on-surface bg-surface text-on-surface font-headline-sm text-headline-sm shadow-[4px_4px_0px_0px] shadow-on-surface hover:bg-tertiary hover:shadow-[6px_6px_0px_0px] hover:-translate-y-1 hover:-translate-x-1 active:shadow-[2px_2px_0px_0px] active:translate-y-0 active:translate-x-0 transition-all flex items-center justify-center gap-3">
+                        返回首页
+                        <span class="material-symbols-outlined">home</span>
+</button>
+</section>
+</div>
+</main>
+</div>
+<!-- Bottom Navigation (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 lg:hidden bg-surface-container border-t-2 border-on-surface shadow-[0px_-4px_0px_0px] shadow-on-surface rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-secondary-fixed transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-label-bold font-label-bold mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-secondary-fixed transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="text-label-bold font-label-bold mt-1">Record</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface active:translate-y-1 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">equalizer</span>
+<span class="text-label-bold font-label-bold mt-1">Analysis</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-secondary-fixed transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">forum</span>
+<span class="text-label-bold font-label-bold mt-1">AI Sandbox</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-secondary-fixed transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span class="text-label-bold font-label-bold mt-1">Performance</span>
+</a>
+</nav>
+</body></html>

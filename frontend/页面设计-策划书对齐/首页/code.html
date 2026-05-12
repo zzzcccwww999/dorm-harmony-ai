@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DormHarmony - 首页</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#fc79bd",
+                        "on-primary-container": "#fffbff",
+                        "on-secondary-fixed-variant": "#85145a",
+                        "secondary-fixed": "#ffd8e7",
+                        "card": "#FFFFFF",
+                        "on-surface": "#1d1a23",
+                        "surface-dim": "#ded7e4",
+                        "surface-tint": "#6d3bd7",
+                        "on-tertiary-container": "#fffbff",
+                        "on-primary-fixed": "#23005c",
+                        "surface-variant": "#e7e0ed",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "shadow-dark": "#1E293B",
+                        "surface-container": "#f3ebf8",
+                        "inverse-primary": "#d0bcff",
+                        "on-tertiary-fixed-variant": "#673d00",
+                        "on-surface-variant": "#494454",
+                        "on-background": "#1d1a23",
+                        "error": "#ba1a1a",
+                        "muted": "#F1F5F9",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#5516be",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#2c1700",
+                        "secondary-fixed-dim": "#ffafd3",
+                        "surface-container-high": "#ede5f3",
+                        "inverse-surface": "#322f39",
+                        "surface": "#fef7ff",
+                        "inverse-on-surface": "#f5eefb",
+                        "surface-container-low": "#f8f1fe",
+                        "primary": "#6b38d4",
+                        "secondary": "#F472B6",
+                        "primary-fixed-dim": "#d0bcff",
+                        "primary-container": "#8455ef",
+                        "tertiary-container": "#a76500",
+                        "tertiary-fixed": "#ffdcbb",
+                        "outline": "#7b7486",
+                        "border": "#E2E8F0",
+                        "tertiary-fixed-dim": "#ffb869",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#e7e0ed",
+                        "tertiary": "#FBBF24",
+                        "background": "#FFFDF5",
+                        "quaternary": "#34D399",
+                        "accent": "#8B5CF6",
+                        "surface-bright": "#fef7ff",
+                        "outline-variant": "#cbc3d7",
+                        "primary-fixed": "#e9ddff",
+                        "foreground": "#1E293B",
+                        "on-secondary-fixed": "#3d0026",
+                        "on-secondary-container": "#76014e",
+                        "muted-foreground": "#64748B"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit-md": "1.5rem",
+                        "container-max": "1152px",
+                        "gutter": "1.5rem",
+                        "unit-lg": "2rem",
+                        "unit-sm": "1rem",
+                        "shadow-offset": "4px",
+                        "shadow-offset-hover": "6px",
+                        "unit-xs": "0.5rem",
+                        "section-padding": "6rem"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-bold": ["Plus Jakarta Sans"],
+                        "headline-md": ["Outfit"],
+                        "headline-lg": ["Outfit"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-xl": ["Outfit"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "label-bold": ["14px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "headline-lg": ["48px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-xl": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .dot-grid {
+            background-image: radial-gradient(circle at 2px 2px, #E2E8F0 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md dot-grid min-h-screen flex">
+<!-- SideNavBar (Web) -->
+<nav class="hidden lg:flex flex-col gap-unit-md p-unit-md h-screen sticky left-0 w-64 border-r-2 border-on-surface bg-surface dark:bg-inverse-surface shadow-[4px_0px_0px_0px] shadow-on-surface dark:shadow-shadow-dark z-40">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface">
+<img alt="DormHarmony Mascot" class="w-10 h-10 rounded-full object-cover" data-alt="A stylized, cheerful mascot logo for an app called DormHarmony, designed in a vibrant Pop-Art functional style with solid colors, clean lines, and geometric shapes. The mascot is contained within a circle." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoIeE3fuGST0i8AH2TVFnjVGh_ghmeHMgRw6uUv0F6XHs-tGfTxBIOxOxQ9caVd2NzLnFXtlExYdqzmzWd5bDU1m65ZFQH1vroL-ebUGb6tEbeJ4yl3p6alHBVf0b4XtMOtvzRdRPCQAlFENmTXT0sOQQ_bDMWNAO2d13Qkg81Bnv4wY6WsSXjTKLxhv5act4Ak_2Q0Sj7xQ1lkpf4Bu7GCRJrqmQ1UAJr6F_hmuC0ZPir2-Z1lCASlOr_EmvP01FgTRlACAuJzXo"/>
+</div>
+<div>
+<h1 class="text-headline-sm font-headline-sm font-black text-on-surface dark:text-surface-bright leading-tight">舍友心晴</h1>
+<p class="text-label-bold font-label-bold text-on-surface-variant">Harmony Hub</p>
+</div>
+</div>
+<div class="flex flex-col gap-2 flex-grow">
+<!-- Active Tab: Home -->
+<a class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container rounded-xl border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface hover:scale-105 transition-transform active:scale-95 text-label-bold font-label-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                Home
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:scale-105 transition-transform active:scale-95 text-label-bold font-label-bold" href="#">
+<span class="material-symbols-outlined">edit_note</span>
+                Record
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:scale-105 transition-transform active:scale-95 text-label-bold font-label-bold" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                Analysis
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:scale-105 transition-transform active:scale-95 text-label-bold font-label-bold" href="#">
+<span class="material-symbols-outlined">psychology</span>
+                Sandbox
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:scale-105 transition-transform active:scale-95 text-label-bold font-label-bold" href="#">
+<span class="material-symbols-outlined">summarize</span>
+                Report
+            </a>
+</div>
+<button class="w-full mt-auto bg-tertiary text-on-surface border-2 border-on-surface rounded-full py-3 px-4 font-label-bold text-label-bold shadow-[4px_4px_0px_0px] shadow-on-surface hover:shadow-[6px_6px_0px_0px] hover:-translate-x-[2px] hover:-translate-y-[2px] active:shadow-[2px_2px_0px_0px] active:translate-x-[2px] active:translate-y-[2px] transition-all flex items-center justify-center gap-2">
+<div class="w-6 h-6 rounded-full bg-white flex items-center justify-center border-2 border-on-surface">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</div>
+            Log Incident
+        </button>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col relative overflow-x-hidden">
+<!-- TopAppBar (Mobile & Web Header Content Area) -->
+<header class="flex justify-between items-center w-full px-gutter h-16 sticky top-0 z-50 bg-background dark:bg-inverse-surface border-b-2 border-on-surface dark:border-outline-variant shadow-[4px_4px_0px_0px] shadow-on-surface dark:shadow-shadow-dark lg:hidden">
+<div class="flex items-center gap-2">
+<span class="text-headline-md font-headline-md font-extrabold text-primary dark:text-primary-fixed">DormHarmony</span>
+</div>
+<div class="flex items-center gap-4 text-primary dark:text-primary-fixed">
+<button class="hover:bg-secondary-container dark:hover:bg-secondary-fixed-dim hover:text-on-secondary-container transition-all duration-200 p-2 rounded-full active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px]">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="hover:bg-secondary-container dark:hover:bg-secondary-fixed-dim hover:text-on-secondary-container transition-all duration-200 p-2 rounded-full active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px]">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<img alt="User profile" class="w-8 h-8 rounded-full border-2 border-on-surface" data-alt="A small circular avatar placeholder image showing a stylized, abstract user portrait in vibrant colors." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPhPM223q8PLsh14nYbYnPPjs6oYGGKIDG24A3wchS07jBy9-hudDHH2PZJKgMZWtR92dfCB4V5SOEfRfpNfX-VW2DiqKcSN3A2gi5halINU9xmsqWRo51G-5OaBMch2_4AGgU-vyZbTZ9y8oL8TGhWAINeanfRsk-bncJL-WYsbb-eTTEyaHu5HrWkQ6cOaRJ2LeRTAQfESwfvMYgtZwx-IyzhUNEPxChxLZM3qGd3372uB_H982gFp3p7CE62YysWjVodeBeiu8"/>
+</div>
+</header>
+<!-- Decorative Floating Shapes -->
+<div class="absolute top-20 right-10 w-16 h-16 bg-secondary rounded-full border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface hidden md:block -z-10"></div>
+<div class="absolute top-40 left-10 w-12 h-12 bg-tertiary transform rotate-12 border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface hidden md:block -z-10"></div>
+<div class="absolute bottom-40 right-20 w-24 h-8 bg-primary rounded-full transform -rotate-12 border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface hidden md:block -z-10"></div>
+<div class="max-w-[container-max] w-full mx-auto p-gutter lg:p-section-padding flex flex-col gap-16 pb-32 lg:pb-section-padding">
+<!-- Hero Section -->
+<section class="flex flex-col items-start gap-6 max-w-3xl">
+<div class="inline-flex items-center gap-2 px-4 py-2 bg-secondary-fixed text-on-secondary-fixed-variant rounded-full border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface text-label-bold font-label-bold">
+<span class="material-symbols-outlined text-[18px]">waving_hand</span>
+                    Welcome back to harmony
+                </div>
+<h2 class="text-headline-xl font-headline-xl text-on-surface leading-tight">
+                    改善宿舍关系，<br/>
+<span class="text-primary relative inline-block">
+                        从每一次沟通开始
+                        <!-- Decorative Squiggle under text -->
+<svg class="absolute w-full h-4 -bottom-2 left-0 text-secondary" preserveaspectratio="none" viewbox="0 0 100 20">
+<path d="M0,10 Q25,0 50,10 T100,10" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="4"></path>
+</svg>
+</span>
+</h2>
+<p class="text-body-lg font-body-lg text-on-surface-variant max-w-2xl mt-4">
+                    记录情绪，分析冲突，通过AI辅助的沙盒模拟练习健康的沟通方式。建立更愉快的居住环境，掌握处理人际关系的智慧。
+                </p>
+<div class="flex gap-4 mt-6">
+<button class="bg-primary text-on-primary border-2 border-on-surface rounded-full py-3 px-6 font-label-bold text-label-bold shadow-[4px_4px_0px_0px] shadow-on-surface hover:shadow-[6px_6px_0px_0px] hover:-translate-x-[2px] hover:-translate-y-[2px] active:shadow-[2px_2px_0px_0px] active:translate-x-[2px] active:translate-y-[2px] transition-all flex items-center gap-3">
+                        开始记录
+                        <div class="w-6 h-6 rounded-full bg-white flex items-center justify-center border-2 border-on-surface">
+<span class="material-symbols-outlined text-primary text-[14px]">arrow_forward</span>
+</div>
+</button>
+</div>
+</section>
+<!-- Dashboard / Barometer Section -->
+<section class="bg-card rounded-2xl border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface p-unit-lg flex flex-col md:flex-row gap-8 items-center relative overflow-hidden">
+<!-- Decorative background blob -->
+<div class="absolute -right-10 -top-10 w-40 h-40 bg-surface-container rounded-full opacity-50 -z-0"></div>
+<div class="flex-1 z-10">
+<h3 class="text-headline-md font-headline-md text-on-surface mb-2 flex items-center gap-3">
+                        宿舍压力晴雨表
+                        <span class="material-symbols-outlined text-tertiary text-3xl">routine</span>
+</h3>
+<p class="text-body-md font-body-md text-on-surface-variant mb-6">当前环境氛围评估</p>
+<div class="flex flex-col gap-4">
+<div class="flex justify-between items-end">
+<span class="text-headline-lg font-headline-lg text-on-surface">轻微紧张</span>
+<span class="text-label-bold font-label-bold text-on-surface-variant bg-surface-variant px-3 py-1 rounded-full border-2 border-on-surface">Index: 68/100</span>
+</div>
+<!-- Progress Bar -->
+<div class="h-6 w-full bg-surface-variant rounded-full border-2 border-on-surface overflow-hidden relative">
+<div class="absolute top-0 left-0 h-full bg-tertiary border-r-2 border-on-surface w-[68%] transition-all duration-1000 ease-in-out flex items-center justify-end pr-2">
+<div class="w-2 h-2 bg-white rounded-full"></div>
+</div>
+</div>
+<div class="flex justify-between text-label-bold font-label-bold text-on-surface-variant mt-1">
+<span>和谐融洽</span>
+<span>需干预</span>
+</div>
+</div>
+</div>
+<!-- Quick Action within Dashboard -->
+<div class="w-full md:w-1/3 z-10 flex flex-col gap-4">
+<div class="bg-surface-container-low p-4 rounded-xl border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface">
+<p class="text-label-bold font-label-bold text-on-surface mb-2">最近记录</p>
+<p class="text-body-md font-body-md text-on-surface-variant line-clamp-2">"昨晚因为空调温度产生了一点分歧，气氛有些尴尬..."</p>
+<a class="inline-block mt-3 text-primary text-label-bold font-label-bold hover:underline" href="#">查看分析 →</a>
+</div>
+</div>
+</section>
+<!-- Feature Cards Section (Bento Grid Style) -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Card 1: AI Analysis -->
+<div class="bg-card rounded-2xl border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-[secondary-container] hover:shadow-[6px_6px_0px_0px] hover:shadow-[secondary-container] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all flex flex-col relative group overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-32 bg-secondary-fixed-dim -z-0"></div>
+<div class="p-6 relative z-10 flex-1 flex flex-col">
+<div class="w-14 h-14 bg-secondary-container rounded-full border-2 border-on-surface flex items-center justify-center mb-6 shadow-[2px_2px_0px_0px] shadow-on-surface">
+<span class="material-symbols-outlined text-on-surface text-2xl">psychology_alt</span>
+</div>
+<h4 class="text-headline-sm font-headline-md text-on-surface mb-3 font-bold">AI 深度分析</h4>
+<p class="text-body-md font-body-md text-on-surface-variant mb-6 flex-1">
+                            利用先进模型拆解冲突核心，客观评估责任分配，提供不带偏见的矛盾解决视角。
+                        </p>
+<button class="self-start px-4 py-2 bg-white border-2 border-on-surface rounded-full text-label-bold font-label-bold shadow-[2px_2px_0px_0px] shadow-on-surface group-hover:bg-secondary group-hover:text-white transition-colors">
+                            开启分析
+                        </button>
+</div>
+</div>
+<!-- Card 2: Comm Simulator -->
+<div class="bg-card rounded-2xl border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-[primary-container] hover:shadow-[6px_6px_0px_0px] hover:shadow-[primary-container] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all flex flex-col relative group overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary-fixed-dim rounded-bl-[100px] -z-0"></div>
+<div class="p-6 relative z-10 flex-1 flex flex-col">
+<div class="w-14 h-14 bg-primary-container rounded-full border-2 border-on-surface flex items-center justify-center mb-6 shadow-[2px_2px_0px_0px] shadow-on-surface text-on-primary-container">
+<span class="material-symbols-outlined text-2xl">forum</span>
+</div>
+<h4 class="text-headline-sm font-headline-md text-on-surface mb-3 font-bold">沟通模拟器</h4>
+<p class="text-body-md font-body-md text-on-surface-variant mb-6 flex-1">
+                            在安全的沙盒环境中练习对话。模拟不同语气的反馈效果，掌握非暴力沟通技巧。
+                        </p>
+<button class="self-start px-4 py-2 bg-white border-2 border-on-surface rounded-full text-label-bold font-label-bold shadow-[2px_2px_0px_0px] shadow-on-surface group-hover:bg-primary group-hover:text-white transition-colors">
+                            进入沙盒
+                        </button>
+</div>
+</div>
+<!-- Card 3: Report & Insights (Added to complete the trio) -->
+<div class="bg-card rounded-2xl border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-[tertiary] hover:shadow-[6px_6px_0px_0px] hover:shadow-[tertiary] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all flex flex-col relative group overflow-hidden md:col-span-2 lg:col-span-1">
+<!-- Geometric decoration -->
+<svg class="absolute bottom-0 right-0 w-32 h-32 text-tertiary-fixed-dim -z-0 opacity-50" viewbox="0 0 100 100">
+<circle cx="100" cy="100" fill="currentColor" r="80"></circle>
+</svg>
+<div class="p-6 relative z-10 flex-1 flex flex-col">
+<div class="w-14 h-14 bg-tertiary rounded-xl transform rotate-12 border-2 border-on-surface flex items-center justify-center mb-6 shadow-[2px_2px_0px_0px] shadow-on-surface">
+<span class="material-symbols-outlined text-on-surface text-2xl transform -rotate-12">trending_up</span>
+</div>
+<h4 class="text-headline-sm font-headline-md text-on-surface mb-3 font-bold">关系改善趋势</h4>
+<p class="text-body-md font-body-md text-on-surface-variant mb-6 flex-1">
+                            追踪长期互动数据，生成可视化的关系健康报告，见证你们的共同成长。
+                        </p>
+<button class="self-start px-4 py-2 bg-white border-2 border-on-surface rounded-full text-label-bold font-label-bold shadow-[2px_2px_0px_0px] shadow-on-surface group-hover:bg-tertiary group-hover:text-on-surface transition-colors">
+                            查看报告
+                        </button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 lg:hidden bg-surface-container dark:bg-inverse-surface border-t-2 border-on-surface shadow-[0px_-4px_0px_0px] shadow-on-surface rounded-t-xl">
+<!-- Active Tab: Home -->
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface active:translate-y-1 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-label-bold font-label-bold mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-secondary-fixed dark:hover:bg-on-secondary-fixed-variant transition-colors rounded-xl px-2 py-1" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="text-[10px] font-label-bold mt-1">Record</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-secondary-fixed dark:hover:bg-on-secondary-fixed-variant transition-colors rounded-xl px-2 py-1" href="#">
+<span class="material-symbols-outlined">equalizer</span>
+<span class="text-[10px] font-label-bold mt-1">Analysis</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-secondary-fixed dark:hover:bg-on-secondary-fixed-variant transition-colors rounded-xl px-2 py-1" href="#">
+<span class="material-symbols-outlined">forum</span>
+<span class="text-[10px] font-label-bold mt-1">AI Sandbox</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:bg-secondary-fixed dark:hover:bg-on-secondary-fixed-variant transition-colors rounded-xl px-2 py-1" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span class="text-[10px] font-label-bold mt-1">Performance</span>
+</a>
+</nav>
+</body></html>

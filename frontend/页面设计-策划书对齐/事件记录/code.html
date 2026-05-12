@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+
+<html lang="zh"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DormHarmony - 记录心晴时刻</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&amp;family=Outfit:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-container": "#fc79bd",
+                    "on-primary-container": "#fffbff",
+                    "on-secondary-fixed-variant": "#85145a",
+                    "secondary-fixed": "#ffd8e7",
+                    "card": "#FFFFFF",
+                    "on-surface": "#1d1a23",
+                    "surface-dim": "#ded7e4",
+                    "surface-tint": "#6d3bd7",
+                    "on-tertiary-container": "#fffbff",
+                    "on-primary-fixed": "#23005c",
+                    "surface-variant": "#e7e0ed",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "shadow-dark": "#1E293B",
+                    "surface-container": "#f3ebf8",
+                    "inverse-primary": "#d0bcff",
+                    "on-tertiary-fixed-variant": "#673d00",
+                    "on-surface-variant": "#494454",
+                    "on-background": "#1d1a23",
+                    "error": "#ba1a1a",
+                    "muted": "#F1F5F9",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed-variant": "#5516be",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed": "#2c1700",
+                    "secondary-fixed-dim": "#ffafd3",
+                    "surface-container-high": "#ede5f3",
+                    "inverse-surface": "#322f39",
+                    "surface": "#fef7ff",
+                    "inverse-on-surface": "#f5eefb",
+                    "surface-container-low": "#f8f1fe",
+                    "primary": "#6b38d4",
+                    "secondary": "#F472B6",
+                    "primary-fixed-dim": "#d0bcff",
+                    "primary-container": "#8455ef",
+                    "tertiary-container": "#a76500",
+                    "tertiary-fixed": "#ffdcbb",
+                    "outline": "#7b7486",
+                    "border": "#E2E8F0",
+                    "tertiary-fixed-dim": "#ffb869",
+                    "on-secondary": "#ffffff",
+                    "surface-container-highest": "#e7e0ed",
+                    "tertiary": "#FBBF24",
+                    "background": "#FFFDF5",
+                    "quaternary": "#34D399",
+                    "accent": "#8B5CF6",
+                    "surface-bright": "#fef7ff",
+                    "outline-variant": "#cbc3d7",
+                    "primary-fixed": "#e9ddff",
+                    "foreground": "#1E293B",
+                    "on-secondary-fixed": "#3d0026",
+                    "on-secondary-container": "#76014e",
+                    "muted-foreground": "#64748B"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit-md": "1.5rem",
+                    "container-max": "1152px",
+                    "gutter": "1.5rem",
+                    "unit-lg": "2rem",
+                    "unit-sm": "1rem",
+                    "shadow-offset": "4px",
+                    "shadow-offset-hover": "6px",
+                    "unit-xs": "0.5rem",
+                    "section-padding": "6rem"
+            },
+            "fontFamily": {
+                    "body-md": ["Plus Jakarta Sans"],
+                    "label-bold": ["Plus Jakarta Sans"],
+                    "headline-md": ["Outfit"],
+                    "headline-lg": ["Outfit"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "headline-xl": ["Outfit"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-bold": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-md": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "headline-lg": ["48px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-xl": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            background-image: radial-gradient(theme('colors.outline-variant') 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .pop-shadow {
+            box-shadow: theme('spacing.shadow-offset') theme('spacing.shadow-offset') 0px 0px theme('colors.shadow-dark');
+        }
+        .pop-shadow:hover {
+            box-shadow: theme('spacing.shadow-offset-hover') theme('spacing.shadow-offset-hover') 0px 0px theme('colors.shadow-dark');
+            transform: translate(calc(-1 * (theme('spacing.shadow-offset-hover') - theme('spacing.shadow-offset'))), calc(-1 * (theme('spacing.shadow-offset-hover') - theme('spacing.shadow-offset'))));
+        }
+        .pop-shadow:active {
+            box-shadow: 2px 2px 0px 0px theme('colors.shadow-dark');
+            transform: translate(2px, 2px);
+        }
+        .card-border {
+            border: 2px solid theme('colors.on-surface');
+        }
+        .squiggle-bg {
+            position: absolute;
+            z-index: -1;
+            opacity: 0.1;
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md text-on-surface antialiased flex flex-col md:flex-row min-h-screen relative overflow-x-hidden">
+<!-- Decorative Elements -->
+<svg class="squiggle-bg top-10 right-10 text-secondary w-64 h-64" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="8" viewbox="0 0 200 200">
+<path d="M10,100 Q40,50 70,100 T130,100 T190,100"></path>
+</svg>
+<svg class="squiggle-bg bottom-20 left-64 text-tertiary w-48 h-48" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="8" viewbox="0 0 200 200">
+<circle cx="100" cy="100" fill="currentColor" r="50"></circle>
+</svg>
+<div class="absolute top-1/3 right-1/4 w-16 h-16 bg-quaternary rounded-full opacity-20 -z-10"></div>
+<div class="absolute bottom-1/4 right-1/3 w-24 h-8 bg-accent rounded-full opacity-20 -z-10 rotate-45"></div>
+<!-- SideNavBar (Hidden on Mobile, Sticky on Desktop) -->
+<nav class="hidden lg:flex flex-col gap-unit-md p-unit-md h-screen sticky left-0 bg-surface border-r-2 border-on-surface shadow-[4px_0px_0px_0px] shadow-on-surface w-64 z-50 flex-shrink-0">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-12 h-12 bg-secondary-container rounded-full card-border pop-shadow flex items-center justify-center overflow-hidden">
+<img alt="DormHarmony Mascot" class="w-full h-full object-cover" data-alt="A stylized, cute cartoon illustration of an anthropomorphic cat or dog serving as a mascot, pop-art style, vibrant colors, clean lines, white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4aYfVovsWPKIvDf4wj_EnrKlkpm67enTc8FNGCWTDQF4nBDoo3RE8yC1JfsvJi9BmBsQAjyr9rPYuFnYXnvu8iDDKouBulWZA1wO1FtzE45EiOYUqn-XdmDhFaojA0dl77_SAjGdUDqmpCtDarro9Auxaqk3NQEimjC9nDq5VSelxbXEEZQnW0RC-P9avdd-OevYL-yP9I7V3zS4ZilOMBBLJdCuEdxdbrJH4gjutynSq6GlPTUMOz6zkc_cDqBz3Xzho_NQB8JA"/>
+</div>
+<div>
+<h1 class="text-headline-sm font-headline-sm font-black text-on-surface">舍友心晴</h1>
+<p class="text-xs font-bold text-on-surface-variant">Harmony Hub</p>
+</div>
+</div>
+<ul class="flex flex-col gap-2 flex-grow">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-label-bold font-label-bold text-on-surface-variant hover:text-on-surface hover:scale-105 transition-transform" href="#" style="transition-timing-function: cubic-bezier(0.34,1.56,0.64,1);">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+                    Home
+                </a>
+</li>
+<li>
+<!-- Active State -->
+<a class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container rounded-xl border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface text-label-bold font-label-bold active:scale-95 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+                    Record
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-label-bold font-label-bold text-on-surface-variant hover:text-on-surface hover:scale-105 transition-transform" href="#" style="transition-timing-function: cubic-bezier(0.34,1.56,0.64,1);">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">analytics</span>
+                    Analysis
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-label-bold font-label-bold text-on-surface-variant hover:text-on-surface hover:scale-105 transition-transform" href="#" style="transition-timing-function: cubic-bezier(0.34,1.56,0.64,1);">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">psychology</span>
+                    Sandbox
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-label-bold font-label-bold text-on-surface-variant hover:text-on-surface hover:scale-105 transition-transform" href="#" style="transition-timing-function: cubic-bezier(0.34,1.56,0.64,1);">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">summarize</span>
+                    Report
+                </a>
+</li>
+</ul>
+<div class="mt-auto pt-4">
+<button class="w-full bg-accent text-white font-label-bold text-label-bold py-3 rounded-full card-border pop-shadow transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">add</span>
+                Log Incident
+            </button>
+</div>
+</nav>
+<!-- TopAppBar (Mobile Only) -->
+<header class="flex justify-between items-center w-full px-gutter h-16 sticky top-0 z-50 bg-background border-b-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface lg:hidden">
+<div class="text-headline-md font-headline-md font-extrabold text-primary">DormHarmony</div>
+<div class="flex gap-4">
+<button class="text-on-surface-variant hover:bg-secondary-container hover:text-on-secondary-container transition-all duration-200 p-2 rounded-full active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px]">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-secondary-container hover:text-on-secondary-container transition-all duration-200 p-2 rounded-full active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px]">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 bg-tertiary rounded-full border-2 border-on-surface overflow-hidden">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A bright, clear, professional headshot of a young woman smiling, well-lit studio photography, light background, wearing a casual colorful top." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1nEA4NgZocuauwJPy8f7trsp9xJ4oJL2KiR84kFdqSA34y3VqjPd9FF9YC6_KSGlx8JtRlouG9d8hrulLeawcKCgva7SQZvijCspy3dM9sA7uL-u_DAhfIjjY73Fr6yWKm2sF8DaX7P8wKXzrcZWb9U2HqFpLkSFzqaGW_-hWKrzfgJS8Vun-arB5xB4PUAExdhn8JkY7JVUXoU8WMJTq_mdfzfRyI9CyaEJieRTuX2-zsU7HkLsIsAXh4o_y4ORztXtvUz-_yiI"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow p-gutter md:p-section-padding w-full max-w-container-max mx-auto mb-24 lg:mb-0">
+<!-- Header Section -->
+<div class="mb-12 relative">
+<h2 class="text-headline-lg font-headline-lg text-on-surface mb-2 relative inline-block">
+                记录心晴时刻
+                <div class="absolute -bottom-2 left-0 w-full h-4 bg-tertiary -z-10 rounded-full border-2 border-on-surface"></div>
+</h2>
+<p class="text-body-lg font-body-lg text-on-surface-variant mt-4 font-bold bg-surface-container-high inline-block px-4 py-2 rounded-xl card-border pop-shadow">
+                “每一次记录都是一次自我梳理”
+            </p>
+</div>
+<!-- Form Card (Bento Style) -->
+<div class="bg-card rounded-2xl p-6 md:p-8 card-border pop-shadow relative">
+<form action="#" class="space-y-10" method="POST">
+<!-- 1. 事件类型 -->
+<fieldset>
+<legend class="text-label-bold font-label-bold text-on-surface uppercase tracking-wider mb-4 flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-secondary flex items-center justify-center card-border">
+<span class="material-symbols-outlined text-white text-sm">category</span>
+</div>
+                        事件类型
+                    </legend>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+<!-- 作息 -->
+<label class="cursor-pointer group relative">
+<input checked="" class="peer sr-only" name="event_type" type="radio" value="routine"/>
+<div class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface-container card-border peer-checked:bg-primary peer-checked:text-white transition-all peer-checked:shadow-[4px_4px_0px_0px] peer-checked:shadow-on-surface hover:-translate-y-1">
+<span class="material-symbols-outlined text-3xl">schedule</span>
+<span class="font-bold">作息</span>
+</div>
+</label>
+<!-- 卫生 -->
+<label class="cursor-pointer group relative">
+<input class="peer sr-only" name="event_type" type="radio" value="hygiene"/>
+<div class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface-container card-border peer-checked:bg-primary peer-checked:text-white transition-all peer-checked:shadow-[4px_4px_0px_0px] peer-checked:shadow-on-surface hover:-translate-y-1">
+<span class="material-symbols-outlined text-3xl">cleaning_services</span>
+<span class="font-bold">卫生</span>
+</div>
+</label>
+<!-- 噪音 -->
+<label class="cursor-pointer group relative">
+<input class="peer sr-only" name="event_type" type="radio" value="noise"/>
+<div class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface-container card-border peer-checked:bg-primary peer-checked:text-white transition-all peer-checked:shadow-[4px_4px_0px_0px] peer-checked:shadow-on-surface hover:-translate-y-1">
+<span class="material-symbols-outlined text-3xl">volume_up</span>
+<span class="font-bold">噪音</span>
+</div>
+</label>
+<!-- 费用 -->
+<label class="cursor-pointer group relative">
+<input class="peer sr-only" name="event_type" type="radio" value="finance"/>
+<div class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface-container card-border peer-checked:bg-primary peer-checked:text-white transition-all peer-checked:shadow-[4px_4px_0px_0px] peer-checked:shadow-on-surface hover:-translate-y-1">
+<span class="material-symbols-outlined text-3xl">payments</span>
+<span class="font-bold">费用</span>
+</div>
+</label>
+<!-- 隐私 -->
+<label class="cursor-pointer group relative">
+<input class="peer sr-only" name="event_type" type="radio" value="privacy"/>
+<div class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface-container card-border peer-checked:bg-primary peer-checked:text-white transition-all peer-checked:shadow-[4px_4px_0px_0px] peer-checked:shadow-on-surface hover:-translate-y-1">
+<span class="material-symbols-outlined text-3xl">visibility_off</span>
+<span class="font-bold">隐私</span>
+</div>
+</label>
+<!-- 情绪 -->
+<label class="cursor-pointer group relative">
+<input class="peer sr-only" name="event_type" type="radio" value="emotion"/>
+<div class="flex flex-col items-center gap-2 p-4 rounded-xl bg-surface-container card-border peer-checked:bg-primary peer-checked:text-white transition-all peer-checked:shadow-[4px_4px_0px_0px] peer-checked:shadow-on-surface hover:-translate-y-1">
+<span class="material-symbols-outlined text-3xl">mood_bad</span>
+<span class="font-bold">情绪</span>
+</div>
+</label>
+</div>
+</fieldset>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+<!-- 2. 影响程度 -->
+<fieldset class="bg-surface-container-low p-6 rounded-xl card-border">
+<legend class="text-label-bold font-label-bold text-on-surface uppercase tracking-wider mb-4 flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-quaternary flex items-center justify-center card-border">
+<span class="material-symbols-outlined text-white text-sm">trending_up</span>
+</div>
+                            影响程度
+                        </legend>
+<div class="relative pt-6 pb-2">
+<input class="w-full h-4 bg-white rounded-full appearance-none cursor-pointer card-border outline-none focus:ring-4 focus:ring-primary-fixed-dim shadow-[2px_2px_0px_0px_rgba(30,41,59,1)]" max="5" min="1" type="range" value="3"/>
+<div class="flex justify-between text-xs font-bold mt-4 text-on-surface-variant px-1">
+<span>1 (轻微)</span>
+<span>2</span>
+<span>3</span>
+<span>4</span>
+<span>5 (严重)</span>
+</div>
+</div>
+</fieldset>
+<!-- 3. 发生频率 -->
+<fieldset class="bg-surface-container-low p-6 rounded-xl card-border">
+<legend class="text-label-bold font-label-bold text-on-surface uppercase tracking-wider mb-4 flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center card-border">
+<span class="material-symbols-outlined text-on-surface text-sm">update</span>
+</div>
+                            发生频率
+                        </legend>
+<div class="flex flex-wrap gap-4 mt-2">
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" name="frequency" type="radio" value="first_time"/>
+<div class="px-6 py-3 rounded-full bg-white card-border peer-checked:bg-accent peer-checked:text-white font-bold transition-colors shadow-[2px_2px_0px_0px_rgba(30,41,59,1)]">首次</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="frequency" type="radio" value="occasional"/>
+<div class="px-6 py-3 rounded-full bg-white card-border peer-checked:bg-accent peer-checked:text-white font-bold transition-colors shadow-[2px_2px_0px_0px_rgba(30,41,59,1)]">偶尔</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="frequency" type="radio" value="frequent"/>
+<div class="px-6 py-3 rounded-full bg-white card-border peer-checked:bg-accent peer-checked:text-white font-bold transition-colors shadow-[2px_2px_0px_0px_rgba(30,41,59,1)]">频繁</div>
+</label>
+</div>
+</fieldset>
+</div>
+<!-- 4. 当前情绪 -->
+<fieldset>
+<legend class="text-label-bold font-label-bold text-on-surface uppercase tracking-wider mb-4 flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center card-border">
+<span class="material-symbols-outlined text-on-secondary-container text-sm">sentiment_satisfied</span>
+</div>
+                        当前情绪
+                    </legend>
+<div class="flex gap-4 overflow-x-auto pb-4 px-2">
+<!-- Emotion 1 -->
+<label class="cursor-pointer shrink-0">
+<input class="peer sr-only" name="emotion" type="radio" value="happy"/>
+<div class="w-16 h-16 rounded-full bg-white card-border flex items-center justify-center peer-checked:bg-tertiary transition-all peer-checked:shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] hover:-translate-y-1">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">sentiment_very_satisfied</span>
+</div>
+</label>
+<!-- Emotion 2 -->
+<label class="cursor-pointer shrink-0">
+<input checked="" class="peer sr-only" name="emotion" type="radio" value="neutral"/>
+<div class="w-16 h-16 rounded-full bg-white card-border flex items-center justify-center peer-checked:bg-tertiary transition-all peer-checked:shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] hover:-translate-y-1">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">sentiment_neutral</span>
+</div>
+</label>
+<!-- Emotion 3 -->
+<label class="cursor-pointer shrink-0">
+<input class="peer sr-only" name="emotion" type="radio" value="sad"/>
+<div class="w-16 h-16 rounded-full bg-white card-border flex items-center justify-center peer-checked:bg-tertiary transition-all peer-checked:shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] hover:-translate-y-1">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">sentiment_dissatisfied</span>
+</div>
+</label>
+<!-- Emotion 4 -->
+<label class="cursor-pointer shrink-0">
+<input class="peer sr-only" name="emotion" type="radio" value="angry"/>
+<div class="w-16 h-16 rounded-full bg-white card-border flex items-center justify-center peer-checked:bg-tertiary transition-all peer-checked:shadow-[4px_4px_0px_0px_rgba(30,41,59,1)] hover:-translate-y-1">
+<span class="material-symbols-outlined text-4xl text-error" style="font-variation-settings: 'FILL' 1;">sentiment_extremely_dissatisfied</span>
+</div>
+</label>
+</div>
+</fieldset>
+<!-- 5. 简要描述 -->
+<fieldset>
+<legend class="text-label-bold font-label-bold text-on-surface uppercase tracking-wider mb-4 flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-primary-fixed-dim flex items-center justify-center card-border">
+<span class="material-symbols-outlined text-on-primary-fixed text-sm">notes</span>
+</div>
+                        简要描述
+                    </legend>
+<textarea class="w-full bg-white rounded-xl card-border p-4 text-body-md font-body-md focus:ring-4 focus:ring-primary-fixed-dim focus:border-primary focus:shadow-[4px_4px_0px_0px_rgba(107,56,212,1)] outline-none transition-all resize-none" name="description" placeholder="写下当时的具体情况..." rows="4"></textarea>
+</fieldset>
+<!-- Submit Button -->
+<div class="pt-6 border-t-2 border-dashed border-outline-variant">
+<button class="w-full md:w-auto md:px-12 bg-primary text-white text-headline-sm font-headline-md font-bold py-4 rounded-full card-border pop-shadow transition-all flex items-center justify-center gap-3 mx-auto" type="submit">
+                        保存并分析
+                        <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-sm font-bold">arrow_forward</span>
+</div>
+</button>
+</div>
+</form>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 lg:hidden bg-surface-container border-t-2 border-on-surface shadow-[0px_-4px_0px_0px] shadow-on-surface rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-secondary-fixed transition-colors rounded-lg p-2" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-label-bold font-label-bold mt-1 text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface active:translate-y-1 transition-all" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="text-label-bold font-label-bold mt-1 text-[10px]">Record</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-secondary-fixed transition-colors rounded-lg p-2" href="#">
+<span class="material-symbols-outlined">equalizer</span>
+<span class="text-label-bold font-label-bold mt-1 text-[10px]">Analysis</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-secondary-fixed transition-colors rounded-lg p-2" href="#">
+<span class="material-symbols-outlined">forum</span>
+<span class="text-label-bold font-label-bold mt-1 text-[10px]">AI Sandbox</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-secondary-fixed transition-colors rounded-lg p-2" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span class="text-label-bold font-label-bold mt-1 text-[10px]">Performance</span>
+</a>
+</nav>
+</body></html>
