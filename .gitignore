@@ -1,1 +1,8 @@
 .superpowers/
+
+# Python backend
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+backend/.env
