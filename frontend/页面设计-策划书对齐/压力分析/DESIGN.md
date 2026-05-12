@@ -282,3 +282,7 @@ No blur. Solid offset colors.
 - **Color**: Never rely *only* on color. Use shapes and text labels.
 - **Motion**: Respect `prefers-reduced-motion`. Disable the "bounce" and "wiggle" effects if preferred.
 - **Focus**: The focus state is high-contrast (thick colored border + hard shadow).
+
+## 策划书对齐说明
+
+本页保留原压力分析页的指标卡、来源条形图和建议卡布局，将风险等级、趋势提示、情绪关键词和非诊断提示对齐策划书。
