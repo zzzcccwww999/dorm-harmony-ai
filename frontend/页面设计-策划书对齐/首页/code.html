@@ -187,9 +187,9 @@
                     Welcome back to harmony
                 </div>
 <h2 class="text-headline-xl font-headline-xl text-on-surface leading-tight">
-                    改善宿舍关系，<br/>
+                    舍友心晴：<br/>
 <span class="text-primary relative inline-block">
-                        从每一次沟通开始
+                        宿舍压力预警与沟通演练助手
                         <!-- Decorative Squiggle under text -->
 <svg class="absolute w-full h-4 -bottom-2 left-0 text-secondary" preserveaspectratio="none" viewbox="0 0 100 20">
 <path d="M0,10 Q25,0 50,10 T100,10" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="4"></path>
@@ -197,7 +197,7 @@
 </span>
 </h2>
 <p class="text-body-lg font-body-lg text-on-surface-variant max-w-2xl mt-4">
-                    记录情绪，分析冲突，通过AI辅助的沙盒模拟练习健康的沟通方式。建立更愉快的居住环境，掌握处理人际关系的智慧。
+                    记录宿舍事件，识别压力来源，通过 AI 多角色沟通演练，在真实沟通前练习更温和、具体、可执行的表达方式。
                 </p>
 <div class="flex gap-4 mt-6">
 <button class="bg-primary text-on-primary border-2 border-on-surface rounded-full py-3 px-6 font-label-bold text-label-bold shadow-[4px_4px_0px_0px] shadow-on-surface hover:shadow-[6px_6px_0px_0px] hover:-translate-x-[2px] hover:-translate-y-[2px] active:shadow-[2px_2px_0px_0px] active:translate-x-[2px] active:translate-y-[2px] transition-all flex items-center gap-3">
@@ -206,6 +206,9 @@
 <span class="material-symbols-outlined text-primary text-[14px]">arrow_forward</span>
 </div>
 </button>
+<button class="bg-surface text-on-surface border-2 border-on-surface rounded-full py-3 px-5 font-label-bold text-label-bold shadow-[4px_4px_0px_0px] shadow-on-surface hover:shadow-[6px_6px_0px_0px] hover:-translate-x-[2px] hover:-translate-y-[2px] active:shadow-[2px_2px_0px_0px] active:translate-x-[2px] active:translate-y-[2px] transition-all">
+                        安全说明
+                    </button>
 </div>
 </section>
 <!-- Dashboard / Barometer Section -->
@@ -255,7 +258,7 @@
 </div>
 <h4 class="text-headline-sm font-headline-md text-on-surface mb-3 font-bold">AI 深度分析</h4>
 <p class="text-body-md font-body-md text-on-surface-variant mb-6 flex-1">
-                            利用先进模型拆解冲突核心，客观评估责任分配，提供不带偏见的矛盾解决视角。
+                            识别宿舍事件中的压力来源，生成非诊断性的趋势提示和温和沟通建议。
                         </p>
 <button class="self-start px-4 py-2 bg-white border-2 border-on-surface rounded-full text-label-bold font-label-bold shadow-[2px_2px_0px_0px] shadow-on-surface group-hover:bg-secondary group-hover:text-white transition-colors">
                             开启分析
@@ -324,4 +327,30 @@
 <span class="text-[10px] font-label-bold mt-1">Performance</span>
 </a>
 </nav>
+<!-- 首次进入安全说明弹窗：静态设计稿片段，后续 Vue 实现时用 localStorage 控制只弹一次 -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center bg-on-surface/45 p-4">
+  <section class="w-full max-w-2xl bg-card border-[3px] border-on-surface rounded-2xl shadow-[8px_8px_0px_0px] shadow-on-surface p-6 md:p-8">
+    <div class="inline-flex items-center gap-2 rounded-full border-2 border-on-surface bg-tertiary px-4 py-2 text-label-bold font-label-bold text-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface">
+      <span class="material-symbols-outlined text-[18px]">verified_user</span>
+      首次使用提示
+    </div>
+    <h2 class="mt-5 text-headline-md font-headline-md text-on-surface">使用前请了解安全边界</h2>
+    <p class="mt-4 text-body-md font-body-md text-on-surface-variant">
+      舍友心晴仅用于宿舍压力趋势提示和沟通练习，不进行心理疾病诊断，也不评价任何舍友的人格或心理状态。
+    </p>
+    <ul class="mt-5 space-y-3 text-body-md font-body-md text-on-surface">
+      <li>压力值只用于关系压力趋势提示，不作为医学或心理诊断依据。</li>
+      <li>如果出现高压力、严重冲突、持续失眠、强烈焦虑或暴力风险，请及时联系辅导员、心理老师、家人或可信任同学。</li>
+      <li>Demo 阶段不采集真实身份信息，演示数据使用虚拟样例。</li>
+    </ul>
+    <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+      <button class="bg-primary text-on-primary border-2 border-on-surface rounded-full px-6 py-3 font-label-bold text-label-bold shadow-[4px_4px_0px_0px] shadow-on-surface">
+        我已了解，开始使用
+      </button>
+      <button class="bg-surface text-on-surface border-2 border-on-surface rounded-full px-6 py-3 font-label-bold text-label-bold shadow-[4px_4px_0px_0px] shadow-on-surface">
+        查看隐私原则
+      </button>
+    </div>
+  </section>
+</div>
 </body></html>
