@@ -1,0 +1,243 @@
+<script setup lang="ts">
+import { nextTick, onMounted, ref } from 'vue'
+
+const featureCards = [
+  {
+    title: 'AI 深度分析',
+    icon: 'psychology_alt',
+    text: '识别宿舍事件中的压力来源，生成非诊断性的趋势提示和温和沟通建议。',
+    action: '开启分析',
+    tone: 'pink',
+  },
+  {
+    title: '沟通模拟器',
+    icon: 'forum',
+    text: '在安全的沙盒环境中练习对话，提前整理感受、需求和具体请求。',
+    action: '进入沙盒',
+    tone: 'purple',
+  },
+  {
+    title: '关系改善趋势',
+    icon: 'trending_up',
+    text: '追踪长期互动数据，生成可视化的关系健康报告，观察沟通后的变化。',
+    action: '查看报告',
+    tone: 'yellow',
+  },
+]
+
+const showSafetyModal = ref(true)
+const safetyModalRef = ref<HTMLElement | null>(null)
+const safetyConfirmRef = ref<HTMLButtonElement | null>(null)
+const restoreFocusTarget = ref<HTMLElement | null>(null)
+
+const focusableSelector = [
+  'a[href]',
+  'button:not([disabled])',
+  'textarea:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',')
+
+function getModalFocusableElements() {
+  return Array.from(safetyModalRef.value?.querySelectorAll<HTMLElement>(focusableSelector) ?? []).filter(
+    (element) => !element.hasAttribute('disabled') && element.tabIndex !== -1,
+  )
+}
+
+function focusInitialModalControl() {
+  nextTick(() => {
+    safetyConfirmRef.value?.focus()
+  })
+}
+
+function closeSafetyModal() {
+  showSafetyModal.value = false
+
+  nextTick(() => {
+    const target = restoreFocusTarget.value
+
+    if (target && document.contains(target)) {
+      target.focus()
+      return
+    }
+
+    document.querySelector<HTMLElement>('.primary-action, a, button')?.focus()
+  })
+}
+
+function handleModalKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    closeSafetyModal()
+    return
+  }
+
+  if (event.key !== 'Tab') {
+    return
+  }
+
+  const focusableElements = getModalFocusableElements()
+
+  if (focusableElements.length === 0) {
+    event.preventDefault()
+    safetyModalRef.value?.focus()
+    return
+  }
+
+  const firstElement = focusableElements[0]!
+  const lastElement = focusableElements[focusableElements.length - 1]!
+
+  if (event.shiftKey && document.activeElement === firstElement) {
+    event.preventDefault()
+    lastElement.focus()
+    return
+  }
+
+  if (!event.shiftKey && document.activeElement === lastElement) {
+    event.preventDefault()
+    firstElement.focus()
+  }
+}
+
+onMounted(() => {
+  restoreFocusTarget.value = document.activeElement instanceof HTMLElement ? document.activeElement : null
+  focusInitialModalControl()
+})
+</script>
+
+<template>
+  <main class="page home-page">
+    <div v-if="showSafetyModal" class="safety-modal-overlay" role="presentation">
+      <section
+        ref="safetyModalRef"
+        class="safety-modal pop-card pop-shadow"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="safety-modal-title"
+        tabindex="-1"
+        @keydown="handleModalKeydown"
+      >
+        <button
+          class="modal-close material-symbol"
+          type="button"
+          aria-label="关闭首次使用提示"
+          @click="closeSafetyModal"
+        >
+          close
+        </button>
+        <p class="eyebrow pill-label">
+          <span class="material-symbol" aria-hidden="true">verified_user</span>
+          首次使用提示
+        </p>
+        <h2 id="safety-modal-title">使用前请了解安全边界</h2>
+        <ul class="safety-modal-list">
+          <li>不进行心理疾病诊断，只提供宿舍关系压力趋势提示。</li>
+          <li>不评价任何舍友的人格或心理状态，只帮助你整理事件和表达方式。</li>
+          <li>Demo 阶段不采集真实身份信息，请避免填写姓名、学号、电话等敏感内容。</li>
+        </ul>
+        <div class="modal-actions">
+          <button
+            ref="safetyConfirmRef"
+            class="primary-action pop-shadow"
+            type="button"
+            @click="closeSafetyModal"
+          >
+            我已了解，开始使用
+            <span class="action-icon material-symbol" aria-hidden="true">arrow_forward</span>
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <section class="hero-section">
+      <div class="hero-copy">
+        <p class="eyebrow pill-label">
+          <span class="material-symbol" aria-hidden="true">waving_hand</span>
+          Welcome back to harmony
+        </p>
+        <h1>
+          舍友心晴：<br />
+          <span class="hero-highlight">
+            大学生宿舍压力预警与沟通演练助手
+            <svg
+              class="hero-squiggle"
+              viewBox="0 0 100 20"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M0,10 Q25,0 50,10 T100,10"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-width="4"
+              ></path>
+            </svg>
+          </span>
+        </h1>
+        <p class="hero-text">
+          记录宿舍事件，识别压力来源，通过 AI 多角色沟通演练，在真实沟通前练习更温和、具体、可执行的表达方式。
+        </p>
+        <div class="action-row">
+          <RouterLink class="primary-action pop-shadow" :to="{ name: 'record' }">
+            开始记录
+            <span class="action-icon material-symbol" aria-hidden="true">arrow_forward</span>
+          </RouterLink>
+          <a class="secondary-action" href="#safety-note">安全说明</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="dashboard-card pop-card pop-shadow" aria-label="压力晴雨表示例">
+      <div class="dashboard-main">
+        <span class="floating-icon material-symbol" aria-hidden="true">routine</span>
+        <div class="meter-header">
+          <span>宿舍压力晴雨表</span>
+          <strong>轻微紧张</strong>
+        </div>
+        <div class="meter-score">
+          <span>当前环境氛围评估</span>
+          <strong>Index: 68/100</strong>
+        </div>
+        <div class="meter-track">
+          <span class="meter-fill"></span>
+        </div>
+        <div class="meter-labels">
+          <span>和谐融洽</span>
+          <span>需干预</span>
+        </div>
+      </div>
+      <aside class="recent-note card-border">
+        <strong>最近记录</strong>
+        <p>“昨晚因为空调温度产生了一点分歧，气氛有些尴尬...”</p>
+        <RouterLink :to="{ name: 'analysis' }">查看分析 →</RouterLink>
+      </aside>
+    </section>
+
+    <section id="safety-note" class="feature-grid" aria-label="功能重点">
+      <article
+        v-for="card in featureCards"
+        :key="card.title"
+        :class="['feature-card', 'feature-card-visual', `feature-card-${card.tone}`, 'pop-card']"
+      >
+        <span class="field-icon material-symbol" aria-hidden="true">{{ card.icon }}</span>
+        <h2>{{ card.title }}</h2>
+        <p>{{ card.text }}</p>
+        <RouterLink
+          v-if="card.action === '开启分析'"
+          class="feature-action"
+          :to="{ name: 'analysis' }"
+        >
+          {{ card.action }}
+        </RouterLink>
+        <button v-else class="feature-action" type="button">{{ card.action }}</button>
+      </article>
+    </section>
+
+    <section class="safety-strip pop-shadow">
+      <strong>安全边界</strong>
+      <span>仅提供压力趋势提示和沟通练习，不进行心理疾病诊断，不评价用户或舍友人格。</span>
+    </section>
+  </main>
+</template>
