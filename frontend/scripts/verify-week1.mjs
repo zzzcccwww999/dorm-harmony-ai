@@ -86,6 +86,37 @@ function requireCssRuleExcludes(relativePath, selector, declarations) {
   }
 }
 
+function requireCssRuleIncludesAfter(relativePath, anchor, selector, declarations, description) {
+  const content = read(relativePath)
+  const anchorIndex = content.indexOf(anchor)
+
+  if (anchorIndex === -1) {
+    failures.push(`${relativePath} is missing ${description}`)
+    return
+  }
+
+  const contentAfterAnchor = content.slice(anchorIndex + anchor.length)
+  const rule = contentAfterAnchor.match(new RegExp(`${selector.replaceAll('.', '\\.')}\\s*\\{([^}]*)\\}`))
+
+  if (!rule) {
+    failures.push(`${relativePath} is missing ${selector} rule after ${description}`)
+    return
+  }
+
+  const ruleDeclarations = rule[1]
+    .split(';')
+    .map((declaration) => declaration.trim())
+    .filter(Boolean)
+
+  for (const declaration of declarations) {
+    if (!ruleDeclarations.includes(declaration)) {
+      failures.push(
+        `${relativePath} ${selector} rule after ${description} is missing "${declaration}"`,
+      )
+    }
+  }
+}
+
 requireIncludes('src/router/index.ts', ['/', '/record', '/analysis', 'HomeView', 'RecordView', 'AnalysisView'])
 requireIncludes('index.html', [
   'fonts.googleapis.com/css2',
@@ -135,14 +166,15 @@ requireCssRuleIncludes('src/styles/main.css', '.sidebar.pop-shadow:hover', [
   'transform: none',
 ])
 requireCssRuleIncludes('src/styles/main.css', '.sidebar', [
-  'position: sticky',
+  'position: fixed',
   'top: 0',
+  'left: 0',
   'flex: 0 0 16rem',
   'width: 16rem',
   'height: 100vh',
 ])
 requireCssRuleExcludes('src/styles/main.css', '.sidebar', [
-  'position: fixed',
+  'position: sticky',
   'position: relative',
   'align-self: flex-start',
   'flex: 0 0 32rem',
@@ -150,6 +182,14 @@ requireCssRuleExcludes('src/styles/main.css', '.sidebar', [
   'height: fit-content',
   'min-height: 100vh',
 ])
+requireCssRuleIncludes('src/styles/main.css', '.content-shell', ['margin-left: 16rem'])
+requireCssRuleIncludesAfter(
+  'src/styles/main.css',
+  '@media (max-width: 1040px) {',
+  '.content-shell',
+  ['margin-left: 0'],
+  'mobile layout media query',
+)
 requireCssRuleIncludes('src/styles/main.css', '.sidebar-cta', ['margin-top: auto'])
 
 requireIncludes('src/views/HomeView.vue', [

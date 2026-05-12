@@ -144,8 +144,9 @@ h3,
 }
 
 .sidebar {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
   z-index: 30;
   display: flex;
   flex: 0 0 16rem;
@@ -262,6 +263,7 @@ h3,
 .content-shell {
   position: relative;
   flex: 1;
+  margin-left: 16rem;
   min-width: 0;
 }
 
@@ -1477,6 +1479,10 @@ textarea:focus {
 @media (max-width: 1040px) {
   .sidebar {
     display: none;
+  }
+
+  .content-shell {
+    margin-left: 0;
   }
 
   .mobile-header,
