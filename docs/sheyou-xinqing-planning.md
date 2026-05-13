@@ -5,6 +5,12 @@
 技术路线：Vue + Python FastAPI + LangChain + SQLite / JSON
 团队规模：2 人
 
+## 当前实现与后续拓展边界
+
+当前仓库已实现 FastAPI 后端、规则压力评分、LangChain/OpenAI 沟通模拟接口、沟通复盘接口、本地 Vite `/api` 代理和第三阶段朱春雯侧联调收尾记录。SQLite / JSON 历史记录存储、真实用户数据管理、页面截图、演示视频和宣传海报仍属于后续拓展或第 7 天线上提交材料任务。
+
+本文档中的 SQLite / JSON、历史记录和线上材料描述属于目标规划，除非另有状态说明，不代表当前运行时代码已经落地。
+
 ## 一、作品基本信息
 
 | 项目 | 内容 |
@@ -14,7 +20,7 @@
 | 作品类型 | 心理健康方向网页版应用 / AI 智能体交互 Demo |
 | 面向场景 | 大学生宿舍关系、宿舍压力、人际沟通训练 |
 | 目标用户 | 大学生宿舍成员，尤其是存在宿舍沟通压力、矛盾积累或冲突回避的学生 |
-| 核心技术 | Vue、Python、FastAPI、LangChain、大模型 API、规则评分模型、SQLite / JSON 存储 |
+| 核心技术 | Vue、Python、FastAPI、LangChain、大模型 API、规则评分模型；SQLite / JSON 存储为后续拓展 |
 | 核心流程 | 宿舍事件记录 → 压力值分析 → 冲突风险趋势提示 → AI 多角色沟通模拟 → 沟通复盘报告 |
 | 作品定位 | 非诊断性心理支持工具，帮助大学生识别宿舍关系压力并进行低风险沟通演练 |
 
@@ -193,9 +199,9 @@ Vue 前端页面
   ↓ HTTP 请求
 Python FastAPI 后端
   ↓
-压力评分模块 / LangChain AI 模块 / 数据存储模块
+压力评分模块 / LangChain AI 模块 / 数据存储模块（后续拓展）
   ↓
-大模型 API / SQLite 或 JSON 文件
+大模型 API / SQLite 或 JSON 文件（后续拓展）
 
 ### 9.2 前端技术方案
 
@@ -231,7 +237,7 @@ Python FastAPI 后端
 | 压力评分模块 | 根据规则模型计算压力值和风险等级 |
 | LangChain 模块 | 管理提示词模板、角色设定和 AI 调用流程 |
 | AI 服务模块 | 调用大模型 API 生成多角色回复和复盘建议 |
-| 数据存储模块 | 使用 SQLite 或 JSON 保存演示事件数据 |
+| 数据存储模块 | 当前未实现；后续可使用 SQLite 或 JSON 保存演示事件数据 |
 | 安全边界模块 | 对输出内容加入非诊断性提示和求助建议 |
 
 ### 9.4 推荐接口设计
@@ -246,15 +252,15 @@ Python FastAPI 后端
 ### 9.5 后端项目结构建议
 
 backend/
-├── main.py              # FastAPI 入口
-├── schemas.py           # 请求与响应数据结构
-├── scoring.py           # 压力评分算法
-├── langchain_service.py # LangChain 调用逻辑
-├── prompts.py           # 提示词模板
-├── database.py          # SQLite / JSON 存储
-├── safety.py            # 心理安全边界与输出过滤
-├── requirements.txt
-└── .env                 # API Key 等本地配置，不上传
+├── app/main.py       # FastAPI 入口与本地 CORS
+├── app/schemas.py    # 请求与响应数据结构
+├── app/scoring.py    # 压力评分算法
+├── app/ai_service.py # LangChain / OpenAI 调用逻辑
+├── app/ai_prompts.py # 提示词模板
+├── app/safety.py     # 心理安全边界提示
+└── requirements.txt
+
+后续如实现历史记录，可再补充 SQLite / JSON 数据存储模块；当前运行时代码尚未包含数据库持久化。
 
 ## 十、压力评分模型设计
 

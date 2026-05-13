@@ -69,6 +69,43 @@ RoommateName = Literal["舍友 A", "舍友 B", "舍友 C"]
 RoommatePersonality = Literal["直接型", "回避型", "调和型"]
 DialogueSpeaker = Literal["user", "roommate_a", "roommate_b", "roommate_c", "system"]
 
+FRONTEND_DIALOGUE_SPEAKER_ALIASES = {
+    "我": "user",
+    "你": "user",
+    "用户": "user",
+    "系统": "system",
+    "舍友 A": "roommate_a",
+    "舍友A": "roommate_a",
+    "舍友 A（直接型）": "roommate_a",
+    "舍友 A(直接型)": "roommate_a",
+    "舍友 B": "roommate_b",
+    "舍友B": "roommate_b",
+    "舍友 B（回避型）": "roommate_b",
+    "舍友 B(回避型)": "roommate_b",
+    "舍友 C": "roommate_c",
+    "舍友C": "roommate_c",
+    "舍友 C（调和型）": "roommate_c",
+    "舍友 C(调和型)": "roommate_c",
+}
+
+FRONTEND_REVIEW_EVENT_TYPE_ALIASES = {
+    "noise_conflict": "noise",
+    "schedule_conflict": "schedule",
+    "hygiene_conflict": "hygiene",
+    "expense_conflict": "cost",
+    "cost_conflict": "cost",
+    "privacy_boundary": "privacy",
+    "privacy_conflict": "privacy",
+    "emotional_conflict": "emotion",
+    "emotion_conflict": "emotion",
+}
+ANALYSIS_ONLY_EVENT_TYPE_ALIASES = {
+    "risk-stable",
+    "risk-pressure",
+    "risk-high",
+    "risk-severe",
+}
+
 
 def _validate_safety_note_boundaries(value: str) -> str:
     if not isinstance(value, str):
@@ -189,8 +226,19 @@ class SimulateResponse(BaseModel):
 
 
 class DialogueMessage(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     speaker: DialogueSpeaker
     message: str = Field(max_length=500)
+
+    @field_validator("speaker", mode="before")
+    @classmethod
+    def normalize_frontend_speaker_alias(cls, value: str) -> str:
+        if not isinstance(value, str):
+            raise ValueError("speaker must be a string")
+
+        speaker = value.strip()
+        return FRONTEND_DIALOGUE_SPEAKER_ALIASES.get(speaker, speaker)
 
     @field_validator("message", mode="before")
     @classmethod
@@ -219,6 +267,20 @@ class ReviewOriginalEvent(BaseModel):
     risk_label: str | None = Field(default=None, max_length=50)
     description: str | None = Field(default=None, max_length=300)
 
+    @field_validator("event_type", mode="before")
+    @classmethod
+    def normalize_frontend_event_type_alias(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise ValueError("event_type must be a string")
+
+        event_type = value.strip()
+        if not event_type or event_type in ANALYSIS_ONLY_EVENT_TYPE_ALIASES:
+            return None
+
+        return FRONTEND_REVIEW_EVENT_TYPE_ALIASES.get(event_type, event_type)
+
     @field_validator("risk_label", "description", mode="before")
     @classmethod
     def trim_optional_text(cls, value: str | None) -> str | None:
@@ -232,6 +294,8 @@ class ReviewOriginalEvent(BaseModel):
 
 
 class ReviewRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     scenario: str = Field(max_length=300)
     dialogue: list[DialogueMessage] = Field(min_length=1, max_length=20)
     original_event: ReviewOriginalEvent | None = None

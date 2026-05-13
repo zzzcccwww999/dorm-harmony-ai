@@ -1,12 +1,38 @@
 # 后端 API 契约
 
-本文档记录当前后端已实现接口。第二阶段运行时 AI 接口已接入 FastAPI + LangChain + OpenAI 服务层，已提供健康检查、压力分析、沟通模拟和沟通复盘接口；历史记录存储与查询、前端 AI 页面联调和完整 Demo 仍未覆盖。
+本文档记录当前后端已实现接口。运行时 AI 接口已接入 FastAPI + LangChain + OpenAI 服务层，已提供健康检查、压力分析、沟通模拟和沟通复盘接口；第三阶段已补充本地 Vite 代理、FastAPI CORS 和复盘字段兼容。历史记录存储与查询仍未实现。
 
 ## 安全边界
 
 - 本项目输出仅用于宿舍关系压力趋势提示和沟通训练建议。
 - 系统不进行心理疾病诊断、医学判断或人格评价。
 - 当用户描述中出现高压力、暴力风险、严重失眠等情况时，返回内容应提示用户寻求辅导员、心理老师、家人或可信任同学等现实支持。
+
+## 本地联调约定
+
+本地开发推荐启动后端在 `http://127.0.0.1:8000`，前端 Vite 开发服务器通过 `/api` 代理访问后端。执行以下命令前，请先按 `README.md` 安装后端依赖并准备 Python 环境：
+
+```bash
+cd backend
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+后端默认允许以下本地前端 origin：
+
+- `http://localhost:5173`
+- `http://127.0.0.1:5173`
+
+如需覆盖本地 CORS 允许列表：
+
+```bash
+export DORM_HARMONY_CORS_ORIGINS="http://localhost:3000,http://127.0.0.1:7357"
+```
 
 ## 已实现接口
 
@@ -163,6 +189,14 @@
 | `dialogue[].message` | string | 单条对话内容，最长 500 字符 |
 | `original_event` | object | 可选，受控原始事件摘要；只允许 `event_type`、`severity`、`frequency`、`emotion`、`has_communicated`、`has_conflict`、`pressure_score`、`risk_level`、`risk_label`、`description`，禁止提交任意大 JSON 或未授权字段 |
 
+第三阶段兼容说明：
+
+- 标准契约仍以 `user`、`roommate_a`、`roommate_b`、`roommate_c`、`system` 为准。
+- 为兼容当前前端复盘页展示文本，后端会在校验前把 `你`、`用户`、`我` 归一化为 `user`，把 `舍友 A` / `舍友A` / `舍友 A（直接型）` 等归一化为 `roommate_a`，`舍友 B` 系列归一化为 `roommate_b`，`舍友 C` 系列归一化为 `roommate_c`，`系统` 归一化为 `system`。
+- `original_event.event_type` 标准值仍为 `noise`、`schedule`、`hygiene`、`cost`、`privacy`、`emotion`。后端兼容 `noise_conflict`、`schedule_conflict`、`hygiene_conflict`、`expense_conflict`、`privacy_boundary`、`emotional_conflict` 等旧前端值。
+- 分析页派生的 `risk-stable`、`risk-pressure`、`risk-high`、`risk-severe` 不作为真实事件类型传给 AI，会归一化为 `None`；未知 `risk-*` 值仍返回 `422`。
+- `ReviewRequest`、`dialogue[]` 和 `original_event` 均拒绝未授权 extra 字段。
+
 响应字段：
 
 | 字段 | 类型 | 说明 |
@@ -228,3 +262,5 @@
 | 未配置 `OPENAI_API_KEY` | `503` | AI 服务未配置，`/api/simulate` 和 `/api/review` 不返回模板伪结果 |
 | LangChain / OpenAI 调用失败 | `502` | 上游模型调用失败，后端返回 AI 服务调用失败语义 |
 | AI 输出结构不符合契约 | `502` | 模型输出无法解析为接口约定结构，后端返回 AI 输出结构错误语义 |
+
+注意：前端在无 `OPENAI_API_KEY` 时可能展示本地演示兜底，但后端真实接口语义仍是 `503`，不代表 AI 接口真实生成成功。
