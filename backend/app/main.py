@@ -1,4 +1,7 @@
+import os
+
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.ai_service import (
     AIServiceConfigurationError,
@@ -16,7 +19,23 @@ from app.schemas import (
 from app.scoring import analyze_pressure
 
 
+def _get_cors_origins() -> list[str]:
+    configured_origins = os.getenv("DORM_HARMONY_CORS_ORIGINS", "")
+    origins = [
+        origin.strip()
+        for origin in configured_origins.split(",")
+        if origin.strip()
+    ]
+    return origins or ["http://localhost:5173", "http://127.0.0.1:5173"]
+
+
 app = FastAPI(title="Dorm Harmony AI")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_get_cors_origins(),
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)
 
 
 def get_ai_service() -> DormHarmonyAIService:
