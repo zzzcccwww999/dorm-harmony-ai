@@ -1,7 +1,7 @@
 from enum import StrEnum
-from typing import Any, Literal
+from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class EventType(StrEnum):
@@ -205,10 +205,36 @@ class DialogueMessage(BaseModel):
         return message
 
 
+class ReviewOriginalEvent(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    event_type: EventType | None = None
+    severity: int | None = Field(default=None, ge=1, le=5)
+    frequency: EventFrequency | None = None
+    emotion: Emotion | None = None
+    has_communicated: bool | None = None
+    has_conflict: bool | None = None
+    pressure_score: int | None = Field(default=None, ge=0, le=100)
+    risk_level: AnalyzeRiskLevel | None = None
+    risk_label: str | None = Field(default=None, max_length=50)
+    description: str | None = Field(default=None, max_length=300)
+
+    @field_validator("risk_label", "description", mode="before")
+    @classmethod
+    def trim_optional_text(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise ValueError("field must be a string")
+
+        text = value.strip()
+        return text or None
+
+
 class ReviewRequest(BaseModel):
     scenario: str = Field(max_length=300)
-    dialogue: list[DialogueMessage] = Field(min_length=1)
-    original_event: dict[str, Any] | None = None
+    dialogue: list[DialogueMessage] = Field(min_length=1, max_length=20)
+    original_event: ReviewOriginalEvent | None = None
 
     @field_validator("scenario", mode="before")
     @classmethod

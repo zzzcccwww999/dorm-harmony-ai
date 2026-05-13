@@ -158,10 +158,10 @@
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
 | `scenario` | string | 沟通场景，最长 300 字符 |
-| `dialogue` | object[] | 用户与虚拟舍友的对话记录，至少 1 条 |
+| `dialogue` | object[] | 用户与虚拟舍友的对话记录，至少 1 条，最多 20 条 |
 | `dialogue[].speaker` | string | 发言者，枚举为 `user` / `roommate_a` / `roommate_b` / `roommate_c` / `system` |
 | `dialogue[].message` | string | 单条对话内容，最长 500 字符 |
-| `original_event` | object | 可选，原始事件摘要 |
+| `original_event` | object | 可选，受控原始事件摘要；只允许 `event_type`、`severity`、`frequency`、`emotion`、`has_communicated`、`has_conflict`、`pressure_score`、`risk_level`、`risk_label`、`description`，禁止提交任意大 JSON 或未授权字段 |
 
 响应字段：
 

@@ -59,7 +59,11 @@ def build_review_messages(request: ReviewRequest) -> list[tuple[str, str]]:
         f"{message.speaker}: {message.message}" for message in request.dialogue
     )
     original_event = (
-        json.dumps(request.original_event, ensure_ascii=False, sort_keys=True)
+        json.dumps(
+            request.original_event.model_dump(exclude_none=True, mode="json"),
+            ensure_ascii=False,
+            sort_keys=True,
+        )
         if request.original_event is not None
         else "未提供"
     )

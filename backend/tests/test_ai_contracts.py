@@ -141,6 +141,81 @@ def test_review_request_requires_at_least_one_dialogue_message():
         ReviewRequest(scenario="噪音冲突", dialogue=[])
 
 
+def test_review_request_rejects_more_than_twenty_dialogue_messages():
+    with pytest.raises(ValidationError):
+        ReviewRequest(
+            scenario="噪音冲突",
+            dialogue=[
+                DialogueMessage(speaker="user", message=f"第 {index} 条消息")
+                for index in range(21)
+            ],
+        )
+
+
+def test_review_request_rejects_unapproved_original_event_fields():
+    with pytest.raises(ValidationError):
+        ReviewRequest(
+            scenario="噪音冲突",
+            dialogue=[DialogueMessage(speaker="user", message="晚上能不能小声一点？")],
+            original_event={
+                "event_type": "noise",
+                "full_browser_payload": {"unbounded": ["raw"]},
+            },
+        )
+
+
+def test_review_request_rejects_overlong_original_event_text():
+    with pytest.raises(ValidationError):
+        ReviewRequest(
+            scenario="噪音冲突",
+            dialogue=[DialogueMessage(speaker="user", message="晚上能不能小声一点？")],
+            original_event={
+                "event_type": "noise",
+                "description": "声音很大" * 200,
+            },
+        )
+
+
+def test_review_request_accepts_controlled_original_event_summary():
+    request = ReviewRequest(
+        scenario="噪音冲突",
+        dialogue=[DialogueMessage(speaker="user", message="晚上能不能小声一点？")],
+        original_event={
+            "event_type": "noise",
+            "frequency": "daily",
+            "risk_level": "high",
+            "pressure_score": 76,
+            "description": "舍友连续几天晚上打游戏，影响睡眠。",
+        },
+    )
+
+    assert request.original_event is not None
+    assert request.original_event.event_type == "noise"
+    assert request.original_event.frequency == "daily"
+    assert request.original_event.risk_level == "high"
+    assert request.original_event.pressure_score == 76
+    assert request.original_event.description == "舍友连续几天晚上打游戏，影响睡眠。"
+
+
+def test_build_review_messages_serializes_controlled_original_event():
+    request = ReviewRequest(
+        scenario="噪音冲突",
+        dialogue=[DialogueMessage(speaker="user", message="晚上能不能小声一点？")],
+        original_event={
+            "event_type": "noise",
+            "frequency": "daily",
+            "risk_level": "high",
+            "pressure_score": 76,
+        },
+    )
+
+    messages = build_review_messages(request)
+
+    assert '"event_type": "noise"' in messages[-1][1]
+    assert '"frequency": "daily"' in messages[-1][1]
+    assert '"pressure_score": 76' in messages[-1][1]
+
+
 def test_review_response_requires_actionable_lists():
     response = ReviewResponse(
         summary="用户表达了睡眠受影响的事实，整体语气较温和。",
