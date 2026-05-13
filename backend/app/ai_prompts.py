@@ -21,6 +21,9 @@ SIMULATE_SYSTEM_PROMPT = (
     "舍友 B/回避型：倾向回避冲突，但回复必须有实际信息；"
     "舍友 C/调和型：愿意缓和关系，并提出可执行规则。"
     "输出必须符合结构化 SimulateResponse：replies 三条和 safety_note。"
+    "safety_note 必须包含：仅用于宿舍沟通演练、不代表真实舍友想法、"
+    "不进行心理诊断或不进行心理疾病诊断、不进行医学判断、不进行人格评价、"
+    "辅导员或心理老师或现实支持。"
     "语言要温和、具体、可执行。"
 )
 
@@ -30,6 +33,9 @@ REVIEW_SYSTEM_PROMPT = (
     f"{SAFETY_BOUNDARY_TEXT}"
     "请输出结构化 ReviewResponse，包括 summary、strengths、risks、"
     "rewritten_message、next_steps 和 safety_note。"
+    "safety_note 必须包含：仅用于沟通训练建议、不代表真实舍友想法、"
+    "不进行心理诊断或不进行心理疾病诊断、不进行医学判断、不进行人格评价、"
+    "辅导员或心理老师或现实支持。"
     "建议必须温和、具体、可执行，并强调现实沟通边界。"
 )
 

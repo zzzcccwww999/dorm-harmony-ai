@@ -225,6 +225,13 @@ def test_prompts_contain_role_and_safety_boundaries():
     assert "调和型" in SIMULATE_SYSTEM_PROMPT
 
 
+def test_prompts_include_schema_accepted_safety_note_phrases():
+    assert "仅用于宿舍沟通演练" in SIMULATE_SYSTEM_PROMPT
+    assert "仅用于沟通训练建议" in REVIEW_SYSTEM_PROMPT
+    assert "不代表真实舍友想法" in SIMULATE_SYSTEM_PROMPT
+    assert "不代表真实舍友想法" in REVIEW_SYSTEM_PROMPT
+
+
 def test_prompt_builders_include_user_inputs():
     simulate_request = SimulateRequest(
         scenario="舍友晚上打游戏声音较大，影响睡眠",
