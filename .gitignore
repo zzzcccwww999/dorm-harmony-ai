@@ -1,5 +1,6 @@
 .superpowers/
 AGENTS.md
+.worktrees/
 
 # Python backend
 __pycache__/
