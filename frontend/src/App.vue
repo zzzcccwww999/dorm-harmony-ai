@@ -4,12 +4,13 @@ import { RouterLink, RouterView } from 'vue-router'
 const navItems = [
   { name: 'home', label: '首页', icon: 'dashboard', mobileIcon: 'dashboard' },
   { name: 'record', label: '事件记录', icon: 'edit_note', mobileIcon: 'edit_note' },
+  { name: 'simulate', label: '沟通模拟', icon: 'forum', mobileIcon: 'forum' },
+  { name: 'review', label: '沟通复盘', icon: 'assignment', mobileIcon: 'assignment' },
   { name: 'analysis', label: '压力分析', icon: 'analytics', mobileIcon: 'analytics' },
 ]
 
 const futureItems = [
   { label: 'AI 沙盒', icon: 'forum', mobileIcon: 'forum' },
-  { label: '表现', icon: 'assessment', mobileIcon: 'assessment' },
 ]
 
 const brandAvatarSrc =

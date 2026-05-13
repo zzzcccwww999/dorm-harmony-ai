@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import {
   LAST_EVENT_STORAGE_KEY,
+  ANALYSIS_RESULT_STORAGE_KEY,
   emotionOptions,
   eventTypeOptions,
   frequencyOptions,
+  submitAnalyzeRequest,
   sampleAnalyzeRequest,
   type AnalyzeRequest,
 } from '@/data/week1'
@@ -14,10 +16,30 @@ import {
 const router = useRouter()
 
 const form = reactive<AnalyzeRequest>({ ...sampleAnalyzeRequest })
+const isSubmitting = ref(false)
+const submitError = ref('')
 
-function submitRecord() {
-  localStorage.setItem(LAST_EVENT_STORAGE_KEY, JSON.stringify(form))
-  router.push({ name: 'analysis' })
+async function submitRecord() {
+  submitError.value = ''
+  isSubmitting.value = true
+
+  try {
+    const result = await submitAnalyzeRequest({ ...form })
+
+    try {
+      localStorage.setItem(LAST_EVENT_STORAGE_KEY, JSON.stringify(form))
+      localStorage.setItem(ANALYSIS_RESULT_STORAGE_KEY, JSON.stringify(result))
+    } catch (storageError) {
+      console.warn('Unable to persist analysis result', storageError)
+    }
+
+    await router.push({ name: 'analysis' })
+  } catch (error) {
+    console.error(error)
+    submitError.value = '分析失败，请稍后再试'
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>
 
@@ -156,10 +178,11 @@ function submitRecord() {
       </label>
 
       <div class="form-submit">
-        <button class="primary-action pop-shadow" type="submit">
-          保存并分析
+        <button class="primary-action pop-shadow" type="submit" :disabled="isSubmitting">
+          {{ isSubmitting ? '提交中...' : '保存并分析' }}
           <span class="action-icon material-symbol" aria-hidden="true">arrow_forward</span>
         </button>
+        <p v-if="submitError" class="error-text">{{ submitError }}</p>
       </div>
     </form>
   </main>

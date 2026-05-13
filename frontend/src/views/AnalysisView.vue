@@ -1,23 +1,19 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 
 import {
+  ANALYSIS_RESULT_STORAGE_KEY,
   LAST_EVENT_STORAGE_KEY,
-  eventTypeOptions,
-  frequencyOptions,
+  isAnalyzeResult,
   mockAnalyzeResult,
-  optionLabel,
   sampleAnalyzeRequest,
   type AnalyzeRequest,
+  type AnalyzeResult,
 } from '@/data/week1'
 
 const eventRecord = ref<AnalyzeRequest>({ ...sampleAnalyzeRequest })
-const result = mockAnalyzeResult
-const sourceBreakdown = [
-  { label: '噪音问题', percent: 45, tone: 'danger' },
-  { label: '作息冲突', percent: 35, tone: 'warning' },
-  { label: '卫生 (Hygiene)', percent: 20, tone: 'fresh' },
-]
+const result = ref<AnalyzeResult>({ ...mockAnalyzeResult })
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -42,19 +38,38 @@ function isAnalyzeRequest(value: unknown): value is AnalyzeRequest {
   )
 }
 
-function fallbackToSampleRecord() {
+function fallbackToSampleData() {
   eventRecord.value = { ...sampleAnalyzeRequest }
-  localStorage.removeItem(LAST_EVENT_STORAGE_KEY)
+  result.value = { ...mockAnalyzeResult }
+
+  try {
+    localStorage.removeItem(LAST_EVENT_STORAGE_KEY)
+    localStorage.removeItem(ANALYSIS_RESULT_STORAGE_KEY)
+  } catch {
+    // Restricted browsers may block localStorage; sample data keeps the page usable.
+  }
 }
 
 onMounted(() => {
-  const stored = localStorage.getItem(LAST_EVENT_STORAGE_KEY)
-
-  if (!stored) {
-    return
-  }
-
   try {
+    const savedAnalysis = localStorage.getItem(ANALYSIS_RESULT_STORAGE_KEY)
+
+    if (savedAnalysis) {
+      const parsedAnalysis = JSON.parse(savedAnalysis) as unknown
+
+      if (isAnalyzeResult(parsedAnalysis)) {
+        result.value = parsedAnalysis
+      } else {
+        localStorage.removeItem(ANALYSIS_RESULT_STORAGE_KEY)
+      }
+    }
+
+    const stored = localStorage.getItem(LAST_EVENT_STORAGE_KEY)
+
+    if (!stored) {
+      return
+    }
+
     const parsed = JSON.parse(stored) as unknown
 
     if (isAnalyzeRequest(parsed)) {
@@ -62,15 +77,30 @@ onMounted(() => {
       return
     }
 
-    fallbackToSampleRecord()
+    fallbackToSampleData()
   } catch {
-    fallbackToSampleRecord()
+    fallbackToSampleData()
   }
 })
 
-const eventTypeLabel = computed(() => optionLabel(eventTypeOptions, eventRecord.value.event_type))
-const frequencyLabel = computed(() => optionLabel(frequencyOptions, eventRecord.value.frequency))
-const communicationLabel = computed(() => (eventRecord.value.has_communicated ? '已沟通' : '尚未沟通'))
+const recommendSimulationLabel = computed(() => (result.value.recommend_simulation ? '推荐' : '不推荐'))
+
+const sourceBreakdown = computed(() => {
+  const labels = result.value.main_sources.length > 0 ? result.value.main_sources : result.value.main_reasons
+  const tones = ['danger', 'warning', 'fresh']
+
+  if (labels.length === 0) {
+    return [{ label: '暂无来源', percent: 100, tone: 'fresh' }]
+  }
+
+  const basePercent = Math.floor(100 / labels.length)
+
+  return labels.map((label, index) => ({
+    label,
+    percent: index === labels.length - 1 ? 100 - basePercent * (labels.length - 1) : basePercent,
+    tone: tones[index % tones.length],
+  }))
+})
 </script>
 
 <template>
@@ -84,12 +114,15 @@ const communicationLabel = computed(() => (eventRecord.value.has_communicated ? 
           宿舍压力分析报告
           <span class="update-chip card-border">本周更新</span>
         </h1>
+        <p v-if="result.is_demo" class="analysis-source-badge card-border">
+          {{ result.demo_notice || '演示兜底结果' }}
+        </p>
         <p>通过对近期宿舍动态的分析，我们为您生成了这份专属的压力评估。保持关注，及时沟通！</p>
       </div>
     </section>
 
     <section class="analysis-bento">
-      <article class="score-card pop-card pop-shadow" aria-label="压力分数 76/100，冲突风险较高">
+      <article class="score-card pop-card pop-shadow" :aria-label="`压力分数 ${result.pressure_score}/100`">
         <span class="floating-icon material-symbol" aria-hidden="true">vital_signs</span>
         <h2>当前压力指数</h2>
         <div class="score-ring">
@@ -104,7 +137,7 @@ const communicationLabel = computed(() => (eventRecord.value.has_communicated ? 
         </div>
         <p>
           状态：
-          <span class="risk-badge">{{ result.risk_level }}</span>
+          <span class="risk-badge">{{ result.risk_label }}</span>
         </p>
       </article>
 
@@ -134,37 +167,40 @@ const communicationLabel = computed(() => (eventRecord.value.has_communicated ? 
           <div class="insight-list">
             <p>
               <strong>主要压力来源：</strong>
-              {{ result.main_reasons.join('、') }}
+              {{ result.main_sources.join('、') }}
             </p>
             <p>
               <strong>情绪关键词：</strong>
               {{ result.emotion_keywords.join('、') }}
             </p>
             <p>
+              <strong>风险原始级别：</strong>
+              {{ result.risk_level }}
+            </p>
+            <p>
               <strong>冲突风险趋势提示：</strong>
-              {{ result.trend_notice }}
+              {{ result.trend_message }}
             </p>
             <p>
               <strong>系统建议：</strong>
-              {{ result.suggestions[0] }}
+              {{ result.suggestion }}
             </p>
             <p>
               <strong>是否推荐进入 AI 沟通模拟：</strong>
-              推荐
+              {{ recommendSimulationLabel }}
             </p>
             <p>
               <strong>安全提示：</strong>
-              {{ result.safety_notice }}
+              {{ result.disclaimer }}
             </p>
           </div>
 
-          <button class="dark-action pop-shadow" type="button">
+          <RouterLink class="dark-action pop-shadow" :to="{ name: 'simulate' }" role="button">
             进入沟通演练
             <span class="action-icon material-symbol" aria-hidden="true">arrow_forward</span>
-          </button>
+          </RouterLink>
         </article>
       </div>
     </section>
-
   </main>
 </template>
