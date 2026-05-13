@@ -81,6 +81,40 @@ class BadShapeRunner:
         return {"summary": "missing fields"}
 
 
+class DictRunner:
+    def generate_simulation(self, request):
+        return {
+            "replies": [
+                {
+                    "roommate": "舍友 A",
+                    "personality": "直接型",
+                    "message": "我确实声音可能有点大，可以把音量调低。",
+                },
+                {
+                    "roommate": "舍友 B",
+                    "personality": "回避型",
+                    "message": "我先记一下，之后我们可以再具体说。",
+                },
+                {
+                    "roommate": "舍友 C",
+                    "personality": "调和型",
+                    "message": "我们可以约定晚上 11 点后戴耳机。",
+                },
+            ],
+            "safety_note": SIMULATE_SAFETY_NOTE,
+        }
+
+    def generate_review(self, request):
+        return {
+            "summary": "用户表达了休息需求，语气相对清楚。",
+            "strengths": ["说明了受影响的具体时间"],
+            "risks": ["可以避免使用绝对化指责"],
+            "rewritten_message": "晚上 11 点后我需要休息，能不能一起把声音降下来？",
+            "next_steps": ["选择白天双方都方便的时间再确认规则"],
+            "safety_note": REVIEW_SAFETY_NOTE,
+        }
+
+
 class ExplodingStructuredLLM:
     def invoke(self, messages):
         raise RuntimeError("provider failed with sk-test")
@@ -142,6 +176,31 @@ def test_service_returns_review_from_runner():
 
     assert response.strengths
     assert "不进行心理诊断" in response.safety_note
+
+
+def test_service_normalizes_simulation_dict_from_runner():
+    request = SimulateRequest(scenario="噪音冲突", user_message="晚上能不能小声一点？")
+    service = DormHarmonyAIService(runner=DictRunner())
+
+    response = service.simulate(request)
+
+    assert isinstance(response, SimulateResponse)
+    assert response.replies[0].roommate == "舍友 A"
+    assert response.replies[2].message == "我们可以约定晚上 11 点后戴耳机。"
+
+
+def test_service_normalizes_review_dict_from_runner():
+    request = ReviewRequest(
+        scenario="噪音冲突",
+        dialogue=[DialogueMessage(speaker="user", message="晚上能不能小声一点？")],
+    )
+    service = DormHarmonyAIService(runner=DictRunner())
+
+    response = service.review(request)
+
+    assert isinstance(response, ReviewResponse)
+    assert response.summary == "用户表达了休息需求，语气相对清楚。"
+    assert response.next_steps == ["选择白天双方都方便的时间再确认规则"]
 
 
 def test_service_sanitizes_runner_failures():
