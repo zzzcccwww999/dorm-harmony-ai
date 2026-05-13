@@ -65,12 +65,39 @@ class AnalyzeResponse(BaseModel):
 RoommateName = Literal["舍友 A", "舍友 B", "舍友 C"]
 RoommatePersonality = Literal["直接型", "回避型", "调和型"]
 DialogueSpeaker = Literal["user", "roommate_a", "roommate_b", "roommate_c", "system"]
+AnalyzeRiskLevel = Literal["stable", "pressure", "high", "severe"]
+
+
+def _validate_safety_note_boundaries(value: str) -> str:
+    if not isinstance(value, str):
+        raise ValueError("safety_note must be a string")
+
+    safety_note = value.strip()
+    if not safety_note:
+        raise ValueError("safety_note must not be empty")
+
+    has_diagnosis_boundary = (
+        "不进行心理诊断" in safety_note or "不进行心理疾病诊断" in safety_note
+    )
+    has_required_boundaries = (
+        has_diagnosis_boundary
+        and "不进行医学判断" in safety_note
+        and "不进行人格评价" in safety_note
+    )
+    has_reality_support = any(
+        phrase in safety_note for phrase in ("辅导员", "心理老师", "现实支持")
+    )
+
+    if not has_required_boundaries or not has_reality_support:
+        raise ValueError("safety_note must include phase-2 safety boundaries")
+
+    return safety_note
 
 
 class SimulateRequest(BaseModel):
     scenario: str = Field(max_length=300)
     user_message: str = Field(max_length=500)
-    risk_level: str | None = None
+    risk_level: AnalyzeRiskLevel | None = None
     context: str | None = Field(default=None, max_length=500)
 
     @field_validator("scenario", "user_message", mode="before")
@@ -84,6 +111,17 @@ class SimulateRequest(BaseModel):
             raise ValueError("field must not be empty")
 
         return text
+
+    @field_validator("risk_level", mode="before")
+    @classmethod
+    def trim_optional_risk_level(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise ValueError("risk_level must be a string")
+
+        risk_level = value.strip()
+        return risk_level or None
 
     @field_validator("context", mode="before")
     @classmethod
@@ -118,6 +156,11 @@ class RoommateReply(BaseModel):
 class SimulateResponse(BaseModel):
     replies: list[RoommateReply]
     safety_note: str
+
+    @field_validator("safety_note", mode="before")
+    @classmethod
+    def validate_safety_note(cls, value: str) -> str:
+        return _validate_safety_note_boundaries(value)
 
     @model_validator(mode="after")
     def require_fixed_roommate_roles(self) -> "SimulateResponse":
@@ -188,6 +231,11 @@ class ReviewResponse(BaseModel):
             raise ValueError("field must not be empty")
 
         return text
+
+    @field_validator("safety_note", mode="after")
+    @classmethod
+    def validate_safety_note(cls, value: str) -> str:
+        return _validate_safety_note_boundaries(value)
 
     @field_validator("strengths", "risks", "next_steps")
     @classmethod

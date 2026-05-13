@@ -32,6 +32,25 @@ def test_simulate_request_trims_optional_context_to_none():
     assert request.context is None
 
 
+def test_simulate_request_normalizes_blank_risk_level_to_none():
+    request = SimulateRequest(
+        scenario="噪音冲突",
+        user_message="能不能晚上小声一点？",
+        risk_level="   ",
+    )
+
+    assert request.risk_level is None
+
+
+def test_simulate_request_rejects_unknown_risk_level():
+    with pytest.raises(ValidationError):
+        SimulateRequest(
+            scenario="噪音冲突",
+            user_message="能不能晚上小声一点？",
+            risk_level="critical",
+        )
+
+
 def test_simulate_request_rejects_blank_user_message():
     with pytest.raises(ValidationError):
         SimulateRequest(scenario="噪音冲突", user_message="   ")
@@ -44,10 +63,14 @@ def test_simulate_response_requires_three_fixed_roommate_roles():
             RoommateReply(roommate="舍友 B", personality="回避型", message="这个之后再说吧。"),
             RoommateReply(roommate="舍友 C", personality="调和型", message="我们可以定个休息规则。"),
         ],
-        safety_note="本回复仅用于宿舍沟通演练，不进行心理诊断、医学判断或人格评价。如有现实安全风险，请联系辅导员、心理老师、家人或可信任同学。",
+        safety_note="本回复仅用于宿舍沟通演练，不进行心理诊断，不进行医学判断，不进行人格评价。如有现实安全风险，请联系辅导员、心理老师、家人或可信任同学。",
     )
 
-    assert [reply.roommate for reply in response.replies] == ["舍友 A", "舍友 B", "舍友 C"]
+    assert [(reply.roommate, reply.personality) for reply in response.replies] == [
+        ("舍友 A", "直接型"),
+        ("舍友 B", "回避型"),
+        ("舍友 C", "调和型"),
+    ]
 
 
 def test_simulate_response_rejects_missing_fixed_role():
@@ -57,7 +80,19 @@ def test_simulate_response_rejects_missing_fixed_role():
                 RoommateReply(roommate="舍友 A", personality="直接型", message="我也没开很大声吧。"),
                 RoommateReply(roommate="舍友 C", personality="调和型", message="我们可以定个休息规则。"),
             ],
-            safety_note="本回复仅用于宿舍沟通演练，不进行心理诊断、医学判断或人格评价。",
+            safety_note="本回复仅用于宿舍沟通演练，不进行心理诊断，不进行医学判断，不进行人格评价。如有现实安全风险，请联系辅导员。",
+        )
+
+
+def test_simulate_response_rejects_unsafe_safety_note():
+    with pytest.raises(ValidationError):
+        SimulateResponse(
+            replies=[
+                RoommateReply(roommate="舍友 A", personality="直接型", message="我也没开很大声吧。"),
+                RoommateReply(roommate="舍友 B", personality="回避型", message="这个之后再说吧。"),
+                RoommateReply(roommate="舍友 C", personality="调和型", message="我们可以定个休息规则。"),
+            ],
+            safety_note="祝你沟通顺利。",
         )
 
 
@@ -73,7 +108,7 @@ def test_review_response_requires_actionable_lists():
         risks=["可以进一步明确时间范围"],
         rewritten_message="我最近睡眠状态不太好，晚上 11 点后能不能戴耳机或调低音量？",
         next_steps=["选择双方情绪平稳的时间沟通"],
-        safety_note="本复盘仅用于沟通训练建议，不进行心理诊断、医学判断或人格评价。如压力持续升高，请寻求现实支持。",
+        safety_note="本复盘仅用于沟通训练建议，不进行心理诊断，不进行医学判断，不进行人格评价。如压力持续升高，请寻求现实支持。",
     )
 
     assert response.strengths == ["说明了具体影响"]
@@ -87,7 +122,19 @@ def test_review_response_rejects_empty_actionable_lists():
             risks=["可以进一步明确时间范围"],
             rewritten_message="我最近睡眠状态不太好，晚上 11 点后能不能戴耳机或调低音量？",
             next_steps=["选择双方情绪平稳的时间沟通"],
-            safety_note="本复盘仅用于沟通训练建议，不进行心理诊断、医学判断或人格评价。",
+            safety_note="本复盘仅用于沟通训练建议，不进行心理诊断，不进行医学判断，不进行人格评价。如压力持续升高，请寻求现实支持。",
+        )
+
+
+def test_review_response_rejects_unsafe_safety_note():
+    with pytest.raises(ValidationError):
+        ReviewResponse(
+            summary="用户表达了睡眠受影响的事实，整体语气较温和。",
+            strengths=["说明了具体影响"],
+            risks=["可以进一步明确时间范围"],
+            rewritten_message="我最近睡眠状态不太好，晚上 11 点后能不能戴耳机或调低音量？",
+            next_steps=["选择双方情绪平稳的时间沟通"],
+            safety_note="本建议仅供参考。",
         )
 
 
