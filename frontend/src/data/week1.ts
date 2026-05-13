@@ -73,13 +73,15 @@ export interface StoredSimulationResult {
   response: SimulationResponse
 }
 
+export type ReviewDialogueSpeaker = 'user' | 'roommate_a' | 'roommate_b' | 'roommate_c' | 'system'
+
 export interface ReviewDialogueLine {
-  speaker: string
+  speaker: ReviewDialogueSpeaker
   message: string
 }
 
 export interface ReviewOriginalEvent {
-  event_type?: string
+  event_type?: AnalyzeRequestPayload['event_type']
   risk_level?: AnalyzeRiskLevel
   pressure_score?: number
 }
@@ -160,6 +162,48 @@ const EMOTION_MAP: Record<LegacyEmotion, AnalyzeRequestPayload['emotion']> = {
   angry: 'angry',
   helpless: 'helpless',
   repressed: 'depressed',
+}
+
+export function mapEventTypeToAnalyzeApi(
+  value: string,
+): AnalyzeRequestPayload['event_type'] | undefined {
+  const eventType = value.trim()
+
+  if (Object.hasOwn(EVENT_TYPE_MAP, eventType)) {
+    return EVENT_TYPE_MAP[eventType as LegacyEventType]
+  }
+
+  if (
+    eventType === 'noise' ||
+    eventType === 'schedule' ||
+    eventType === 'hygiene' ||
+    eventType === 'cost' ||
+    eventType === 'privacy' ||
+    eventType === 'emotion'
+  ) {
+    return eventType
+  }
+
+  return undefined
+}
+
+export function mapRoommateToReviewSpeaker(roommate: string): ReviewDialogueSpeaker {
+  const normalized = roommate.trim()
+  const compact = normalized.replace(/\s+/g, '')
+
+  if (compact === '舍友A' || compact.toLowerCase() === 'roommatea' || compact.toLowerCase() === 'roommate_a') {
+    return 'roommate_a'
+  }
+
+  if (compact === '舍友B' || compact.toLowerCase() === 'roommateb' || compact.toLowerCase() === 'roommate_b') {
+    return 'roommate_b'
+  }
+
+  if (compact === '舍友C' || compact.toLowerCase() === 'roommatec' || compact.toLowerCase() === 'roommate_c') {
+    return 'roommate_c'
+  }
+
+  return 'system'
 }
 
 export const eventTypeOptions = [
@@ -283,10 +327,7 @@ function buildDemoAnalyzeResult(reason: string): AnalyzeResult {
   )
 }
 
-export function buildDemoSimulationResponse(
-  reason: string,
-  request: SimulationRequest,
-): SimulationResponse {
+export function buildDemoSimulationResponse(reason: string): SimulationResponse {
   return {
     replies: [
       {
@@ -614,7 +655,7 @@ export async function submitAnalyzeRequest(form: AnalyzeRequest): Promise<Analyz
 export async function submitSimulationRequest(
   payload: SimulationRequest,
 ): Promise<SimulationResponse> {
-  const fallback = buildDemoSimulationResponse('后端服务未就绪', payload)
+  const fallback = buildDemoSimulationResponse('后端服务未就绪')
 
   try {
     const response = await fetch('/api/simulate', {
@@ -626,19 +667,19 @@ export async function submitSimulationRequest(
     })
 
     if (!response.ok) {
-      return buildDemoSimulationResponse(`接口返回 ${response.status}`, payload)
+      return buildDemoSimulationResponse(`接口返回 ${response.status}`)
     }
 
     const raw = (await response.json()) as unknown
 
     if (!isSimulationResponsePayload(raw)) {
-      return buildDemoSimulationResponse('接口返回字段不匹配', payload)
+      return buildDemoSimulationResponse('接口返回字段不匹配')
     }
 
     return normalizeSimulationResponse(raw)
   } catch (error) {
     if (error instanceof Error) {
-      return buildDemoSimulationResponse(`请求失败：${error.message}`, payload)
+      return buildDemoSimulationResponse(`请求失败：${error.message}`)
     }
 
     return fallback

@@ -33,6 +33,14 @@ function requireRegex(relativePath, pattern, description) {
   }
 }
 
+function requireNotRegex(relativePath, pattern, description) {
+  const content = read(relativePath)
+
+  if (pattern.test(content)) {
+    failures.push(`${relativePath} still contains ${description}`)
+  }
+}
+
 requireIncludes('package.json', ['"verify:phase2": "node scripts/verify-phase2.mjs"'])
 
 requireIncludes('src/router/index.ts', [
@@ -65,6 +73,8 @@ requireIncludes('src/data/week1.ts', [
   'normalizeAnalyzeResponse',
   'buildDemoSimulationResponse',
   'buildDemoReviewResponse',
+  'mapEventTypeToAnalyzeApi',
+  'mapRoommateToReviewSpeaker',
 ])
 
 requireIncludes('src/views/RecordView.vue', [
@@ -126,6 +136,16 @@ requireIncludes('src/views/ReviewView.vue', [
   '安全提示',
   'submitReviewRequest',
   'REVIEW_RESULT_STORAGE_KEY',
+  'mapEventTypeToAnalyzeApi',
+  'mapRoommateToReviewSpeaker',
+  "speaker: 'user'",
+])
+
+requireIncludes('vite.config.ts', [
+  'server',
+  'proxy',
+  "'/api'",
+  "target: 'http://127.0.0.1:8000'",
 ])
 
 requireIncludes('src/styles/main.css', [
@@ -177,6 +197,42 @@ requireRegex(
   'src/data/week1.ts',
   /is_demo:\s*typeof raw\.is_demo === 'boolean'\s*\?\s*raw\.is_demo\s*:\s*false/,
   'review response normalization default for missing is_demo',
+)
+
+requireRegex(
+  'src/views/ReviewView.vue',
+  /speaker:\s*mapRoommateToReviewSpeaker\(reply\.roommate\)/,
+  'review request mapping for roommate display names to backend speaker enums',
+)
+
+requireRegex(
+  'src/views/ReviewView.vue',
+  /mapEventTypeToAnalyzeApi\(lastEvent\.event_type\)/,
+  'review original_event event_type mapping to backend event enums',
+)
+
+requireRegex(
+  'src/views/ReviewView.vue',
+  /risk_level:\s*parsed\.risk_level,[\s\S]*pressure_score:\s*parsed\.pressure_score/,
+  'review fallback analysis source without synthetic event_type values',
+)
+
+requireNotRegex(
+  'src/views/ReviewView.vue',
+  /event_type:\s*`risk-/,
+  'synthetic risk-* original_event event_type values',
+)
+
+requireNotRegex(
+  'src/views/ReviewView.vue',
+  /speaker:\s*`?\$\{reply\.roommate/,
+  'direct roommate display labels in review API speaker values',
+)
+
+requireNotRegex(
+  'src/views/ReviewView.vue',
+  /speaker:\s*'你'/,
+  'Chinese display label as review API speaker value',
 )
 
 if (failures.length > 0) {
