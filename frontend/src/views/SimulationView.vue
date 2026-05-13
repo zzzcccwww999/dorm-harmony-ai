@@ -21,7 +21,7 @@ import {
 const scenarioButtons = simulationScenarios
 const defaultScene = defaultSimulationRequest.scenario
 const defaultSpeech = defaultSimulationRequest.user_message
-const designPreview = buildDemoSimulationResponse('设计稿首屏示例', defaultSimulationRequest)
+const designPreview = buildDemoSimulationResponse('设计稿首屏示例')
 
 const currentScene = ref(defaultScene)
 const userMessage = ref(defaultSpeech)

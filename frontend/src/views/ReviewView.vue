@@ -8,6 +8,8 @@ import {
   REVIEW_RESULT_STORAGE_KEY,
   SIMULATION_RESULT_STORAGE_KEY,
   buildDemoReviewResponse,
+  mapEventTypeToAnalyzeApi,
+  mapRoommateToReviewSpeaker,
   isAnalyzeResult,
   isStoredReviewResult,
   submitReviewRequest,
@@ -82,7 +84,6 @@ function buildFallbackAnalysisSource(parsed?: AnalyzeResult): ReviewContext['ori
   return {
     risk_level: parsed.risk_level,
     pressure_score: parsed.pressure_score,
-    event_type: `risk-${parsed.risk_level}`,
   }
 }
 
@@ -176,14 +177,14 @@ function buildDialogueFromSimulation(simulation: {
 
   if (simulation.request.user_message.trim().length > 0) {
     lines.push({
-      speaker: '你',
+      speaker: 'user',
       message: simulation.request.user_message.trim(),
     })
   }
 
   for (const reply of simulation.response.replies.slice(0, 3)) {
     lines.push({
-      speaker: `${reply.roommate}（${reply.personality}）`,
+      speaker: mapRoommateToReviewSpeaker(reply.roommate),
       message: reply.message,
     })
   }
@@ -194,7 +195,7 @@ function buildDialogueFromSimulation(simulation: {
 function hydrateReviewContext(): ReviewContext {
   const analysis = hydrateStoredAnalysis()
   const lastEvent = hydrateStoredLastEvent()
-  const fallbackDialogue = [{ speaker: '你', message: fallbackDialogueMessage }]
+  const fallbackDialogue: ReviewDialogueLine[] = [{ speaker: 'user', message: fallbackDialogueMessage }]
 
   let scenario = '沟通复盘场景'
   let dialogue = fallbackDialogue
@@ -219,7 +220,7 @@ function hydrateReviewContext(): ReviewContext {
       typeof lastEvent?.description === 'string' && lastEvent.description.length > 0
         ? lastEvent.description
         : '先梳理你在沟通中希望对方调整的具体内容。'
-    dialogue = [{ speaker: '你', message: eventHint }]
+    dialogue = [{ speaker: 'user', message: eventHint }]
     scenario = lastEvent?.event_type
       ? `舍友${lastEvent.event_type === 'noise_conflict' ? '作息' : '沟通'}场景`
       : scenario
@@ -228,9 +229,12 @@ function hydrateReviewContext(): ReviewContext {
   originalEvent = buildFallbackAnalysisSource(analysis)
 
   if (lastEvent?.event_type) {
-    originalEvent = {
-      event_type: lastEvent.event_type,
-      ...originalEvent,
+    const mappedEventType = mapEventTypeToAnalyzeApi(lastEvent.event_type)
+    if (mappedEventType) {
+      originalEvent = {
+        ...originalEvent,
+        event_type: mappedEventType,
+      }
     }
   }
 
