@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "verify:week1": "node scripts/verify-week1.mjs",
     "verify:phase2": "node scripts/verify-phase2.mjs",
+    "verify:phase3": "node scripts/verify-phase3.mjs",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "run-s lint:*",
