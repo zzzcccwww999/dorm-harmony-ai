@@ -50,9 +50,12 @@ class AnalyzeRequest(BaseModel):
         return description
 
 
+AnalyzeRiskLevel = Literal["stable", "pressure", "high", "severe"]
+
+
 class AnalyzeResponse(BaseModel):
     pressure_score: int
-    risk_level: str
+    risk_level: AnalyzeRiskLevel
     risk_label: str
     main_sources: list[str]
     emotion_keywords: list[str]
@@ -65,7 +68,6 @@ class AnalyzeResponse(BaseModel):
 RoommateName = Literal["舍友 A", "舍友 B", "舍友 C"]
 RoommatePersonality = Literal["直接型", "回避型", "调和型"]
 DialogueSpeaker = Literal["user", "roommate_a", "roommate_b", "roommate_c", "system"]
-AnalyzeRiskLevel = Literal["stable", "pressure", "high", "severe"]
 
 
 def _validate_safety_note_boundaries(value: str) -> str:
@@ -87,8 +89,17 @@ def _validate_safety_note_boundaries(value: str) -> str:
     has_reality_support = any(
         phrase in safety_note for phrase in ("辅导员", "心理老师", "现实支持")
     )
+    has_rehearsal_purpose = (
+        "仅用于宿舍沟通演练" in safety_note or "仅用于沟通训练建议" in safety_note
+    )
+    has_virtual_roommate_boundary = "不代表真实舍友想法" in safety_note
 
-    if not has_required_boundaries or not has_reality_support:
+    if (
+        not has_required_boundaries
+        or not has_reality_support
+        or not has_rehearsal_purpose
+        or not has_virtual_roommate_boundary
+    ):
         raise ValueError("safety_note must include phase-2 safety boundaries")
 
     return safety_note
