@@ -93,13 +93,13 @@
 | 任务编号 | 当前状态 | 证据 |
 | --- | --- | --- |
 | B1-1 | 已完成 | `README.md`、本文件和 `docs/phase1-status.md` 已明确 Demo 核心范围与第一阶段边界 |
-| B1-2 | 已完成接口字段草案 | `docs/backend-api-contract.md` 记录 `/health`、`/api/analyze` 已实现接口，并为 `/api/simulate`、`/api/review` 补充请求 / 响应 JSON 草案；两者仍标明为第二阶段草案，第一阶段未实现运行时路由 |
+| B1-2 | 已完成接口字段草案 | 第一阶段已在 `docs/backend-api-contract.md` 记录 `/health`、`/api/analyze` 已实现接口，并为 `/api/simulate`、`/api/review` 补充请求 / 响应 JSON 草案；第二阶段已将两者升级为后端 AI 已实现接口 |
 | B1-3 | 已完成 | `docs/scoring-model.md` 记录第一阶段规则评分模型、风险区间和典型案例 |
 | B1-4 | 已完成 | `backend/app/main.py`、`backend/app/schemas.py`、`backend/app/scoring.py`、`backend/app/safety.py` 已形成 FastAPI 后端基础结构 |
 | B1-5 | 已完成 | `POST /api/analyze` 已返回结构化压力分析结果，`backend/tests/test_api.py` 覆盖典型 76 分案例 |
 | B1-6 | 已完成 | `README.md`、`docs/backend-api-contract.md`、`docs/scoring-model.md`、`docs/phase1-status.md` 已补齐第一阶段基础文档 |
 
-第一阶段未完成或未覆盖内容：`/api/simulate` 运行时、`/api/review` 运行时、LangChain / 大模型调用、历史记录存储与查询均未实现；曹乐负责的前端任务状态保持原计划描述，不在本次后端文档任务中变更。
+第一阶段当时未完成或未覆盖内容：`/api/simulate` 运行时、`/api/review` 运行时、LangChain / 大模型调用、历史记录存储与查询。第二阶段后端 AI 已完成 `/api/simulate`、`/api/review` 和 LangChain/OpenAI 调用；历史记录存储与查询、曹乐负责的前端任务仍不在本次后端文档任务中变更。
 
 ## 5. 第二阶段：核心功能开发
 
@@ -117,6 +117,19 @@
 | B2-4 | 实现 `/api/review` 接口 | 接收对话记录，返回表达总结、优点、问题、优化话术、后续建议、安全提示 | 复盘报告接口 | 返回结构完整，前端可直接展示 |
 | B2-5 | 添加心理安全边界 | 避免输出心理诊断、人格评价、攻击性建议；压力较高时提示寻求现实支持 | 安全边界提示逻辑 | 接口输出包含非诊断性提示 |
 | B2-6 | 准备演示用样例数据 | 准备噪音冲突、卫生分工、隐私边界等典型场景 | 演示样例数据 | 前端可以使用样例快速演示核心流程 |
+
+### 5.1.1 第二阶段后端 / AI 状态记录
+
+本次状态记录只覆盖朱春雯负责的第二阶段后端 AI 任务。当前后端已完成 `/api/analyze`、`/api/simulate` 和 `/api/review` 运行时能力；前端 AI 页面联调、完整 Demo、历史记录存储与查询、第 7 天演示视频和宣传海报仍属于曹乐任务、第三阶段或后续提交材料范围。
+
+| 任务编号 | 当前状态 | 证据 |
+| --- | --- | --- |
+| B2-1 | 已完成 | `backend/app/scoring.py` 与 `backend/tests/test_scoring.py` 覆盖不同输入对应不同压力值和风险等级 |
+| B2-2 | 已完成 | `backend/app/ai_prompts.py` 固定多角色 Prompt、结构化输出要求和宿舍沟通安全边界 |
+| B2-3 | 已完成 | `backend/app/main.py` 暴露 `POST /api/simulate`；`backend/app/ai_service.py` 通过 LangChain/OpenAI 生成结构化舍友回复 |
+| B2-4 | 已完成 | `backend/app/main.py` 暴露 `POST /api/review`；`backend/app/ai_service.py` 通过 LangChain/OpenAI 生成沟通复盘结构化结果 |
+| B2-5 | 已完成 | `backend/app/ai_prompts.py` 与 `backend/app/ai_service.py` 约束非诊断性、安全提示和现实支持建议 |
+| B2-6 | 已完成 | `backend/app/demo_data.py` 提供噪音冲突、卫生分工、隐私边界演示样例 |
 
 ### 5.2 曹乐任务
 
@@ -142,7 +155,7 @@
 | AI 沟通模拟页面 | 曹乐 | 可选择场景、输入话术、展示多角色回复 |
 | 多角色聊天展示组件 | 曹乐 | 角色区分清楚，回复内容可读 |
 | 沟通复盘报告页面 | 曹乐 | 报告分区完整，适合演示 |
-| 前后端接口对接初版 | 曹乐 | `/api/analyze`、`/api/simulate`、`/api/review` 均完成前端调用 |
+| 前后端接口对接初版 | 曹乐 | 目标为 `/api/analyze`、`/api/simulate`、`/api/review` 均完成前端调用；本次后端 AI 状态记录未确认前端联调完成 |
 
 ## 6. 第三阶段：联调优化与开发收尾
 
