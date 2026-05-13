@@ -99,3 +99,31 @@ def test_analyze_request_rejects_non_string_description_as_validation_error():
             has_conflict=False,
             description=123,
         )
+
+
+def test_phase2_scoring_regression_keeps_inputs_distinct():
+    low_request = AnalyzeRequest(
+        event_type=EventType.HYGIENE,
+        severity=1,
+        frequency=EventFrequency.OCCASIONAL,
+        emotion=Emotion.HELPLESS,
+        has_communicated=True,
+        has_conflict=False,
+        description="公共区域偶尔有点乱，但已经沟通过。",
+    )
+    high_request = AnalyzeRequest(
+        event_type=EventType.NOISE,
+        severity=5,
+        frequency=EventFrequency.DAILY,
+        emotion=Emotion.DEPRESSED,
+        has_communicated=False,
+        has_conflict=True,
+        description="舍友每天深夜打游戏，长期影响睡眠并已经冷战。",
+    )
+
+    low_result = analyze_pressure(low_request)
+    high_result = analyze_pressure(high_request)
+
+    assert low_result.pressure_score < high_result.pressure_score
+    assert low_result.risk_level == "stable"
+    assert high_result.risk_level == "severe"
