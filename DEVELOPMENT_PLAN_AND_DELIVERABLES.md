@@ -173,6 +173,18 @@
 | B3-4 | 完善最终策划文档 | 确保需求痛点、功能设计、技术方案、开发计划、伦理说明一致 | 最终作品策划文档 | 文档覆盖线上提交要求中的策划文档内容 |
 | B3-5 | 整理开发限制说明 | 记录 Demo 数据范围、AI 输出依赖、未实现拓展功能 | 开发收尾说明 | 明确当前 Demo 能力边界 |
 
+### 6.1.1 第三阶段后端 / 联调收尾状态记录
+
+本次状态记录只覆盖朱春雯负责的第三阶段后端、接口、AI、技术说明和策划文档收尾任务。完整网页 Demo、页面截图、响应式 UI、演示视频和宣传海报仍需与曹乐前端任务及第 7 天材料任务共同验收。
+
+| 任务编号 | 当前状态 | 证据 |
+| --- | --- | --- |
+| B3-1 | 已完成朱春雯侧静态联调准备；真实浏览器/API smoke 未验证 | `frontend/vite.config.ts` 已配置 `/api` 代理；`backend/app/main.py` 已配置本地 CORS；`frontend/scripts/verify-phase3.mjs` 校验前端相对 API 路径与代理配置 |
+| B3-2 | 已完成本轮后端问题修复 | `backend/app/schemas.py` 兼容当前前端复盘 payload，并继续拒绝未授权 extra 字段；`backend/tests/test_api.py` 覆盖 CORS、字段兼容和异常输入 |
+| B3-3 | 已完成技术说明 | `docs/phase3-status.md`、`README.md` 和 `docs/backend-api-contract.md` 已说明 FastAPI、评分模型、LangChain Prompt、AI 服务、数据存储当前状态和安全边界 |
+| B3-4 | 已完成当前实现校准 | `docs/sheyou-xinqing-planning.md` 已补充当前实现与后续拓展边界 |
+| B3-5 | 已完成开发限制说明 | `docs/phase3-status.md` 已记录 Demo 数据范围、AI Key 依赖、未实现历史记录和第 7 天材料边界 |
+
 ### 6.2 曹乐任务
 
 | 任务编号 | 任务 | 具体要求 | 阶段交付物 | 验收标准 |
