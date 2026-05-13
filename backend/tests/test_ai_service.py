@@ -1,6 +1,7 @@
 import pytest
 
 from app.ai_service import (
+    AISettings,
     AIOutputStructureError,
     AIServiceConfigurationError,
     AIServiceUnavailableError,
@@ -80,6 +81,27 @@ class BadShapeRunner:
         return {"summary": "missing fields"}
 
 
+class ExplodingStructuredLLM:
+    def invoke(self, messages):
+        raise RuntimeError("provider failed with sk-test")
+
+
+class ExplodingChatOpenAI:
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+
+    def with_structured_output(self, schema):
+        return ExplodingStructuredLLM()
+
+
+def assert_exception_chain_is_sanitized(error):
+    assert "sk-test" not in str(error)
+    assert error.__cause__ is None
+    assert error.__context__ is None
+    assert "sk-test" not in str(error.__cause__)
+    assert "sk-test" not in str(error.__context__)
+
+
 def test_load_ai_settings_requires_openai_api_key(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
@@ -130,8 +152,7 @@ def test_service_sanitizes_runner_failures():
         service.simulate(request)
 
     assert "AI 服务暂时不可用" in str(exc_info.value)
-    assert "sk-test" not in str(exc_info.value)
-    assert exc_info.value.__cause__ is None
+    assert_exception_chain_is_sanitized(exc_info.value)
 
 
 def test_service_rejects_invalid_runner_shape():
@@ -141,7 +162,20 @@ def test_service_rejects_invalid_runner_shape():
     with pytest.raises(AIOutputStructureError) as exc_info:
         service.simulate(request)
 
-    assert exc_info.value.__cause__ is None
+    assert_exception_chain_is_sanitized(exc_info.value)
+
+
+def test_langchain_runner_sanitizes_provider_failure(monkeypatch):
+    monkeypatch.setattr("langchain_openai.ChatOpenAI", ExplodingChatOpenAI)
+    runner = LangChainOpenAIRunner(
+        settings=AISettings(api_key="test-key", model="gpt-4o-mini", timeout=20.0)
+    )
+    request = SimulateRequest(scenario="噪音冲突", user_message="晚上能不能小声一点？")
+
+    with pytest.raises(AIServiceUnavailableError) as exc_info:
+        runner.generate_simulation(request)
+
+    assert_exception_chain_is_sanitized(exc_info.value)
 
 
 def test_default_service_constructs_without_openai_api_key(monkeypatch):

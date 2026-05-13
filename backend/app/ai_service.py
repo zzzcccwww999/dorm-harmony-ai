@@ -36,6 +36,8 @@ class AIRunner(Protocol):
 
 
 OutputModel = TypeVar("OutputModel", bound=BaseModel)
+_STRUCTURE_ERROR_MESSAGE = "AI 输出结构异常，请稍后重试。"
+_UNAVAILABLE_ERROR_MESSAGE = "AI 服务暂时不可用，请稍后重试。"
 
 
 def load_ai_settings() -> AISettings:
@@ -78,6 +80,9 @@ class LangChainOpenAIRunner:
     def _invoke_structured(
         self, schema: type[OutputModel], messages: list[tuple[str, str]]
     ) -> OutputModel:
+        public_error: AIServiceUnavailableError | None = None
+        result: object | None = None
+
         try:
             from langchain_openai import ChatOpenAI
 
@@ -90,13 +95,15 @@ class LangChainOpenAIRunner:
             )
             structured_llm = llm.with_structured_output(schema)
             result = structured_llm.invoke(messages)
-            return _ensure_model_instance(result, schema)
         except ValidationError:
-            raise AIOutputStructureError("AI 输出结构异常，请稍后重试。") from None
-        except AIOutputStructureError:
-            raise
+            public_error = AIOutputStructureError(_STRUCTURE_ERROR_MESSAGE)
         except Exception:
-            raise AIServiceUnavailableError("AI 服务暂时不可用，请稍后重试。") from None
+            public_error = AIServiceUnavailableError(_UNAVAILABLE_ERROR_MESSAGE)
+
+        if public_error is not None:
+            raise public_error
+
+        return _ensure_model_instance(result, schema)
 
 
 class DormHarmonyAIService:
@@ -109,32 +116,48 @@ class DormHarmonyAIService:
         return self._runner
 
     def simulate(self, request: SimulateRequest) -> SimulateResponse:
+        public_error: AIServiceUnavailableError | None = None
+        result: object | None = None
+
         try:
-            return _ensure_model_instance(
-                self._get_runner().generate_simulation(request), SimulateResponse
-            )
-        except AIServiceUnavailableError:
-            raise
+            result = self._get_runner().generate_simulation(request)
         except AIServiceConfigurationError:
             raise
+        except AIOutputStructureError:
+            public_error = AIOutputStructureError(_STRUCTURE_ERROR_MESSAGE)
+        except AIServiceUnavailableError:
+            public_error = AIServiceUnavailableError(_UNAVAILABLE_ERROR_MESSAGE)
         except ValidationError:
-            raise AIOutputStructureError("AI 输出结构异常，请稍后重试。") from None
+            public_error = AIOutputStructureError(_STRUCTURE_ERROR_MESSAGE)
         except Exception:
-            raise AIServiceUnavailableError("AI 服务暂时不可用，请稍后重试。") from None
+            public_error = AIServiceUnavailableError(_UNAVAILABLE_ERROR_MESSAGE)
+
+        if public_error is not None:
+            raise public_error
+
+        return _ensure_model_instance(result, SimulateResponse)
 
     def review(self, request: ReviewRequest) -> ReviewResponse:
+        public_error: AIServiceUnavailableError | None = None
+        result: object | None = None
+
         try:
-            return _ensure_model_instance(
-                self._get_runner().generate_review(request), ReviewResponse
-            )
-        except AIServiceUnavailableError:
-            raise
+            result = self._get_runner().generate_review(request)
         except AIServiceConfigurationError:
             raise
+        except AIOutputStructureError:
+            public_error = AIOutputStructureError(_STRUCTURE_ERROR_MESSAGE)
+        except AIServiceUnavailableError:
+            public_error = AIServiceUnavailableError(_UNAVAILABLE_ERROR_MESSAGE)
         except ValidationError:
-            raise AIOutputStructureError("AI 输出结构异常，请稍后重试。") from None
+            public_error = AIOutputStructureError(_STRUCTURE_ERROR_MESSAGE)
         except Exception:
-            raise AIServiceUnavailableError("AI 服务暂时不可用，请稍后重试。") from None
+            public_error = AIServiceUnavailableError(_UNAVAILABLE_ERROR_MESSAGE)
+
+        if public_error is not None:
+            raise public_error
+
+        return _ensure_model_instance(result, ReviewResponse)
 
 
 def _ensure_model_instance(value: object, schema: type[OutputModel]) -> OutputModel:
@@ -142,9 +165,17 @@ def _ensure_model_instance(value: object, schema: type[OutputModel]) -> OutputMo
         return value
 
     if isinstance(value, dict):
+        validation_failed = False
+        model: OutputModel | None = None
         try:
-            return schema.model_validate(value)
+            model = schema.model_validate(value)
         except ValidationError:
-            raise AIOutputStructureError("AI 输出结构异常，请稍后重试。") from None
+            validation_failed = True
 
-    raise AIOutputStructureError("AI 输出结构异常，请稍后重试。")
+        if validation_failed:
+            raise AIOutputStructureError(_STRUCTURE_ERROR_MESSAGE)
+
+        if model is not None:
+            return model
+
+    raise AIOutputStructureError(_STRUCTURE_ERROR_MESSAGE)
