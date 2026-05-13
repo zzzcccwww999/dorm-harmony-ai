@@ -34,7 +34,7 @@ async def analyze(request: AnalyzeRequest) -> AnalyzeResponse:
 
 
 @app.post("/api/simulate", response_model=SimulateResponse)
-async def simulate(
+def simulate(
     request: SimulateRequest,
     ai_service: DormHarmonyAIService = Depends(get_ai_service),
 ) -> SimulateResponse:
@@ -47,7 +47,7 @@ async def simulate(
 
 
 @app.post("/api/review", response_model=ReviewResponse)
-async def review(
+def review(
     request: ReviewRequest,
     ai_service: DormHarmonyAIService = Depends(get_ai_service),
 ) -> ReviewResponse:

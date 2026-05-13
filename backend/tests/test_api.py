@@ -1,8 +1,10 @@
+import inspect
+
 from fastapi.testclient import TestClient
 import pytest
 
 from app.ai_service import AIServiceConfigurationError, AIServiceUnavailableError
-from app.main import app, get_ai_service
+from app.main import app, get_ai_service, review, simulate
 from app.safety import SAFETY_DISCLAIMER
 from app.schemas import ReviewResponse, RoommateReply, SimulateResponse
 
@@ -135,6 +137,11 @@ def test_analyze_endpoint_rejects_out_of_range_severity():
     assert response.status_code == 422
 
 
+def test_ai_endpoints_run_as_sync_functions_for_threadpool_execution():
+    assert not inspect.iscoroutinefunction(simulate)
+    assert not inspect.iscoroutinefunction(review)
+
+
 def test_simulate_endpoint_returns_structured_roommate_replies():
     app.dependency_overrides[get_ai_service] = lambda: FakeAIService()
 
@@ -192,6 +199,38 @@ def test_simulate_endpoint_returns_503_when_ai_key_missing():
 
     assert response.status_code == 503
     assert "OPENAI_API_KEY" in response.json()["detail"]
+
+
+def test_review_endpoint_returns_503_when_ai_key_missing():
+    app.dependency_overrides[get_ai_service] = lambda: MissingKeyService()
+
+    response = client.post(
+        "/api/review",
+        json={
+            "scenario": "舍友晚上打游戏声音很大，影响睡眠。",
+            "dialogue": [
+                {"speaker": "user", "message": "能不能晚上小声一点？"},
+            ],
+        },
+    )
+
+    assert response.status_code == 503
+    assert "OPENAI_API_KEY" in response.json()["detail"]
+
+
+def test_simulate_endpoint_returns_502_when_ai_service_fails():
+    app.dependency_overrides[get_ai_service] = lambda: BrokenAIService()
+
+    response = client.post(
+        "/api/simulate",
+        json={
+            "scenario": "舍友晚上打游戏声音很大，影响睡眠。",
+            "user_message": "能不能晚上小声一点？",
+        },
+    )
+
+    assert response.status_code == 502
+    assert "AI 服务暂时不可用" in response.json()["detail"]
 
 
 def test_review_endpoint_returns_502_when_ai_service_fails():
