@@ -101,10 +101,10 @@
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
-| `scenario` | string | 宿舍沟通场景 |
-| `user_message` | string | 用户准备表达的话术 |
-| `risk_level` | string | 可选，来自 `/api/analyze` 的风险等级 |
-| `context` | string | 可选，补充背景 |
+| `scenario` | string | 宿舍沟通场景，最长 300 字符 |
+| `user_message` | string | 用户准备表达的话术，最长 500 字符 |
+| `risk_level` | string | 可选，来自 `/api/analyze` 的风险等级，枚举为 `stable` / `pressure` / `high` / `severe` |
+| `context` | string | 可选，补充背景，最长 500 字符 |
 
 响应字段：
 
@@ -145,7 +145,7 @@
       "message": "我们可以一起定个休息时间规则，尽量别互相影响。"
     }
   ],
-  "safety_note": "本回复仅用于宿舍沟通演练，不代表真实舍友想法，也不构成心理诊断或人格评价。"
+  "safety_note": "本回复仅用于宿舍沟通演练，不代表真实舍友想法，不进行心理诊断，不进行医学判断，不进行人格评价。如沟通压力持续升高或出现现实安全风险，请联系辅导员、心理老师或其他现实支持。"
 }
 ```
 
@@ -157,8 +157,10 @@
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
-| `scenario` | string | 沟通场景 |
-| `dialogue` | object[] | 用户与虚拟舍友的对话记录 |
+| `scenario` | string | 沟通场景，最长 300 字符 |
+| `dialogue` | object[] | 用户与虚拟舍友的对话记录，至少 1 条 |
+| `dialogue[].speaker` | string | 发言者，枚举为 `user` / `roommate_a` / `roommate_b` / `roommate_c` / `system` |
+| `dialogue[].message` | string | 单条对话内容，最长 500 字符 |
 | `original_event` | object | 可选，原始事件摘要 |
 
 响应字段：
@@ -214,7 +216,7 @@
     "提出具体可执行的休息时间规则",
     "如果多次沟通无效，可以寻求辅导员或宿舍管理员协助"
   ],
-  "safety_note": "本复盘仅用于沟通训练建议，不进行心理疾病诊断、医学判断或舍友人格评价。"
+  "safety_note": "本复盘仅用于沟通训练建议，不代表真实舍友想法，不进行心理疾病诊断，不进行医学判断，不进行人格评价。如压力持续升高，请联系辅导员、心理老师或其他现实支持。"
 }
 ```
 
