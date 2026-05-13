@@ -131,13 +131,26 @@ def test_service_sanitizes_runner_failures():
 
     assert "AI 服务暂时不可用" in str(exc_info.value)
     assert "sk-test" not in str(exc_info.value)
+    assert exc_info.value.__cause__ is None
 
 
 def test_service_rejects_invalid_runner_shape():
     request = SimulateRequest(scenario="噪音冲突", user_message="晚上能不能小声一点？")
     service = DormHarmonyAIService(runner=BadShapeRunner())
 
-    with pytest.raises(AIOutputStructureError):
+    with pytest.raises(AIOutputStructureError) as exc_info:
+        service.simulate(request)
+
+    assert exc_info.value.__cause__ is None
+
+
+def test_default_service_constructs_without_openai_api_key(monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+    service = DormHarmonyAIService()
+    request = SimulateRequest(scenario="噪音冲突", user_message="晚上能不能小声一点？")
+
+    with pytest.raises(AIServiceConfigurationError):
         service.simulate(request)
 
 

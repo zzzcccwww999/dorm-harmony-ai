@@ -46,10 +46,10 @@ def load_ai_settings() -> AISettings:
     timeout_text = os.getenv("DORM_HARMONY_LLM_TIMEOUT", "20").strip()
     try:
         timeout = float(timeout_text)
-    except ValueError as exc:
+    except ValueError:
         raise AIServiceConfigurationError(
             "AI 服务未配置：DORM_HARMONY_LLM_TIMEOUT 必须是数字。"
-        ) from exc
+        ) from None
 
     if timeout <= 0:
         raise AIServiceConfigurationError(
@@ -91,41 +91,50 @@ class LangChainOpenAIRunner:
             structured_llm = llm.with_structured_output(schema)
             result = structured_llm.invoke(messages)
             return _ensure_model_instance(result, schema)
-        except ValidationError as exc:
-            raise AIOutputStructureError("AI 输出结构异常，请稍后重试。") from exc
+        except ValidationError:
+            raise AIOutputStructureError("AI 输出结构异常，请稍后重试。") from None
         except AIOutputStructureError:
             raise
-        except Exception as exc:
-            raise AIServiceUnavailableError("AI 服务暂时不可用，请稍后重试。") from exc
+        except Exception:
+            raise AIServiceUnavailableError("AI 服务暂时不可用，请稍后重试。") from None
 
 
 class DormHarmonyAIService:
     def __init__(self, runner: AIRunner | None = None) -> None:
-        self._runner = runner or LangChainOpenAIRunner()
+        self._runner = runner
+
+    def _get_runner(self) -> AIRunner:
+        if self._runner is None:
+            self._runner = LangChainOpenAIRunner()
+        return self._runner
 
     def simulate(self, request: SimulateRequest) -> SimulateResponse:
         try:
             return _ensure_model_instance(
-                self._runner.generate_simulation(request), SimulateResponse
+                self._get_runner().generate_simulation(request), SimulateResponse
             )
         except AIServiceUnavailableError:
             raise
-        except ValidationError as exc:
-            raise AIOutputStructureError("AI 输出结构异常，请稍后重试。") from exc
-        except Exception as exc:
-            raise AIServiceUnavailableError("AI 服务暂时不可用，请稍后重试。") from exc
+        except AIServiceConfigurationError:
+            raise
+        except ValidationError:
+            raise AIOutputStructureError("AI 输出结构异常，请稍后重试。") from None
+        except Exception:
+            raise AIServiceUnavailableError("AI 服务暂时不可用，请稍后重试。") from None
 
     def review(self, request: ReviewRequest) -> ReviewResponse:
         try:
             return _ensure_model_instance(
-                self._runner.generate_review(request), ReviewResponse
+                self._get_runner().generate_review(request), ReviewResponse
             )
         except AIServiceUnavailableError:
             raise
-        except ValidationError as exc:
-            raise AIOutputStructureError("AI 输出结构异常，请稍后重试。") from exc
-        except Exception as exc:
-            raise AIServiceUnavailableError("AI 服务暂时不可用，请稍后重试。") from exc
+        except AIServiceConfigurationError:
+            raise
+        except ValidationError:
+            raise AIOutputStructureError("AI 输出结构异常，请稍后重试。") from None
+        except Exception:
+            raise AIServiceUnavailableError("AI 服务暂时不可用，请稍后重试。") from None
 
 
 def _ensure_model_instance(value: object, schema: type[OutputModel]) -> OutputModel:
@@ -135,7 +144,7 @@ def _ensure_model_instance(value: object, schema: type[OutputModel]) -> OutputMo
     if isinstance(value, dict):
         try:
             return schema.model_validate(value)
-        except ValidationError as exc:
-            raise AIOutputStructureError("AI 输出结构异常，请稍后重试。") from exc
+        except ValidationError:
+            raise AIOutputStructureError("AI 输出结构异常，请稍后重试。") from None
 
     raise AIOutputStructureError("AI 输出结构异常，请稍后重试。")
