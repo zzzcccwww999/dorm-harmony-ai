@@ -11,6 +11,7 @@ import {
   isAnalyzeResult,
   simulationScenarios,
   submitSimulationRequest,
+  submitSimulationStreamRequest,
   type AnalyzeResult,
   type SimulationReply,
   type SimulationRequest,
@@ -271,14 +272,35 @@ async function sendMessage() {
       risk_level: savedAnalysisRiskLevel.value,
       context: buildRequestContext(),
     }
-    const result = await submitSimulationRequest(request)
+    const applyResult = (result: SimulationResponse) => {
+      replies.value = result.replies
+      isDemoResult.value = result.is_demo
+      simulationNotice.value = result.demo_notice
+      safetyNote.value = result.safety_note
+      storedSimulationMeta.value = result.is_demo ? '演示数据' : '后端返回'
+      hasUsableSimulation.value = result.replies.length > 0
+    }
 
-    replies.value = result.replies
-    isDemoResult.value = result.is_demo
-    simulationNotice.value = result.demo_notice
-    safetyNote.value = result.safety_note
-    storedSimulationMeta.value = result.is_demo ? '演示数据' : '后端返回'
-    hasUsableSimulation.value = result.replies.length > 0
+    let result: SimulationResponse
+    try {
+      result = await submitSimulationStreamRequest(request, {
+        onStart: () => {
+          replies.value = []
+          isDemoResult.value = false
+          simulationNotice.value = 'AI 正在按顺序生成舍友回复'
+          safetyNote.value = ''
+          storedSimulationMeta.value = '后端顺序返回'
+          hasUsableSimulation.value = false
+        },
+        onReply: (reply) => {
+          replies.value = [...replies.value, reply]
+        },
+      })
+      applyResult(result)
+    } catch {
+      result = await submitSimulationRequest(request)
+      applyResult(result)
+    }
 
     try {
       localStorage.setItem(
@@ -437,7 +459,7 @@ function resetConversation() {
             </div>
           </article>
 
-          <div class="chat-reply-grid">
+          <div class="chat-message-list">
             <article
               v-for="reply in replies"
               :key="`${reply.roommate}-${reply.personality}`"

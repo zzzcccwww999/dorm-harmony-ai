@@ -99,7 +99,14 @@ requireIncludes('vite.config.ts', [
   'changeOrigin: true',
 ])
 
-requireIncludes('src/data/week1.ts', ['/api/analyze', '/api/simulate', '/api/review'])
+requireIncludes('src/data/week1.ts', [
+  '/api/analyze',
+  '/api/simulate',
+  '/api/simulate/stream',
+  '/api/review',
+  'submitSimulationStreamRequest',
+  'SimulationStreamEvent',
+])
 
 requireIncludes('src/router/index.ts', [
   '/',
@@ -170,7 +177,12 @@ requireIncludes('src/views/AnalysisView.vue', ['scoreRingCircumference', 'scoreR
 requireIncludes('src/styles/main.css', ['--score-ring-dashoffset'])
 requireRegex('src/styles/main.css', /score-ring-fill[\s\S]*--score-ring-dashoffset/, 'Score ring style uses dynamic CSS variable')
 
-requireIncludes('src/views/SimulationView.vue', ['SIMULATION_RESULT_STORAGE_KEY', 'localStorage.setItem'])
+requireIncludes('src/views/SimulationView.vue', [
+  'SIMULATION_RESULT_STORAGE_KEY',
+  'localStorage.setItem',
+  'submitSimulationStreamRequest',
+  'chat-message-list',
+])
 requireIncludes('src/views/SimulationView.vue', [
   'savedAnalysisSources',
   'savedAnalysisEmotionKeywords',
@@ -187,6 +199,11 @@ requireRegex(
   'src/views/SimulationView.vue',
   /if\s*\(\s*!message\s*\)\s*{[\s\S]*submitError\.value\s*=\s*['"][^'"]*输入[^'"]*['"]/,
   'Simulation empty input prompt before submit',
+)
+requireRegex(
+  'src/views/SimulationView.vue',
+  /submitSimulationStreamRequest\(request/,
+  'Simulation streaming-first request path',
 )
 requireIncludes('src/views/SimulationView.vue', ['const canEnterReview = computed', 'v-if="canEnterReview"', 'reviewGateMessage'])
 requireRegex(
