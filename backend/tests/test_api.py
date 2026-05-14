@@ -54,10 +54,14 @@ class FakeAIService:
 
 class MissingKeyService:
     def simulate(self, request):
-        raise AIServiceConfigurationError("AI 服务未配置：请设置 OPENAI_API_KEY。")
+        raise AIServiceConfigurationError(
+            "AI 服务未配置：请设置 DEEPSEEK_API_KEY（推荐）或 OPENAI_API_KEY（兼容旧配置）。"
+        )
 
     def review(self, request):
-        raise AIServiceConfigurationError("AI 服务未配置：请设置 OPENAI_API_KEY。")
+        raise AIServiceConfigurationError(
+            "AI 服务未配置：请设置 DEEPSEEK_API_KEY（推荐）或 OPENAI_API_KEY（兼容旧配置）。"
+        )
 
 
 class BrokenAIService:
@@ -75,6 +79,11 @@ class CapturingReviewService(FakeAIService):
     def review(self, request):
         self.review_request = request
         return super().review(request)
+
+
+def assert_llm_key_hint(detail):
+    assert "DEEPSEEK_API_KEY" in detail
+    assert "OPENAI_API_KEY" in detail
 
 
 @pytest.fixture(autouse=True)
@@ -255,7 +264,7 @@ def test_review_endpoint_accepts_frontend_display_payload_until_ai_config_check(
     )
 
     assert response.status_code == 503
-    assert "OPENAI_API_KEY" in response.json()["detail"]
+    assert_llm_key_hint(response.json()["detail"])
 
 
 def test_review_endpoint_normalizes_frontend_display_payload_for_ai_service():
@@ -320,7 +329,7 @@ def test_review_endpoint_accepts_additional_frontend_aliases_until_ai_config_che
     )
 
     assert response.status_code == 503
-    assert "OPENAI_API_KEY" in response.json()["detail"]
+    assert_llm_key_hint(response.json()["detail"])
 
 
 @pytest.mark.parametrize(
@@ -345,7 +354,7 @@ def test_review_endpoint_accepts_spec_event_type_aliases_until_ai_config_check(e
     )
 
     assert response.status_code == 503
-    assert "OPENAI_API_KEY" in response.json()["detail"]
+    assert_llm_key_hint(response.json()["detail"])
 
 
 def test_review_endpoint_ignores_analysis_only_event_alias_until_ai_config_check():
@@ -366,7 +375,7 @@ def test_review_endpoint_ignores_analysis_only_event_alias_until_ai_config_check
     )
 
     assert response.status_code == 503
-    assert "OPENAI_API_KEY" in response.json()["detail"]
+    assert_llm_key_hint(response.json()["detail"])
 
 
 def test_review_endpoint_rejects_unknown_risk_prefixed_event_alias():
@@ -431,7 +440,7 @@ def test_simulate_endpoint_returns_503_when_ai_key_missing():
     )
 
     assert response.status_code == 503
-    assert "OPENAI_API_KEY" in response.json()["detail"]
+    assert_llm_key_hint(response.json()["detail"])
 
 
 def test_review_endpoint_returns_503_when_ai_key_missing():
@@ -448,7 +457,7 @@ def test_review_endpoint_returns_503_when_ai_key_missing():
     )
 
     assert response.status_code == 503
-    assert "OPENAI_API_KEY" in response.json()["detail"]
+    assert_llm_key_hint(response.json()["detail"])
 
 
 def test_simulate_endpoint_returns_502_when_ai_service_fails():
