@@ -1,4 +1,5 @@
 .superpowers/
+docs/superpowers/
 AGENTS.md
 .worktrees/
 .env

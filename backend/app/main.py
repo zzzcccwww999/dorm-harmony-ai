@@ -1,9 +1,11 @@
 """FastAPI 应用入口，负责路由、CORS 和服务层错误映射。"""
 
+import json
 import os
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 
 from app.env import load_project_env
 from app.ai_service import (
@@ -73,6 +75,37 @@ def simulate(
     except AIServiceUnavailableError as exc:
         # 已配置但模型调用失败或输出异常，按 502 处理为上游服务不可用。
         raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+def _encode_ndjson_event(event: dict[str, object]) -> str:
+    return json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n"
+
+
+@app.post("/api/simulate/stream")
+def simulate_stream(
+    request: SimulateRequest,
+    ai_service: DormHarmonyAIService = Depends(get_ai_service),
+) -> StreamingResponse:
+    try:
+        result = ai_service.simulate(request)
+    except AIServiceConfigurationError as exc:
+        # 配置缺失仍作为普通 HTTP 错误返回，避免前端收到半截流。
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except AIServiceUnavailableError as exc:
+        # 模型调用失败或结构异常不进入流体，方便前端沿用原兜底逻辑。
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    def event_stream():
+        yield _encode_ndjson_event({"type": "start"})
+        for reply in result.replies:
+            yield _encode_ndjson_event(
+                {"type": "reply", "reply": reply.model_dump(mode="json")}
+            )
+        yield _encode_ndjson_event(
+            {"type": "final", "response": result.model_dump(mode="json")}
+        )
+
+    return StreamingResponse(event_stream(), media_type="application/x-ndjson")
 
 
 @app.post("/api/review", response_model=ReviewResponse)
