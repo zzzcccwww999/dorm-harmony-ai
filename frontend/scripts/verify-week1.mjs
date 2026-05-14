@@ -131,10 +131,13 @@ requireIncludes('src/App.vue', [
   'mobile-nav',
   'mobile-report',
   'material-symbol',
-  'Report',
-  'Performance',
-  'AI Sandbox',
-  'summarize',
+  '事件记录',
+  '沟通模拟',
+  '沟通复盘',
+  '压力分析',
+  'AI 沙盒',
+  'assignment',
+  'analytics',
   'settings',
   'mobile-avatar',
 ])
@@ -169,10 +172,11 @@ requireCssRuleIncludes('src/styles/main.css', '.sidebar', [
   'position: fixed',
   'top: 0',
   'left: 0',
-  'flex: 0 0 20rem',
-  'width: 20rem',
+  'flex: 0 0 var(--sidebar-width)',
+  'width: var(--sidebar-width)',
   'height: 100vh',
 ])
+requireCssRuleIncludes('src/styles/main.css', ':root', ['--sidebar-width: 20rem'])
 requireCssRuleExcludes('src/styles/main.css', '.sidebar', [
   'position: sticky',
   'position: relative',
@@ -184,14 +188,16 @@ requireCssRuleExcludes('src/styles/main.css', '.sidebar', [
   'height: fit-content',
   'min-height: 100vh',
 ])
-requireCssRuleIncludes('src/styles/main.css', '.content-shell', ['margin-left: 20rem'])
+requireCssRuleIncludes('src/styles/main.css', '.content-shell', [
+  'margin-left: var(--sidebar-width)',
+])
 requireCssRuleExcludes('src/styles/main.css', '.content-shell', [
   'margin-left: 16rem',
   'margin-left: 32rem',
 ])
 requireCssRuleIncludesAfter(
   'src/styles/main.css',
-  '@media (max-width: 1040px) {',
+  '@media (max-width: 1024px) {',
   '.content-shell',
   ['margin-left: 0'],
   'mobile layout media query',
@@ -206,7 +212,7 @@ requireCssRuleIncludes('src/styles/main.css', '.sidebar-cta .material-symbol', [
 
 requireIncludes('src/views/HomeView.vue', [
   '舍友心晴',
-  '大学生宿舍压力预警与沟通演练助手',
+  '宿舍压力预警与沟通演练助手',
   '开始记录',
   'hero-squiggle',
   'dashboard-card',
@@ -266,20 +272,23 @@ requireIncludes('src/views/RecordView.vue', [
 
 requireIncludes('src/views/AnalysisView.vue', [
   '压力分数',
-  '风险等级',
+  '状态：',
+  '风险原始级别',
   '主要压力来源',
-  '卫生 (Hygiene)',
+  'result.main_sources',
+  'sourceBreakdown',
   '情绪关键词',
   '是否推荐进入 AI 沟通模拟',
   '系统建议',
   '安全提示',
-  '76',
-  '冲突风险较高',
+  'result.pressure_score',
+  'result.risk_label',
   '进入沟通演练',
   'bg-diagonal-stripes',
   'score-ring',
   'insight-card',
 ])
+requireIncludes('src/data/week1.ts', ['pressure_score: 76', "risk_label: '冲突风险较高'"])
 requireExcludes('src/views/AnalysisView.vue', ['disabled', '第二阶段接入', '沟通缺口'])
 
 requireIncludes('docs/api/analyze-field-map.md', [
