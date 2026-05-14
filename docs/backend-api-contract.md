@@ -175,6 +175,26 @@ export DORM_HARMONY_CORS_ORIGINS="http://localhost:3000,http://127.0.0.1:7357"
 }
 ```
 
+### POST /api/simulate/stream
+
+状态：在保留 `/api/simulate` 完整 JSON 契约的基础上新增。该接口用于前端模拟页按顺序展示三位虚拟舍友回复；后端仍先生成并校验完整 `SimulateResponse`，再按舍友 A、舍友 B、舍友 C 的顺序输出事件。
+
+请求字段：与 `POST /api/simulate` 完全一致。
+
+响应格式：`application/x-ndjson`，每行一个 JSON object。
+
+事件顺序：
+
+```json
+{"type":"start"}
+{"type":"reply","reply":{"roommate":"舍友 A","personality":"直接型","message":"我也没开很大声吧，不过如果真的影响你了，我可以试着戴耳机。"}}
+{"type":"reply","reply":{"roommate":"舍友 B","personality":"回避型","message":"这个事情之后再说吧，我现在不太想聊。"}}
+{"type":"reply","reply":{"roommate":"舍友 C","personality":"调和型","message":"我们可以一起定个休息时间规则，尽量别互相影响。"}}
+{"type":"final","response":{"replies":[{"roommate":"舍友 A","personality":"直接型","message":"我也没开很大声吧，不过如果真的影响你了，我可以试着戴耳机。"},{"roommate":"舍友 B","personality":"回避型","message":"这个事情之后再说吧，我现在不太想聊。"},{"roommate":"舍友 C","personality":"调和型","message":"我们可以一起定个休息时间规则，尽量别互相影响。"}],"safety_note":"本回复仅用于宿舍沟通演练，不代表真实舍友想法，不进行心理诊断，不进行医学判断，不进行人格评价。如沟通压力持续升高或出现现实安全风险，请联系辅导员、心理老师或其他现实支持。"}}
+```
+
+错误语义：配置缺失仍返回 `503`；LangChain / DeepSeek 调用失败或 AI 输出结构异常仍返回 `502`。这些错误会在流开始前以普通 HTTP 错误返回，不会输出半截 NDJSON。
+
 ### POST /api/review
 
 状态：第二阶段已实现。运行时通过 LangChain 调用 DeepSeek `deepseek-v4-flash`；缺少 `DEEPSEEK_API_KEY` 且没有兼容的 `OPENAI_API_KEY` 时返回 `503`。

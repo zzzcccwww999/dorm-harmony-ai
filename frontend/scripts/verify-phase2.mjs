@@ -60,11 +60,14 @@ requireIncludes('src/data/week1.ts', [
   'REVIEW_RESULT_STORAGE_KEY',
   'submitAnalyzeRequest',
   'submitSimulationRequest',
+  'submitSimulationStreamRequest',
   'submitReviewRequest',
   '/api/analyze',
   '/api/simulate',
+  '/api/simulate/stream',
   '/api/review',
   'SimulationResponsePayload',
+  'SimulationStreamEvent',
   'isSimulationResponsePayload',
   'normalizeSimulationResponse',
   'ReviewResponsePayload',
@@ -104,6 +107,8 @@ requireIncludes('src/views/SimulationView.vue', [
   '重置',
   '发送',
   'submitSimulationRequest',
+  'submitSimulationStreamRequest',
+  'chat-message-list',
   'SIMULATION_RESULT_STORAGE_KEY',
   '舍友 A',
   '直接型',
@@ -155,6 +160,7 @@ requireIncludes('src/styles/main.css', [
   'roommate-card',
   'chat-panel',
   'chat-bubble',
+  'chat-message-list',
   'simulation-input-bar',
   'review-page',
   'review-hero-title',
@@ -173,6 +179,12 @@ requireRegex(
   'src/views/SimulationView.vue',
   /RouterLink[\s\S]*name:\s*'review'[\s\S]*生成复盘报告/,
   'simulation page action that routes to review',
+)
+
+requireRegex(
+  'src/views/SimulationView.vue',
+  /submitSimulationStreamRequest\(request/,
+  'simulation page streaming-first request path',
 )
 
 requireRegex(

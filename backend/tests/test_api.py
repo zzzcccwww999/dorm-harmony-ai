@@ -1,4 +1,5 @@
 import inspect
+import json
 
 from fastapi.testclient import TestClient
 import pytest
@@ -215,6 +216,39 @@ def test_simulate_endpoint_returns_structured_roommate_replies():
         "舍友 C",
     ]
     assert "不进行心理诊断" in body["safety_note"]
+
+
+def test_simulate_stream_endpoint_returns_ordered_reply_events():
+    app.dependency_overrides[get_ai_service] = lambda: FakeAIService()
+
+    with client.stream(
+        "POST",
+        "/api/simulate/stream",
+        json={
+            "scenario": "舍友晚上打游戏声音很大，影响睡眠。",
+            "user_message": "能不能晚上小声一点？",
+            "risk_level": "high",
+        },
+    ) as response:
+        lines = [line for line in response.iter_lines() if line]
+
+    assert response.status_code == 200
+
+    events = [json.loads(line) for line in lines]
+    assert [event["type"] for event in events] == [
+        "start",
+        "reply",
+        "reply",
+        "reply",
+        "final",
+    ]
+    assert [event["reply"]["roommate"] for event in events[1:4]] == [
+        "舍友 A",
+        "舍友 B",
+        "舍友 C",
+    ]
+    assert events[-1]["response"]["replies"][0]["roommate"] == "舍友 A"
+    assert "不进行心理诊断" in events[-1]["response"]["safety_note"]
 
 
 def test_review_endpoint_returns_structured_report():
@@ -465,6 +499,36 @@ def test_simulate_endpoint_returns_502_when_ai_service_fails():
 
     response = client.post(
         "/api/simulate",
+        json={
+            "scenario": "舍友晚上打游戏声音很大，影响睡眠。",
+            "user_message": "能不能晚上小声一点？",
+        },
+    )
+
+    assert response.status_code == 502
+    assert "AI 服务暂时不可用" in response.json()["detail"]
+
+
+def test_simulate_stream_endpoint_returns_503_when_ai_key_missing():
+    app.dependency_overrides[get_ai_service] = lambda: MissingKeyService()
+
+    response = client.post(
+        "/api/simulate/stream",
+        json={
+            "scenario": "舍友晚上打游戏声音很大，影响睡眠。",
+            "user_message": "能不能晚上小声一点？",
+        },
+    )
+
+    assert response.status_code == 503
+    assert_llm_key_hint(response.json()["detail"])
+
+
+def test_simulate_stream_endpoint_returns_502_when_ai_service_fails():
+    app.dependency_overrides[get_ai_service] = lambda: BrokenAIService()
+
+    response = client.post(
+        "/api/simulate/stream",
         json={
             "scenario": "舍友晚上打游戏声音很大，影响睡眠。",
             "user_message": "能不能晚上小声一点？",

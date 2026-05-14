@@ -68,6 +68,16 @@ export interface SimulationResponse {
 type SimulationResponsePayload = Omit<SimulationResponse, 'is_demo' | 'demo_notice'> &
   Partial<Pick<SimulationResponse, 'is_demo' | 'demo_notice'>>
 
+export type SimulationStreamEvent =
+  | { type: 'start' }
+  | { type: 'reply'; reply: SimulationReply }
+  | { type: 'final'; response: SimulationResponsePayload }
+
+export interface SimulationStreamHandlers {
+  onStart?: () => void
+  onReply?: (reply: SimulationReply) => void
+}
+
 export interface StoredSimulationResult {
   request: SimulationRequest
   response: SimulationResponse
@@ -450,6 +460,26 @@ function isSimulationResponsePayload(value: unknown): value is SimulationRespons
   )
 }
 
+function isSimulationStreamEvent(value: unknown): value is SimulationStreamEvent {
+  if (!isRecord(value) || typeof value.type !== 'string') {
+    return false
+  }
+
+  if (value.type === 'start') {
+    return true
+  }
+
+  if (value.type === 'reply') {
+    return isSimulationReply((value as { reply?: unknown }).reply)
+  }
+
+  if (value.type === 'final') {
+    return isSimulationResponsePayload((value as { response?: unknown }).response)
+  }
+
+  return false
+}
+
 function isReviewRewriteSuggestion(value: unknown): value is ReviewRewriteSuggestion {
   if (!isRecord(value)) {
     return false
@@ -684,6 +714,83 @@ export async function submitSimulationRequest(
 
     return fallback
   }
+}
+
+export async function submitSimulationStreamRequest(
+  payload: SimulationRequest,
+  handlers: SimulationStreamHandlers = {},
+): Promise<SimulationResponse> {
+  const response = await fetch('/api/simulate/stream', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok || !response.body) {
+    throw new Error(`stream request failed: ${response.status}`)
+  }
+
+  handlers.onStart?.()
+
+  const reader = response.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  let finalResponse: SimulationResponse | null = null
+
+  while (true) {
+    const { value, done } = await reader.read()
+    buffer += decoder.decode(value ?? new Uint8Array(), { stream: !done })
+    const lines = buffer.split('\n')
+    buffer = lines.pop() ?? ''
+
+    for (const line of lines) {
+      const trimmed = line.trim()
+      if (!trimmed) {
+        continue
+      }
+
+      const event = JSON.parse(trimmed) as unknown
+      if (!isSimulationStreamEvent(event)) {
+        throw new Error('stream event shape mismatch')
+      }
+
+      if (event.type === 'reply') {
+        handlers.onReply?.(event.reply)
+      }
+
+      if (event.type === 'final') {
+        finalResponse = normalizeSimulationResponse(event.response)
+      }
+    }
+
+    if (done) {
+      break
+    }
+  }
+
+  const tail = buffer.trim()
+  if (tail) {
+    const event = JSON.parse(tail) as unknown
+    if (!isSimulationStreamEvent(event)) {
+      throw new Error('stream event shape mismatch')
+    }
+
+    if (event.type === 'reply') {
+      handlers.onReply?.(event.reply)
+    }
+
+    if (event.type === 'final') {
+      finalResponse = normalizeSimulationResponse(event.response)
+    }
+  }
+
+  if (!finalResponse) {
+    throw new Error('stream final response missing')
+  }
+
+  return finalResponse
 }
 
 export async function submitReviewRequest(payload: ReviewRequest): Promise<ReviewResponse> {
