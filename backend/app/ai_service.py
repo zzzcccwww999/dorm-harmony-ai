@@ -76,7 +76,7 @@ def load_ai_settings() -> AISettings:
     )
 
 
-class LangChainOpenAIRunner:
+class LangChainDeepSeekRunner:
     def __init__(self, settings: AISettings | None = None) -> None:
         self._settings = settings or load_ai_settings()
         self.model = self._settings.model
@@ -94,17 +94,17 @@ class LangChainOpenAIRunner:
         result: object | None = None
 
         try:
-            from langchain_openai import ChatOpenAI
+            from langchain_deepseek import ChatDeepSeek
 
-            llm = ChatOpenAI(
+            llm = ChatDeepSeek(
                 model=self._settings.model,
                 temperature=0.3,
                 timeout=self._settings.timeout,
                 max_retries=1,
                 api_key=self._settings.api_key,
-                base_url=self._settings.base_url,
+                api_base=self._settings.base_url,
             )
-            structured_llm = llm.with_structured_output(schema)
+            structured_llm = llm.with_structured_output(schema, method="json_mode")
             result = structured_llm.invoke(messages)
         except ValidationError:
             public_error = AIOutputStructureError(_STRUCTURE_ERROR_MESSAGE)
@@ -123,7 +123,7 @@ class DormHarmonyAIService:
 
     def _get_runner(self) -> AIRunner:
         if self._runner is None:
-            self._runner = LangChainOpenAIRunner()
+            self._runner = LangChainDeepSeekRunner()
         return self._runner
 
     def simulate(self, request: SimulateRequest) -> SimulateResponse:
@@ -190,3 +190,6 @@ def _ensure_model_instance(value: object, schema: type[OutputModel]) -> OutputMo
             return model
 
     raise AIOutputStructureError(_STRUCTURE_ERROR_MESSAGE)
+
+
+LangChainOpenAIRunner = LangChainDeepSeekRunner

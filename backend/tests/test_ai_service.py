@@ -6,7 +6,7 @@ from app.ai_service import (
     AIServiceConfigurationError,
     AIServiceUnavailableError,
     DormHarmonyAIService,
-    LangChainOpenAIRunner,
+    LangChainDeepSeekRunner,
     load_ai_settings,
 )
 from app.schemas import (
@@ -120,7 +120,7 @@ class ExplodingStructuredLLM:
         raise RuntimeError("provider failed with sk-test")
 
 
-class ExplodingChatOpenAI:
+class ExplodingChatDeepSeek:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
 
@@ -155,14 +155,29 @@ class CapturingStructuredLLM:
         }
 
 
-class CapturingChatOpenAI:
+class CapturingChatDeepSeek:
     latest_kwargs = None
+    latest_structured_kwargs = None
+    latest_messages = None
 
     def __init__(self, **kwargs):
-        CapturingChatOpenAI.latest_kwargs = kwargs
+        CapturingChatDeepSeek.latest_kwargs = kwargs
 
-    def with_structured_output(self, schema):
+    def with_structured_output(self, schema, **kwargs):
+        CapturingChatDeepSeek.latest_structured_kwargs = kwargs
         return CapturingStructuredLLM(schema)
+
+
+class CapturingInvokeStructuredLLM(CapturingStructuredLLM):
+    def invoke(self, messages):
+        CapturingChatDeepSeek.latest_messages = messages
+        return super().invoke(messages)
+
+
+class CapturingInvokeChatDeepSeek(CapturingChatDeepSeek):
+    def with_structured_output(self, schema, **kwargs):
+        CapturingChatDeepSeek.latest_structured_kwargs = kwargs
+        return CapturingInvokeStructuredLLM(schema)
 
 
 def assert_exception_chain_is_sanitized(error):
@@ -312,8 +327,8 @@ def test_service_rejects_invalid_runner_shape():
 
 
 def test_langchain_runner_sanitizes_provider_failure(monkeypatch):
-    monkeypatch.setattr("langchain_openai.ChatOpenAI", ExplodingChatOpenAI)
-    runner = LangChainOpenAIRunner(
+    monkeypatch.setattr("langchain_deepseek.ChatDeepSeek", ExplodingChatDeepSeek)
+    runner = LangChainDeepSeekRunner(
         settings=AISettings(
             api_key="test-key",
             model="deepseek-v4-flash",
@@ -329,10 +344,11 @@ def test_langchain_runner_sanitizes_provider_failure(monkeypatch):
     assert_exception_chain_is_sanitized(exc_info.value)
 
 
-def test_langchain_runner_passes_deepseek_configuration_to_chat_openai(monkeypatch):
-    CapturingChatOpenAI.latest_kwargs = None
-    monkeypatch.setattr("langchain_openai.ChatOpenAI", CapturingChatOpenAI)
-    runner = LangChainOpenAIRunner(
+def test_langchain_runner_passes_deepseek_configuration_to_chat_deepseek(monkeypatch):
+    CapturingChatDeepSeek.latest_kwargs = None
+    CapturingChatDeepSeek.latest_structured_kwargs = None
+    monkeypatch.setattr("langchain_deepseek.ChatDeepSeek", CapturingChatDeepSeek)
+    runner = LangChainDeepSeekRunner(
         settings=AISettings(
             api_key="deepseek-key",
             model="deepseek-v4-flash",
@@ -345,14 +361,41 @@ def test_langchain_runner_passes_deepseek_configuration_to_chat_openai(monkeypat
     response = runner.generate_simulation(request)
 
     assert response.replies[0].roommate == "舍友 A"
-    assert CapturingChatOpenAI.latest_kwargs == {
+    assert CapturingChatDeepSeek.latest_kwargs == {
         "model": "deepseek-v4-flash",
         "temperature": 0.3,
         "timeout": 20.0,
         "max_retries": 1,
         "api_key": "deepseek-key",
-        "base_url": "https://api.deepseek.com",
+        "api_base": "https://api.deepseek.com",
     }
+    assert CapturingChatDeepSeek.latest_structured_kwargs == {"method": "json_mode"}
+
+
+def test_langchain_runner_sends_json_contract_prompt(monkeypatch):
+    CapturingChatDeepSeek.latest_messages = None
+    monkeypatch.setattr("langchain_deepseek.ChatDeepSeek", CapturingInvokeChatDeepSeek)
+    runner = LangChainDeepSeekRunner(
+        settings=AISettings(
+            api_key="deepseek-key",
+            model="deepseek-v4-flash",
+            base_url="https://api.deepseek.com",
+            timeout=20.0,
+        )
+    )
+    request = SimulateRequest(scenario="噪音冲突", user_message="晚上能不能小声一点？")
+
+    runner.generate_simulation(request)
+
+    assert CapturingChatDeepSeek.latest_messages is not None
+    system_messages = [
+        content
+        for role, content in CapturingChatDeepSeek.latest_messages
+        if role == "system"
+    ]
+    assert any("JSON" in content for content in system_messages)
+    assert any('"roommate"' in content for content in system_messages)
+    assert any('"personality"' in content for content in system_messages)
 
 
 def test_default_service_constructs_without_llm_api_key(monkeypatch):
@@ -370,6 +413,6 @@ def test_langchain_runner_can_be_constructed_with_settings(monkeypatch):
     monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
-    runner = LangChainOpenAIRunner(settings=load_ai_settings())
+    runner = LangChainDeepSeekRunner(settings=load_ai_settings())
 
     assert runner.model == "deepseek-v4-flash"

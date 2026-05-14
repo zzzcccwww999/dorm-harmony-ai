@@ -307,6 +307,19 @@ def test_prompts_include_schema_accepted_safety_note_phrases():
     assert "不代表真实舍友想法" in REVIEW_SYSTEM_PROMPT
 
 
+def test_prompts_include_deepseek_json_output_contract():
+    for prompt in (SIMULATE_SYSTEM_PROMPT, REVIEW_SYSTEM_PROMPT):
+        assert "JSON" in prompt
+        assert "不要输出 Markdown" in prompt
+        assert "safety_note" in prompt
+
+    for field_name in ("roommate", "personality", "message"):
+        assert field_name in SIMULATE_SYSTEM_PROMPT
+
+    for field_name in ("summary", "strengths", "risks", "rewritten_message", "next_steps"):
+        assert field_name in REVIEW_SYSTEM_PROMPT
+
+
 def test_prompt_builders_include_user_inputs():
     simulate_request = SimulateRequest(
         scenario="舍友晚上打游戏声音较大，影响睡眠",
