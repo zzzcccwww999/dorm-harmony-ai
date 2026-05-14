@@ -1,3 +1,5 @@
+"""AI 沟通模拟和复盘的 Prompt 构造。"""
+
 import json
 
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
@@ -14,6 +16,7 @@ SAFETY_BOUNDARY_TEXT = (
     "所有回复都不代表真实舍友想法，只用于安全、温和、具体、可执行的表达练习。"
 )
 
+# 系统 Prompt 固定安全边界和输出结构，避免模型返回无法被 Pydantic 解析的自由文本。
 SIMULATE_SYSTEM_PROMPT = (
     "你是“舍友心晴”AI 沟通演练助手。本任务是 AI communication rehearsal，"
     "帮助用户在大学宿舍关系沟通场景中预演不同舍友可能的回应。"
@@ -57,6 +60,7 @@ REVIEW_SYSTEM_PROMPT = (
 
 
 def build_simulate_messages(request: SimulateRequest) -> list[BaseMessage]:
+    """把模拟请求拆成 LangChain system/human 两类消息。"""
     context = request.context if request.context is not None else "无补充背景"
     risk_level = request.risk_level if request.risk_level is not None else "未提供"
     human_prompt = (
@@ -71,6 +75,7 @@ def build_simulate_messages(request: SimulateRequest) -> list[BaseMessage]:
 
 
 def build_review_messages(request: ReviewRequest) -> list[BaseMessage]:
+    """把复盘请求拆成 LangChain system/human 两类消息。"""
     dialogue_lines = "\n".join(
         f"{message.speaker}: {message.message}" for message in request.dialogue
     )

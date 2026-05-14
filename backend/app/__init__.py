@@ -1,1 +1,1 @@
-"""Backend application package for Dorm Harmony AI."""
+"""舍友心晴后端应用包。"""

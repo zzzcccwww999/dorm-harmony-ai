@@ -1,3 +1,5 @@
+"""宿舍关系压力评分模型。"""
+
 from app.safety import SAFETY_DISCLAIMER
 from app.schemas import AnalyzeRequest, AnalyzeResponse, Emotion, EventFrequency, EventType
 
@@ -37,12 +39,15 @@ EVENT_SOURCE_LABELS: dict[EventType, str] = {
 
 
 def analyze_pressure(request: AnalyzeRequest) -> AnalyzeResponse:
+    """把用户记录转换成 0-100 压力值和前端可展示的分析结果。"""
     severity_score = request.severity * 20
     frequency_score = FREQUENCY_SCORES[request.frequency]
     emotion_score = EMOTION_SCORES[request.emotion]
     communication_score = 30 if request.has_communicated else 100
     conflict_score = 100 if request.has_conflict else 40
 
+    # 权重保持可解释：严重程度、发生频率和情绪强度是主要因素，
+    # 沟通状态和是否已冲突作为辅助放大项。
     pressure_score = round(
         severity_score * 0.30
         + frequency_score * 0.25

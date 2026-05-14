@@ -1,3 +1,5 @@
+"""前后端接口契约和 AI 结构化输出模型。"""
+
 from enum import StrEnum
 from typing import Literal
 
@@ -69,6 +71,7 @@ RoommateName = Literal["舍友 A", "舍友 B", "舍友 C"]
 RoommatePersonality = Literal["直接型", "回避型", "调和型"]
 DialogueSpeaker = Literal["user", "roommate_a", "roommate_b", "roommate_c", "system"]
 
+# 兼容前端展示文案，进入 AI 服务前统一收敛为后端稳定枚举。
 FRONTEND_DIALOGUE_SPEAKER_ALIASES = {
     "我": "user",
     "你": "user",
@@ -88,6 +91,7 @@ FRONTEND_DIALOGUE_SPEAKER_ALIASES = {
     "舍友 C(调和型)": "roommate_c",
 }
 
+# 旧演示数据和当前 UI 的事件 id 不完全一致，这里只做显式白名单归一化。
 FRONTEND_REVIEW_EVENT_TYPE_ALIASES = {
     "noise_conflict": "noise",
     "schedule_conflict": "schedule",
@@ -108,6 +112,7 @@ ANALYSIS_ONLY_EVENT_TYPE_ALIASES = {
 
 
 def _validate_safety_note_boundaries(value: str) -> str:
+    """校验 AI 输出仍保留项目要求的安全边界。"""
     if not isinstance(value, str):
         raise ValueError("safety_note must be a string")
 
@@ -212,6 +217,7 @@ class SimulateResponse(BaseModel):
 
     @model_validator(mode="after")
     def require_fixed_roommate_roles(self) -> "SimulateResponse":
+        """保证三位虚拟舍友的角色顺序稳定，方便前端固定展示。"""
         expected_roles = [
             ("舍友 A", "直接型"),
             ("舍友 B", "回避型"),
@@ -254,6 +260,8 @@ class DialogueMessage(BaseModel):
 
 
 class ReviewOriginalEvent(BaseModel):
+    """复盘时携带的原始事件摘要，用于给 AI 提供上下文。"""
+
     model_config = ConfigDict(extra="forbid")
 
     event_type: EventType | None = None

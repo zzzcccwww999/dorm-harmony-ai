@@ -1,3 +1,5 @@
+"""FastAPI 应用入口，负责路由、CORS 和服务层错误映射。"""
+
 import os
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -24,6 +26,7 @@ load_project_env()
 
 
 def _get_cors_origins() -> list[str]:
+    """默认允许本地 Vite 访问，也支持环境变量覆盖部署域名。"""
     configured_origins = os.getenv("DORM_HARMONY_CORS_ORIGINS", "")
     origins = [
         origin.strip()
@@ -43,6 +46,7 @@ app.add_middleware(
 
 
 def get_ai_service() -> DormHarmonyAIService:
+    """FastAPI 依赖注入入口，测试中可覆盖为 fake service。"""
     return DormHarmonyAIService()
 
 
@@ -64,8 +68,10 @@ def simulate(
     try:
         return ai_service.simulate(request)
     except AIServiceConfigurationError as exc:
+        # 配置缺失是本地部署问题，前端按 503 展示“需要配置 AI 服务”。
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except AIServiceUnavailableError as exc:
+        # 已配置但模型调用失败或输出异常，按 502 处理为上游服务不可用。
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 
@@ -77,6 +83,8 @@ def review(
     try:
         return ai_service.review(request)
     except AIServiceConfigurationError as exc:
+        # 配置缺失是本地部署问题，前端按 503 展示“需要配置 AI 服务”。
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except AIServiceUnavailableError as exc:
+        # 已配置但模型调用失败或输出异常，按 502 处理为上游服务不可用。
         raise HTTPException(status_code=502, detail=str(exc)) from exc

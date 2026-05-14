@@ -1,3 +1,5 @@
+"""封装 LangChain/DeepSeek 调用、配置读取和结构化输出校验。"""
+
 from collections.abc import Sequence
 from dataclasses import dataclass
 import os
@@ -47,6 +49,7 @@ _DEFAULT_LLM_MODEL = "deepseek-v4-flash"
 
 
 def load_ai_settings() -> AISettings:
+    """读取 AI 配置；优先使用 DeepSeek Key，保留旧 OpenAI Key 兼容。"""
     load_project_env()
 
     api_key = (
@@ -99,6 +102,7 @@ class LangChainDeepSeekRunner:
         result: object | None = None
 
         try:
+            # 延迟导入让无 API Key 的测试环境也能构造服务对象。
             from langchain_deepseek import ChatDeepSeek
 
             llm = ChatDeepSeek(
@@ -114,6 +118,7 @@ class LangChainDeepSeekRunner:
         except ValidationError:
             public_error = AIOutputStructureError(_STRUCTURE_ERROR_MESSAGE)
         except Exception:
+            # 不把供应商异常、网络细节或潜在密钥内容暴露给前端。
             public_error = AIServiceUnavailableError(_UNAVAILABLE_ERROR_MESSAGE)
 
         if public_error is not None:
@@ -177,6 +182,7 @@ class DormHarmonyAIService:
 
 
 def _ensure_model_instance(value: object, schema: type[OutputModel]) -> OutputModel:
+    """统一把 LangChain 返回值收敛到接口响应模型。"""
     if isinstance(value, schema):
         return value
 
