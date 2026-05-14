@@ -143,6 +143,7 @@ function setDefaultSimulationState() {
 const currentScenePrompt = computed(() => {
   return `当前场景：${currentScene.value}。请先输入一句你准备现实沟通时使用的话。`
 })
+const hasUserMessage = computed(() => userMessage.value.trim().length > 0)
 
 function loadAnalysisContext() {
   try {
@@ -443,7 +444,7 @@ function resetConversation() {
             {{ currentScenePrompt }}
           </p>
 
-          <article class="chat-bubble chat-user">
+          <article class="chat-user" :class="{ 'chat-user-empty': !hasUserMessage }">
             <img
               class="chat-avatar"
               alt=""
@@ -452,11 +453,9 @@ function resetConversation() {
                 'https://lh3.googleusercontent.com/aida-public/AB6AXuBJCY4H0EjAxeuZ78DN3JrYsAy42cqUaZQaWt1Wq2JWHTPOoyn4mlZrybfWe_rmUsx13ULRLgZNsUN7mZoSEXX0vqtHQTW_qx_gFtLF91ylQl_nIedDSmJxr9g6dqPnhlTz5XrTKmVmZnB6RT586DEXb122JBJ9QF-rjTrL-ptfWXnlooad8kRFSMnfgLJJfY0xHIuyCz8-ielL8ZiobKlyFYkQT35aoKSOLs63e8WoBtT5UlpQiO5MJ2HpuLQs7GODYSqaqBxtgyc'
               "
             />
-            <div>
-              <p class="chat-bubble chat-bubble-user pop-shadow">
-                {{ userMessage }}
-              </p>
-            </div>
+            <p class="chat-bubble chat-bubble-user pop-shadow">
+              {{ userMessage }}
+            </p>
           </article>
 
           <div class="chat-message-list">

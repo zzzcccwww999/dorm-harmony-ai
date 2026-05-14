@@ -2212,8 +2212,15 @@ textarea:focus {
 
 .chat-bubble-user {
   margin: 0;
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
   background: var(--primary);
   color: #ffffff;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
 }
 
 .chat-user {
@@ -2221,7 +2228,22 @@ textarea:focus {
   align-items: flex-start;
   gap: 10px;
   justify-self: end;
-  max-width: 80%;
+  width: min(80%, 760px);
+  max-width: 100%;
+  min-width: 0;
+}
+
+.chat-user-empty {
+  width: fit-content;
+}
+
+.chat-user-empty .chat-bubble-user {
+  flex: 0 1 auto;
+  min-width: 3em;
+}
+
+.chat-user .chat-avatar {
+  flex: 0 0 auto;
 }
 
 .chat-avatar {
@@ -2253,6 +2275,7 @@ textarea:focus {
 }
 
 .chat-hint {
+  padding: 12px 16px;
   border-left: 4px solid var(--quaternary);
   background: var(--secondary-soft);
 }
@@ -2267,6 +2290,7 @@ textarea:focus {
 }
 
 .chat-footer-note {
+  padding: 12px 16px;
   background: var(--surface-low);
   color: var(--ink-soft);
 }

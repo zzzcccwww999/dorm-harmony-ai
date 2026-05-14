@@ -64,6 +64,27 @@ function requireCssRuleIncludes(relativePath, selector, declarations) {
   }
 }
 
+function requireCssRuleExcludes(relativePath, selector, declarations) {
+  const content = read(relativePath)
+  const rule = content.match(new RegExp(`${selector.replaceAll('.', '\\.')}\\s*\\{([^}]*)\\}`))
+
+  if (!rule) {
+    failures.push(`${relativePath} is missing ${selector} rule`)
+    return
+  }
+
+  const ruleDeclarations = rule[1]
+    .split(';')
+    .map((declaration) => declaration.trim())
+    .filter(Boolean)
+
+  for (const declaration of declarations) {
+    if (ruleDeclarations.includes(declaration)) {
+      failures.push(`${relativePath} ${selector} rule should not include "${declaration}"`)
+    }
+  }
+}
+
 function requireNonEmptyFile(relativePath) {
   const absolutePath = join(root, relativePath)
 
@@ -182,7 +203,14 @@ requireIncludes('src/views/SimulationView.vue', [
   'localStorage.setItem',
   'submitSimulationStreamRequest',
   'chat-message-list',
+  'const hasUserMessage = computed',
+  'chat-user-empty',
 ])
+requireRegex(
+  'src/views/SimulationView.vue',
+  /<article\s+class="chat-user"\s+:class="\{ 'chat-user-empty': !hasUserMessage \}">/,
+  'user chat row stays a layout row instead of nesting a white chat bubble around the purple bubble',
+)
 requireIncludes('src/views/SimulationView.vue', [
   'savedAnalysisSources',
   'savedAnalysisEmotionKeywords',
@@ -266,6 +294,37 @@ requireRegex(
   /@media \(max-width: 720px\)[\s\S]*\.simulation-input-bar[\s\S]*align-items:\s*stretch/,
   'simulation input bar keeps compact layout at mobile width',
 )
+
+// Chat bubble containment markers
+requireCssRuleIncludes('src/styles/main.css', '.chat-hint', ['padding: 12px 16px'])
+requireCssRuleIncludes('src/styles/main.css', '.chat-footer-note', ['padding: 12px 16px'])
+requireCssRuleIncludes('src/styles/main.css', '.chat-user', [
+  'display: flex',
+  'align-items: flex-start',
+  'gap: 10px',
+  'width: min(80%, 760px)',
+  'max-width: 100%',
+  'min-width: 0',
+])
+requireCssRuleExcludes('src/styles/main.css', '.chat-user', [
+  'padding: 10px 16px 18px 58px',
+])
+requireCssRuleIncludes('src/styles/main.css', '.chat-user-empty', [
+  'width: fit-content',
+])
+requireCssRuleExcludes('src/styles/main.css', '.chat-bubble-user', ['margin-top: -12px'])
+requireCssRuleIncludes('src/styles/main.css', '.chat-bubble-user', [
+  'flex: 1 1 auto',
+  'min-width: 0',
+  'max-width: 100%',
+  'overflow-wrap: anywhere',
+  'word-break: break-word',
+  'white-space: normal',
+])
+requireCssRuleIncludes('src/styles/main.css', '.chat-user-empty .chat-bubble-user', [
+  'flex: 0 1 auto',
+  'min-width: 3em',
+])
 
 // Final gate: phase-3 demo documentation
 const requiredFiles = [
