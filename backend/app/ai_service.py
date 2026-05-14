@@ -1,7 +1,9 @@
+from collections.abc import Sequence
 from dataclasses import dataclass
 import os
 from typing import Protocol, TypeVar
 
+from langchain_core.messages import BaseMessage
 from pydantic import BaseModel, ValidationError
 
 from app.ai_prompts import build_review_messages, build_simulate_messages
@@ -91,7 +93,7 @@ class LangChainDeepSeekRunner:
         return self._invoke_structured(ReviewResponse, build_review_messages(request))
 
     def _invoke_structured(
-        self, schema: type[OutputModel], messages: list[tuple[str, str]]
+        self, schema: type[OutputModel], messages: Sequence[BaseMessage]
     ) -> OutputModel:
         public_error: AIServiceUnavailableError | None = None
         result: object | None = None

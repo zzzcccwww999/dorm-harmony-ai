@@ -1,5 +1,7 @@
 import json
 
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
+
 from app.schemas import ReviewRequest, SimulateRequest
 
 
@@ -54,7 +56,7 @@ REVIEW_SYSTEM_PROMPT = (
 )
 
 
-def build_simulate_messages(request: SimulateRequest) -> list[tuple[str, str]]:
+def build_simulate_messages(request: SimulateRequest) -> list[BaseMessage]:
     context = request.context if request.context is not None else "无补充背景"
     risk_level = request.risk_level if request.risk_level is not None else "未提供"
     human_prompt = (
@@ -65,10 +67,10 @@ def build_simulate_messages(request: SimulateRequest) -> list[tuple[str, str]]:
         f"context: {context}"
     )
 
-    return [("system", SIMULATE_SYSTEM_PROMPT), ("human", human_prompt)]
+    return [SystemMessage(content=SIMULATE_SYSTEM_PROMPT), HumanMessage(content=human_prompt)]
 
 
-def build_review_messages(request: ReviewRequest) -> list[tuple[str, str]]:
+def build_review_messages(request: ReviewRequest) -> list[BaseMessage]:
     dialogue_lines = "\n".join(
         f"{message.speaker}: {message.message}" for message in request.dialogue
     )
@@ -88,4 +90,4 @@ def build_review_messages(request: ReviewRequest) -> list[tuple[str, str]]:
         f"original_event: {original_event}"
     )
 
-    return [("system", REVIEW_SYSTEM_PROMPT), ("human", human_prompt)]
+    return [SystemMessage(content=REVIEW_SYSTEM_PROMPT), HumanMessage(content=human_prompt)]

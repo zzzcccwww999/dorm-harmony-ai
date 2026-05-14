@@ -1,4 +1,5 @@
 import pytest
+from langchain_core.messages import SystemMessage
 
 from app.ai_service import (
     AISettings,
@@ -424,9 +425,9 @@ def test_langchain_runner_sends_json_contract_prompt(monkeypatch):
 
     assert CapturingChatDeepSeek.latest_messages is not None
     system_messages = [
-        content
-        for role, content in CapturingChatDeepSeek.latest_messages
-        if role == "system"
+        str(message.content)
+        for message in CapturingChatDeepSeek.latest_messages
+        if isinstance(message, SystemMessage)
     ]
     assert any("JSON" in content for content in system_messages)
     assert any('"roommate"' in content for content in system_messages)

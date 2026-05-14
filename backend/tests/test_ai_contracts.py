@@ -1,4 +1,5 @@
 import pytest
+from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import ValidationError
 
 from app.ai_prompts import (
@@ -211,9 +212,10 @@ def test_build_review_messages_serializes_controlled_original_event():
 
     messages = build_review_messages(request)
 
-    assert '"event_type": "noise"' in messages[-1][1]
-    assert '"frequency": "daily"' in messages[-1][1]
-    assert '"pressure_score": 76' in messages[-1][1]
+    message_content = str(messages[-1].content)
+    assert '"event_type": "noise"' in message_content
+    assert '"frequency": "daily"' in message_content
+    assert '"pressure_score": 76' in message_content
 
 
 def test_review_response_requires_actionable_lists():
@@ -320,6 +322,27 @@ def test_prompts_include_deepseek_json_output_contract():
         assert field_name in REVIEW_SYSTEM_PROMPT
 
 
+def test_prompt_builders_return_langchain_message_objects():
+    simulate_request = SimulateRequest(
+        scenario="舍友晚上打游戏声音较大，影响睡眠",
+        user_message="我想商量一下晚上能不能小声一点。",
+    )
+    review_request = ReviewRequest(
+        scenario="舍友晚上打游戏声音较大，影响睡眠",
+        dialogue=[
+            DialogueMessage(speaker="user", message="我想商量一下晚上能不能小声一点。"),
+        ],
+    )
+
+    simulate_messages = build_simulate_messages(simulate_request)
+    review_messages = build_review_messages(review_request)
+
+    assert isinstance(simulate_messages[0], SystemMessage)
+    assert isinstance(simulate_messages[1], HumanMessage)
+    assert isinstance(review_messages[0], SystemMessage)
+    assert isinstance(review_messages[1], HumanMessage)
+
+
 def test_prompt_builders_include_user_inputs():
     simulate_request = SimulateRequest(
         scenario="舍友晚上打游戏声音较大，影响睡眠",
@@ -338,10 +361,10 @@ def test_prompt_builders_include_user_inputs():
     simulate_messages = build_simulate_messages(simulate_request)
     review_messages = build_review_messages(review_request)
 
-    assert "我想商量一下晚上能不能小声一点" in simulate_messages[-1][1]
-    assert "用户尚未正式沟通" in simulate_messages[-1][1]
-    assert "roommate_a" in review_messages[-1][1]
-    assert "我也没开很大声吧" in review_messages[-1][1]
+    assert "我想商量一下晚上能不能小声一点" in str(simulate_messages[-1].content)
+    assert "用户尚未正式沟通" in str(simulate_messages[-1].content)
+    assert "roommate_a" in str(review_messages[-1].content)
+    assert "我也没开很大声吧" in str(review_messages[-1].content)
 
 
 def test_demo_scenarios_cover_required_phase2_cases():
