@@ -5,6 +5,7 @@ from typing import Protocol, TypeVar
 from pydantic import BaseModel, ValidationError
 
 from app.ai_prompts import build_review_messages, build_simulate_messages
+from app.env import load_project_env
 from app.schemas import ReviewRequest, ReviewResponse, SimulateRequest, SimulateResponse
 
 
@@ -44,6 +45,8 @@ _DEFAULT_LLM_MODEL = "deepseek-v4-flash"
 
 
 def load_ai_settings() -> AISettings:
+    load_project_env()
+
     api_key = (
         os.getenv("DEEPSEEK_API_KEY", "").strip()
         or os.getenv("OPENAI_API_KEY", "").strip()

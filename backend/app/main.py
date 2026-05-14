@@ -3,6 +3,7 @@ import os
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.env import load_project_env
 from app.ai_service import (
     AIServiceConfigurationError,
     AIServiceUnavailableError,
@@ -17,6 +18,9 @@ from app.schemas import (
     SimulateResponse,
 )
 from app.scoring import analyze_pressure
+
+
+load_project_env()
 
 
 def _get_cors_origins() -> list[str]:

@@ -31,6 +31,13 @@ REVIEW_SAFETY_NOTE = (
 )
 
 
+@pytest.fixture(autouse=True)
+def isolate_project_env_file(monkeypatch, tmp_path):
+    from app import env as env_module
+
+    monkeypatch.setattr(env_module, "DEFAULT_ENV_FILE", tmp_path / ".env.missing")
+
+
 class FakeRunner:
     def generate_simulation(self, request):
         return SimulateResponse(
@@ -197,6 +204,34 @@ def test_load_ai_settings_requires_llm_api_key(monkeypatch):
 
     assert "DEEPSEEK_API_KEY" in str(exc_info.value)
     assert "OPENAI_API_KEY" in str(exc_info.value)
+
+
+def test_load_ai_settings_loads_project_env_file(monkeypatch, tmp_path):
+    from app import env as env_module
+
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "\n".join(
+            [
+                "DEEPSEEK_API_KEY=dotenv-root-key",
+                "DORM_HARMONY_LLM_MODEL=deepseek-v4-flash",
+                "DORM_HARMONY_LLM_TIMEOUT=31",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(env_module, "DEFAULT_ENV_FILE", env_file)
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("DORM_HARMONY_LLM_MODEL", raising=False)
+    monkeypatch.delenv("DORM_HARMONY_LLM_BASE_URL", raising=False)
+    monkeypatch.delenv("DORM_HARMONY_LLM_TIMEOUT", raising=False)
+
+    settings = load_ai_settings()
+
+    assert settings.api_key == "dotenv-root-key"
+    assert settings.model == "deepseek-v4-flash"
+    assert settings.timeout == 31.0
 
 
 def test_load_ai_settings_uses_deepseek_defaults(monkeypatch):

@@ -1,6 +1,8 @@
 .superpowers/
 AGENTS.md
 .worktrees/
+.env
+.env:Zone.Identifier
 
 # Python backend
 __pycache__/

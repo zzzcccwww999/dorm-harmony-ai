@@ -95,16 +95,16 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-第二阶段 AI 接口需要配置：
+第二阶段 AI 接口需要配置。后端会通过 `python-dotenv` 自动读取仓库根目录 `.env`：
 
-```bash
-export DEEPSEEK_API_KEY="你的 DeepSeek API Key"
-export DORM_HARMONY_LLM_BASE_URL="https://api.deepseek.com"
-export DORM_HARMONY_LLM_MODEL="deepseek-v4-flash"
-export DORM_HARMONY_LLM_TIMEOUT="20"
+```env
+DEEPSEEK_API_KEY=你的 DeepSeek API Key
+DORM_HARMONY_LLM_BASE_URL=https://api.deepseek.com
+DORM_HARMONY_LLM_MODEL=deepseek-v4-flash
+DORM_HARMONY_LLM_TIMEOUT=20
 ```
 
-`DEEPSEEK_API_KEY` 必须只通过本地环境变量配置，不要提交到仓库。`OPENAI_API_KEY` 仅作为旧配置兼容 fallback。未配置任一 Key 时，`/api/simulate` 和 `/api/review` 会返回 `503`，不会返回模板伪结果。DeepSeek 官方 V4 Flash 的 API 模型名是 `deepseek-v4-flash`。
+`.env` 必须放在仓库根目录，不要提交到仓库。真实环境变量优先级高于 `.env`。`OPENAI_API_KEY` 仅作为旧配置兼容 fallback。未配置任一 Key 时，`/api/simulate` 和 `/api/review` 会返回 `503`，不会返回模板伪结果。DeepSeek 官方 V4 Flash 的 API 模型名是 `deepseek-v4-flash`。
 
 后端测试：
 
