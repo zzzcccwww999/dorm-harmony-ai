@@ -2,7 +2,7 @@
 
 《舍友心晴：大学生宿舍压力预警与沟通演练助手》是一款面向大学生宿舍关系的网页版 AI 心理支持工具。项目聚焦宿舍关系压力、沟通回避和冲突积累等常见场景，目标完整流程为“事件记录 -> 压力分析 -> AI 沟通模拟 -> 沟通复盘报告”，帮助用户在真实沟通前进行低风险表达练习。
 
-当前仓库已完成朱春雯负责的后端核心能力和第三阶段联调收尾准备：已实现 `GET /health`、`POST /api/analyze`、`POST /api/simulate` 和 `POST /api/review`；`/api/simulate` 与 `/api/review` 通过 LangChain 调用 OpenAI 模型，并使用结构化响应供前端展示。本地开发已补充 Vite `/api` 代理、FastAPI 本地 CORS、复盘字段兼容和第三阶段状态记录。完整网页 Demo、页面截图、演示视频和宣传海报仍需要与曹乐负责的前端页面和第 7 天材料一起最终验收。
+当前仓库已完成朱春雯负责的后端核心能力和第三阶段联调收尾准备：已实现 `GET /health`、`POST /api/analyze`、`POST /api/simulate` 和 `POST /api/review`；`/api/simulate` 与 `/api/review` 通过 LangChain 调用 DeepSeek 官方 OpenAI 兼容 API，并使用结构化响应供前端展示。本地开发已补充 Vite `/api` 代理、FastAPI 本地 CORS、复盘字段兼容和第三阶段状态记录。完整网页 Demo、页面截图、演示视频和宣传海报仍需要与曹乐负责的前端页面和第 7 天材料一起最终验收。
 
 本项目不进行心理疾病诊断，不评价用户或舍友的人格状态，只提供宿舍关系压力趋势提示和沟通训练建议。
 
@@ -14,7 +14,7 @@
 | 作品类型 | 心理健康方向网页版应用 / AI 智能体交互 Demo |
 | 面向场景 | 大学生宿舍关系、宿舍压力、人际沟通训练 |
 | 目标用户 | 存在宿舍沟通压力、矛盾积累或冲突回避的大学生 |
-| 目标技术路线 | Vue + Python FastAPI + LangChain + SQLite / JSON；当前已落地 FastAPI + 规则评分模型 + LangChain/OpenAI 后端 AI 接口，历史记录存储仍为后续拓展 |
+| 目标技术路线 | Vue + Python FastAPI + LangChain + SQLite / JSON；当前已落地 FastAPI + 规则评分模型 + LangChain/DeepSeek 后端 AI 接口，历史记录存储仍为后续拓展 |
 | 目标核心流程 | 宿舍事件记录 -> 压力值分析 -> 冲突风险趋势提示 -> AI 多角色沟通模拟 -> 沟通复盘报告；当前已实现后端健康检查、压力分析、沟通模拟、沟通复盘接口和本地联调配置 |
 
 ## 核心功能范围与当前状态
@@ -24,8 +24,8 @@
 | 宿舍事件记录字段 | 第一阶段后端已支持输入字段 | 用户可按接口字段提交事件类型、严重程度、发生频率、当前情绪、沟通状态、冲突升级情况和简短描述 |
 | 压力晴雨表 | 第一阶段已实现后端规则分析 | 根据事件信息生成 0-100 的压力值、风险等级、主要矛盾来源和系统建议 |
 | 冲突风险趋势提示 | 第一阶段已实现后端规则分析 | 基于事件严重程度、频率、情绪强度和沟通状态提示当前冲突风险 |
-| AI 多角色沟通模拟 | 第二阶段后端 AI 已实现，第三阶段已补本地联调配置 | 后端通过 LangChain/OpenAI 生成直接型、回避型、调和型虚拟舍友结构化回复；真实 AI 返回依赖 `OPENAI_API_KEY` |
-| 沟通复盘报告 | 第二阶段后端 AI 已实现，第三阶段已修复复盘字段兼容 | 后端通过 LangChain/OpenAI 分析用户话术，输出表达优点、潜在问题、优化话术和后续行动建议 |
+| AI 多角色沟通模拟 | 第二阶段后端 AI 已实现，第三阶段已补本地联调配置 | 后端通过 LangChain/DeepSeek 生成直接型、回避型、调和型虚拟舍友结构化回复；真实 AI 返回依赖 `DEEPSEEK_API_KEY` |
+| 沟通复盘报告 | 第二阶段后端 AI 已实现，第三阶段已修复复盘字段兼容 | 后端通过 LangChain/DeepSeek 分析用户话术，输出表达优点、潜在问题、优化话术和后续行动建议 |
 
 ## 目标典型使用流程
 
@@ -38,17 +38,17 @@
 
 ## 技术方案
 
-项目目标采用前后端分离架构。当前后端已落地 FastAPI 接口层、压力评分模块、安全提示逻辑、LangChain Prompt 和 OpenAI 结构化调用；第三阶段已补充本地前后端联调配置。持久化历史记录和线上提交素材仍为后续范围。
+项目目标采用前后端分离架构。当前后端已落地 FastAPI 接口层、压力评分模块、安全提示逻辑、LangChain Prompt 和 DeepSeek 官方 OpenAI 兼容结构化调用；第三阶段已补充本地前后端联调配置。持久化历史记录和线上提交素材仍为后续范围。
 
 ```text
 用户浏览器
   -> Vue 前端页面
   -> Python FastAPI 后端
   -> 压力评分模块 / LangChain AI 模块 / 数据存储模块（后续拓展）
-  -> OpenAI 模型 API / SQLite 或 JSON 文件（后续拓展）
+  -> DeepSeek 官方 API / SQLite 或 JSON 文件（后续拓展）
 ```
 
-当前后端运行范围为 FastAPI + 规则评分模型 + LangChain/OpenAI AI 服务：已实现 `/health`、`/api/analyze`、`/api/simulate` 和 `/api/review`，并已完成本地 Vite 代理与 CORS 联调准备。尚未实现历史记录存储与查询。
+当前后端运行范围为 FastAPI + 规则评分模型 + LangChain/DeepSeek AI 服务：已实现 `/health`、`/api/analyze`、`/api/simulate` 和 `/api/review`，并已完成本地 Vite 代理与 CORS 联调准备。尚未实现历史记录存储与查询。
 
 ### 前端目标模块
 
@@ -68,7 +68,7 @@
 | 压力评分模块 | 第一阶段已实现 | 根据规则模型计算压力值和风险等级 |
 | 安全边界模块 | 第一阶段已实现基础提示 | 对压力分析输出加入非诊断性提示和求助建议 |
 | LangChain 模块 | 第二阶段后端已实现 | 管理提示词模板、角色设定和 AI 调用流程 |
-| AI 服务模块 | 第二阶段后端已实现 | 调用 OpenAI 模型生成多角色回复和复盘建议，缺少本地 API Key 时返回 `503` |
+| AI 服务模块 | 第二阶段后端已实现 | 调用 DeepSeek `deepseek-v4-flash` 生成多角色回复和复盘建议，缺少本地 API Key 时返回 `503` |
 | 数据存储模块 | 后续计划 | 计划使用 SQLite 或 JSON 保存演示事件数据 |
 
 ## 推荐接口设计
@@ -98,12 +98,13 @@ uvicorn app.main:app --reload
 第二阶段 AI 接口需要配置：
 
 ```bash
-export OPENAI_API_KEY="你的 OpenAI API Key"
-export DORM_HARMONY_LLM_MODEL="gpt-4o-mini"
+export DEEPSEEK_API_KEY="你的 DeepSeek API Key"
+export DORM_HARMONY_LLM_BASE_URL="https://api.deepseek.com"
+export DORM_HARMONY_LLM_MODEL="deepseek-v4-flash"
 export DORM_HARMONY_LLM_TIMEOUT="20"
 ```
 
-`OPENAI_API_KEY` 必须只通过本地环境变量配置，不要提交到仓库。未配置时，`/api/simulate` 和 `/api/review` 会返回 `503`，不会返回模板伪结果。
+`DEEPSEEK_API_KEY` 必须只通过本地环境变量配置，不要提交到仓库。`OPENAI_API_KEY` 仅作为旧配置兼容 fallback。未配置任一 Key 时，`/api/simulate` 和 `/api/review` 会返回 `503`，不会返回模板伪结果。DeepSeek 官方 V4 Flash 的 API 模型名是 `deepseek-v4-flash`。
 
 后端测试：
 
@@ -169,7 +170,7 @@ export DORM_HARMONY_CORS_ORIGINS="http://localhost:3000,http://127.0.0.1:7357"
 
 ## 第二阶段 AI 沟通模拟
 
-以下内容为后端 AI 已实现能力：`/api/simulate` 和 `/api/review` 通过 LangChain 调用 OpenAI 模型，并返回便于前端展示的结构化数据。第三阶段已补充本地联调配置和复盘字段兼容；历史记录存储、第 7 天演示视频和宣传海报仍不在本阶段后端范围内。
+以下内容为后端 AI 已实现能力：`/api/simulate` 和 `/api/review` 通过 LangChain 调用 DeepSeek 官方 API，并返回便于前端展示的结构化数据。第三阶段已补充本地联调配置和复盘字段兼容；历史记录存储、第 7 天演示视频和宣传海报仍不在本阶段后端范围内。
 
 系统设定三个虚拟舍友角色：
 
@@ -205,7 +206,7 @@ AI 输出需要遵循以下原则：
 
 | 成员 | 角色定位 | 主要任务 |
 | --- | --- | --- |
-| 朱春雯 | 组长、策划文档负责人、后端与 AI 负责人 | 项目统筹、策划文档主笔、FastAPI 后端、压力评分模型、LangChain/OpenAI 后端 AI 接口、接口设计、安全边界说明 |
+| 朱春雯 | 组长、策划文档负责人、后端与 AI 负责人 | 项目统筹、策划文档主笔、FastAPI 后端、压力评分模型、LangChain/DeepSeek 后端 AI 接口、接口设计、安全边界说明 |
 | 曹乐 | 前端与展示负责人 | Vue 前端开发、页面原型、UI 设计、图表展示、聊天界面、页面截图、宣传海报、演示视频 |
 
 ## 目标线上交付物

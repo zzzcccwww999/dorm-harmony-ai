@@ -7,7 +7,7 @@
 
 ## 当前实现与后续拓展边界
 
-当前仓库已实现 FastAPI 后端、规则压力评分、LangChain/OpenAI 沟通模拟接口、沟通复盘接口、本地 Vite `/api` 代理和第三阶段朱春雯侧联调收尾记录。SQLite / JSON 历史记录存储、真实用户数据管理、页面截图、演示视频和宣传海报仍属于后续拓展或第 7 天线上提交材料任务。
+当前仓库已实现 FastAPI 后端、规则压力评分、LangChain/DeepSeek 沟通模拟接口、沟通复盘接口、本地 Vite `/api` 代理和第三阶段朱春雯侧联调收尾记录。SQLite / JSON 历史记录存储、真实用户数据管理、页面截图、演示视频和宣传海报仍属于后续拓展或第 7 天线上提交材料任务。
 
 本文档中的 SQLite / JSON、历史记录和线上材料描述属于目标规划，除非另有状态说明，不代表当前运行时代码已经落地。
 
@@ -255,7 +255,7 @@ backend/
 ├── app/main.py       # FastAPI 入口与本地 CORS
 ├── app/schemas.py    # 请求与响应数据结构
 ├── app/scoring.py    # 压力评分算法
-├── app/ai_service.py # LangChain / OpenAI 调用逻辑
+├── app/ai_service.py # LangChain / DeepSeek 调用逻辑
 ├── app/ai_prompts.py # 提示词模板
 ├── app/safety.py     # 心理安全边界提示
 └── requirements.txt

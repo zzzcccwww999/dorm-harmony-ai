@@ -1,6 +1,6 @@
 # 后端 API 契约
 
-本文档记录当前后端已实现接口。运行时 AI 接口已接入 FastAPI + LangChain + OpenAI 服务层，已提供健康检查、压力分析、沟通模拟和沟通复盘接口；第三阶段已补充本地 Vite 代理、FastAPI CORS 和复盘字段兼容。历史记录存储与查询仍未实现。
+本文档记录当前后端已实现接口。运行时 AI 接口已接入 FastAPI + LangChain + DeepSeek 服务层，已提供健康检查、压力分析、沟通模拟和沟通复盘接口；第三阶段已补充本地 Vite 代理、FastAPI CORS 和复盘字段兼容。历史记录存储与查询仍未实现。
 
 ## 安全边界
 
@@ -117,11 +117,11 @@ export DORM_HARMONY_CORS_ORIGINS="http://localhost:3000,http://127.0.0.1:7357"
 
 ## 第二阶段已实现 AI 接口
 
-以下内容为第二阶段朱春雯后端 AI 已实现接口。`/api/simulate` 与 `/api/review` 运行时通过 LangChain 调用 OpenAI 模型，并返回便于前端展示的结构化响应。
+以下内容为第二阶段朱春雯后端 AI 已实现接口。`/api/simulate` 与 `/api/review` 运行时通过 LangChain 调用 DeepSeek 官方 OpenAI 兼容 API，并返回便于前端展示的结构化响应。
 
 ### POST /api/simulate
 
-状态：第二阶段已实现。运行时通过 LangChain 调用 OpenAI 模型；缺少 `OPENAI_API_KEY` 时返回 `503`。
+状态：第二阶段已实现。运行时通过 LangChain 调用 DeepSeek `deepseek-v4-flash`；缺少 `DEEPSEEK_API_KEY` 且没有兼容的 `OPENAI_API_KEY` 时返回 `503`。
 
 请求字段：
 
@@ -177,7 +177,7 @@ export DORM_HARMONY_CORS_ORIGINS="http://localhost:3000,http://127.0.0.1:7357"
 
 ### POST /api/review
 
-状态：第二阶段已实现。运行时通过 LangChain 调用 OpenAI 模型；缺少 `OPENAI_API_KEY` 时返回 `503`。
+状态：第二阶段已实现。运行时通过 LangChain 调用 DeepSeek `deepseek-v4-flash`；缺少 `DEEPSEEK_API_KEY` 且没有兼容的 `OPENAI_API_KEY` 时返回 `503`。
 
 请求字段：
 
@@ -259,8 +259,8 @@ export DORM_HARMONY_CORS_ORIGINS="http://localhost:3000,http://127.0.0.1:7357"
 | 场景 | HTTP 状态码 | 说明 |
 | --- | --- | --- |
 | 请求字段非法 | `422` | FastAPI / Pydantic 校验失败，返回字段级错误信息 |
-| 未配置 `OPENAI_API_KEY` | `503` | AI 服务未配置，`/api/simulate` 和 `/api/review` 不返回模板伪结果 |
-| LangChain / OpenAI 调用失败 | `502` | 上游模型调用失败，后端返回 AI 服务调用失败语义 |
+| 未配置 `DEEPSEEK_API_KEY` 或兼容的 `OPENAI_API_KEY` | `503` | AI 服务未配置，`/api/simulate` 和 `/api/review` 不返回模板伪结果 |
+| LangChain / DeepSeek 调用失败 | `502` | 上游模型调用失败，后端返回 AI 服务调用失败语义 |
 | AI 输出结构不符合契约 | `502` | 模型输出无法解析为接口约定结构，后端返回 AI 输出结构错误语义 |
 
-注意：前端在无 `OPENAI_API_KEY` 时可能展示本地演示兜底，但后端真实接口语义仍是 `503`，不代表 AI 接口真实生成成功。
+注意：前端在无 `DEEPSEEK_API_KEY` 或兼容 `OPENAI_API_KEY` 时可能展示本地演示兜底，但后端真实接口语义仍是 `503`，不代表 AI 接口真实生成成功。

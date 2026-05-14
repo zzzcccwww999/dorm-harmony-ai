@@ -24,6 +24,7 @@ class AIOutputStructureError(AIServiceUnavailableError):
 class AISettings:
     api_key: str
     model: str
+    base_url: str
     timeout: float
 
 
@@ -38,12 +39,19 @@ class AIRunner(Protocol):
 OutputModel = TypeVar("OutputModel", bound=BaseModel)
 _STRUCTURE_ERROR_MESSAGE = "AI 输出结构异常，请稍后重试。"
 _UNAVAILABLE_ERROR_MESSAGE = "AI 服务暂时不可用，请稍后重试。"
+_DEFAULT_LLM_BASE_URL = "https://api.deepseek.com"
+_DEFAULT_LLM_MODEL = "deepseek-v4-flash"
 
 
 def load_ai_settings() -> AISettings:
-    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    api_key = (
+        os.getenv("DEEPSEEK_API_KEY", "").strip()
+        or os.getenv("OPENAI_API_KEY", "").strip()
+    )
     if not api_key:
-        raise AIServiceConfigurationError("AI 服务未配置：请设置 OPENAI_API_KEY。")
+        raise AIServiceConfigurationError(
+            "AI 服务未配置：请设置 DEEPSEEK_API_KEY（推荐）或 OPENAI_API_KEY（兼容旧配置）。"
+        )
 
     timeout_text = os.getenv("DORM_HARMONY_LLM_TIMEOUT", "20").strip()
     try:
@@ -60,8 +68,10 @@ def load_ai_settings() -> AISettings:
 
     return AISettings(
         api_key=api_key,
-        model=os.getenv("DORM_HARMONY_LLM_MODEL", "gpt-4o-mini").strip()
-        or "gpt-4o-mini",
+        model=os.getenv("DORM_HARMONY_LLM_MODEL", _DEFAULT_LLM_MODEL).strip()
+        or _DEFAULT_LLM_MODEL,
+        base_url=os.getenv("DORM_HARMONY_LLM_BASE_URL", _DEFAULT_LLM_BASE_URL).strip()
+        or _DEFAULT_LLM_BASE_URL,
         timeout=timeout,
     )
 
@@ -92,6 +102,7 @@ class LangChainOpenAIRunner:
                 timeout=self._settings.timeout,
                 max_retries=1,
                 api_key=self._settings.api_key,
+                base_url=self._settings.base_url,
             )
             structured_llm = llm.with_structured_output(schema)
             result = structured_llm.invoke(messages)

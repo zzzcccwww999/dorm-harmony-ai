@@ -128,6 +128,43 @@ class ExplodingChatOpenAI:
         return ExplodingStructuredLLM()
 
 
+class CapturingStructuredLLM:
+    def __init__(self, schema):
+        self.schema = schema
+
+    def invoke(self, messages):
+        return {
+            "replies": [
+                {
+                    "roommate": "舍友 A",
+                    "personality": "直接型",
+                    "message": "我确实声音可能有点大，可以把音量调低。",
+                },
+                {
+                    "roommate": "舍友 B",
+                    "personality": "回避型",
+                    "message": "我先记一下，之后我们可以再具体说。",
+                },
+                {
+                    "roommate": "舍友 C",
+                    "personality": "调和型",
+                    "message": "我们可以约定晚上 11 点后戴耳机。",
+                },
+            ],
+            "safety_note": SIMULATE_SAFETY_NOTE,
+        }
+
+
+class CapturingChatOpenAI:
+    latest_kwargs = None
+
+    def __init__(self, **kwargs):
+        CapturingChatOpenAI.latest_kwargs = kwargs
+
+    def with_structured_output(self, schema):
+        return CapturingStructuredLLM(schema)
+
+
 def assert_exception_chain_is_sanitized(error):
     assert "sk-test" not in str(error)
     assert error.__cause__ is None
@@ -136,22 +173,72 @@ def assert_exception_chain_is_sanitized(error):
     assert "sk-test" not in str(error.__context__)
 
 
-def test_load_ai_settings_requires_openai_api_key(monkeypatch):
+def test_load_ai_settings_requires_llm_api_key(monkeypatch):
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
-    with pytest.raises(AIServiceConfigurationError):
+    with pytest.raises(AIServiceConfigurationError) as exc_info:
         load_ai_settings()
 
+    assert "DEEPSEEK_API_KEY" in str(exc_info.value)
+    assert "OPENAI_API_KEY" in str(exc_info.value)
 
-def test_load_ai_settings_uses_defaults(monkeypatch):
-    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+
+def test_load_ai_settings_uses_deepseek_defaults(monkeypatch):
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "deepseek-key")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("DORM_HARMONY_LLM_MODEL", raising=False)
+    monkeypatch.delenv("DORM_HARMONY_LLM_BASE_URL", raising=False)
+    monkeypatch.delenv("DORM_HARMONY_LLM_TIMEOUT", raising=False)
+
+    settings = load_ai_settings()
+
+    assert settings.api_key == "deepseek-key"
+    assert settings.model == "deepseek-v4-flash"
+    assert settings.base_url == "https://api.deepseek.com"
+    assert settings.timeout == 20.0
+
+
+def test_load_ai_settings_prefers_deepseek_key_over_legacy_openai_key(monkeypatch):
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "deepseek-key")
+    monkeypatch.setenv("OPENAI_API_KEY", "legacy-openai-key")
+    monkeypatch.delenv("DORM_HARMONY_LLM_MODEL", raising=False)
+    monkeypatch.delenv("DORM_HARMONY_LLM_BASE_URL", raising=False)
+    monkeypatch.delenv("DORM_HARMONY_LLM_TIMEOUT", raising=False)
+
+    settings = load_ai_settings()
+
+    assert settings.api_key == "deepseek-key"
+    assert settings.model == "deepseek-v4-flash"
+    assert settings.base_url == "https://api.deepseek.com"
+    assert settings.timeout == 20.0
+
+
+def test_load_ai_settings_keeps_legacy_openai_key_fallback(monkeypatch):
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    monkeypatch.setenv("OPENAI_API_KEY", "legacy-openai-key")
+    monkeypatch.delenv("DORM_HARMONY_LLM_MODEL", raising=False)
+    monkeypatch.delenv("DORM_HARMONY_LLM_BASE_URL", raising=False)
+    monkeypatch.delenv("DORM_HARMONY_LLM_TIMEOUT", raising=False)
+
+    settings = load_ai_settings()
+
+    assert settings.api_key == "legacy-openai-key"
+    assert settings.model == "deepseek-v4-flash"
+    assert settings.base_url == "https://api.deepseek.com"
+    assert settings.timeout == 20.0
+
+
+def test_load_ai_settings_allows_base_url_override(monkeypatch):
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "deepseek-key")
+    monkeypatch.setenv("DORM_HARMONY_LLM_BASE_URL", "https://example.test/openai")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("DORM_HARMONY_LLM_MODEL", raising=False)
     monkeypatch.delenv("DORM_HARMONY_LLM_TIMEOUT", raising=False)
 
     settings = load_ai_settings()
 
-    assert settings.api_key == "test-key"
-    assert settings.model == "gpt-4o-mini"
+    assert settings.base_url == "https://example.test/openai"
     assert settings.timeout == 20.0
 
 
@@ -227,7 +314,12 @@ def test_service_rejects_invalid_runner_shape():
 def test_langchain_runner_sanitizes_provider_failure(monkeypatch):
     monkeypatch.setattr("langchain_openai.ChatOpenAI", ExplodingChatOpenAI)
     runner = LangChainOpenAIRunner(
-        settings=AISettings(api_key="test-key", model="gpt-4o-mini", timeout=20.0)
+        settings=AISettings(
+            api_key="test-key",
+            model="deepseek-v4-flash",
+            base_url="https://api.deepseek.com",
+            timeout=20.0,
+        )
     )
     request = SimulateRequest(scenario="噪音冲突", user_message="晚上能不能小声一点？")
 
@@ -237,7 +329,34 @@ def test_langchain_runner_sanitizes_provider_failure(monkeypatch):
     assert_exception_chain_is_sanitized(exc_info.value)
 
 
-def test_default_service_constructs_without_openai_api_key(monkeypatch):
+def test_langchain_runner_passes_deepseek_configuration_to_chat_openai(monkeypatch):
+    CapturingChatOpenAI.latest_kwargs = None
+    monkeypatch.setattr("langchain_openai.ChatOpenAI", CapturingChatOpenAI)
+    runner = LangChainOpenAIRunner(
+        settings=AISettings(
+            api_key="deepseek-key",
+            model="deepseek-v4-flash",
+            base_url="https://api.deepseek.com",
+            timeout=20.0,
+        )
+    )
+    request = SimulateRequest(scenario="噪音冲突", user_message="晚上能不能小声一点？")
+
+    response = runner.generate_simulation(request)
+
+    assert response.replies[0].roommate == "舍友 A"
+    assert CapturingChatOpenAI.latest_kwargs == {
+        "model": "deepseek-v4-flash",
+        "temperature": 0.3,
+        "timeout": 20.0,
+        "max_retries": 1,
+        "api_key": "deepseek-key",
+        "base_url": "https://api.deepseek.com",
+    }
+
+
+def test_default_service_constructs_without_llm_api_key(monkeypatch):
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
     service = DormHarmonyAIService()
@@ -248,8 +367,9 @@ def test_default_service_constructs_without_openai_api_key(monkeypatch):
 
 
 def test_langchain_runner_can_be_constructed_with_settings(monkeypatch):
-    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "test-key")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
     runner = LangChainOpenAIRunner(settings=load_ai_settings())
 
-    assert runner.model == "gpt-4o-mini"
+    assert runner.model == "deepseek-v4-flash"
