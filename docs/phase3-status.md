@@ -12,7 +12,7 @@
 - `B3-4` 最终策划文档一致性整理
 - `B3-5` 开发限制说明
 
-完整网页 Demo 是共同任务。当前仓库已完成朱春雯侧的后端联调准备与接口兼容修复；真实浏览器完整演示仍依赖前端页面运行、前端依赖安装、后端服务启动，以及 AI 接口的 `OPENAI_API_KEY`。
+完整网页 Demo 是共同任务。当前仓库已完成朱春雯侧的后端联调准备与接口兼容修复；真实浏览器完整演示仍依赖前端页面运行、前端依赖安装、后端服务启动，以及 AI 接口的 `DEEPSEEK_API_KEY`。
 
 ## 当前状态
 
@@ -30,7 +30,7 @@
 | --- | --- | --- |
 | `GET /health` | 后端可用性接口已实现 | 用于确认 FastAPI 服务启动状态 |
 | `POST /api/analyze` | 前端相对路径与后端契约已完成静态联调准备 | 前端通过 `/api/analyze` 提交，Vite 可代理到后端；后端返回结构化压力分析 |
-| `POST /api/simulate` | 本地路径与字段契约已准备好 | 有 `OPENAI_API_KEY` 时调用 LangChain/OpenAI；无 Key 时按契约返回 `503`，前端可展示演示兜底 |
+| `POST /api/simulate` | 本地路径与字段契约已准备好 | 有 `DEEPSEEK_API_KEY` 时调用 LangChain/DeepSeek；无 Key 时按契约返回 `503`，前端可展示演示兜底 |
 | `POST /api/review` | 本轮已修复已知字段不一致 | 后端兼容当前前端展示型 speaker 和旧事件类型，同时继续拒绝未授权 extra 字段 |
 
 ## 后端问题修复记录
@@ -48,13 +48,13 @@
 - FastAPI 入口在 `backend/app/main.py`，提供 `GET /health`、`POST /api/analyze`、`POST /api/simulate` 和 `POST /api/review`。
 - 压力评分模型在 `backend/app/scoring.py`，按严重程度、发生频率、情绪、沟通状态和冲突升级情况计算 0-100 压力值。
 - AI Prompt 在 `backend/app/ai_prompts.py`，限定大学宿舍沟通场景、固定三类舍友角色，并约束非诊断性输出。
-- AI 服务在 `backend/app/ai_service.py`，通过 LangChain/OpenAI 结构化输出；缺少 `OPENAI_API_KEY` 返回 `503`，AI 调用失败或结构异常返回 `502`。
+- AI 服务在 `backend/app/ai_service.py`，通过 LangChain/DeepSeek 结构化输出；缺少 `DEEPSEEK_API_KEY` 且没有兼容的 `OPENAI_API_KEY` 时返回 `503`，AI 调用失败或结构异常返回 `502`。
 - 当前没有实现历史记录持久化；SQLite / JSON 存储仍是后续拓展。
 - 本地前端开发服务器通过 Vite `/api` 代理访问 `http://127.0.0.1:8000` 的 FastAPI。
 
 ## 开发限制说明
 
-- AI 模拟和复盘依赖 `OPENAI_API_KEY`。无 Key 时接口不会伪造成功结果。
+- AI 模拟和复盘依赖 `DEEPSEEK_API_KEY`。`OPENAI_API_KEY` 仅作为旧配置兼容 fallback；无 Key 时接口不会伪造成功结果。
 - 当前演示数据只覆盖噪音冲突、卫生分工、隐私边界等典型宿舍场景，不代表真实用户数据采集。
 - 项目不采集真实身份信息，不提供账号体系、数据库持久化、历史记录查询或管理后台。
 - 本项目仅提供宿舍关系压力趋势提示和沟通训练建议，不进行心理疾病诊断、医学判断或人格评价。

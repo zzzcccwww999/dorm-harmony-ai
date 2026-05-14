@@ -99,7 +99,7 @@
 | B1-5 | 已完成 | `POST /api/analyze` 已返回结构化压力分析结果，`backend/tests/test_api.py` 覆盖典型 76 分案例 |
 | B1-6 | 已完成 | `README.md`、`docs/backend-api-contract.md`、`docs/scoring-model.md`、`docs/phase1-status.md` 已补齐第一阶段基础文档 |
 
-第一阶段当时未完成或未覆盖内容：`/api/simulate` 运行时、`/api/review` 运行时、LangChain / 大模型调用、历史记录存储与查询。第二阶段后端 AI 已完成 `/api/simulate`、`/api/review` 和 LangChain/OpenAI 调用；历史记录存储与查询、曹乐负责的前端任务仍不在本次后端文档任务中变更。
+第一阶段当时未完成或未覆盖内容：`/api/simulate` 运行时、`/api/review` 运行时、LangChain / 大模型调用、历史记录存储与查询。第二阶段后端 AI 已完成 `/api/simulate`、`/api/review` 和 LangChain/DeepSeek 调用；历史记录存储与查询、曹乐负责的前端任务仍不在本次后端文档任务中变更。
 
 ## 5. 第二阶段：核心功能开发
 
@@ -126,8 +126,8 @@
 | --- | --- | --- |
 | B2-1 | 已完成 | `backend/app/scoring.py` 与 `backend/tests/test_scoring.py` 覆盖不同输入对应不同压力值和风险等级 |
 | B2-2 | 已完成 | `backend/app/ai_prompts.py` 固定多角色 Prompt、结构化输出要求和宿舍沟通安全边界 |
-| B2-3 | 已完成 | `backend/app/main.py` 暴露 `POST /api/simulate`；`backend/app/ai_service.py` 通过 LangChain/OpenAI 生成结构化舍友回复 |
-| B2-4 | 已完成 | `backend/app/main.py` 暴露 `POST /api/review`；`backend/app/ai_service.py` 通过 LangChain/OpenAI 生成沟通复盘结构化结果 |
+| B2-3 | 已完成 | `backend/app/main.py` 暴露 `POST /api/simulate`；`backend/app/ai_service.py` 通过 LangChain/DeepSeek 生成结构化舍友回复 |
+| B2-4 | 已完成 | `backend/app/main.py` 暴露 `POST /api/review`；`backend/app/ai_service.py` 通过 LangChain/DeepSeek 生成沟通复盘结构化结果 |
 | B2-5 | 已完成 | `backend/app/ai_prompts.py` 与 `backend/app/ai_service.py` 约束非诊断性、安全提示和现实支持建议 |
 | B2-6 | 已完成 | `backend/app/demo_data.py` 提供噪音冲突、卫生分工、隐私边界演示样例 |
 
