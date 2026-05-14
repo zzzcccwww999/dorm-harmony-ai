@@ -106,6 +106,22 @@ function restoreFocusAfterModalClose() {
   })
 }
 
+function featureActionTarget(action: string): 'record' | 'simulate' | 'review' | null {
+  if (action === '开启分析') {
+    return 'record'
+  }
+
+  if (action === '进入沙盒') {
+    return 'simulate'
+  }
+
+  if (action === '查看报告') {
+    return 'review'
+  }
+
+  return null
+}
+
 function closeSafetyModal() {
   try {
     window.localStorage.setItem(SAFETY_ACK_STORAGE_KEY, 'true')
@@ -372,16 +388,9 @@ onMounted(() => {
         <h2>{{ card.title }}</h2>
         <p>{{ card.text }}</p>
         <RouterLink
-          v-if="card.action === '开启分析'"
+          v-if="featureActionTarget(card.action)"
           class="feature-action"
-          :to="{ name: 'analysis' }"
-        >
-          {{ card.action }}
-        </RouterLink>
-        <RouterLink
-          v-else-if="card.action === '查看报告'"
-          class="feature-action"
-          :to="{ name: 'analysis' }"
+          :to="{ name: featureActionTarget(card.action)! }"
         >
           {{ card.action }}
         </RouterLink>

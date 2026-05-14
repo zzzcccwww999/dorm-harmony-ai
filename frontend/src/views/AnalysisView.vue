@@ -14,6 +14,7 @@ import {
 
 const eventRecord = ref<AnalyzeRequest>({ ...sampleAnalyzeRequest })
 const result = ref<AnalyzeResult>({ ...mockAnalyzeResult })
+const scoreRingCircumference = Math.PI * 2 * 80
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -101,6 +102,23 @@ const sourceBreakdown = computed(() => {
     tone: tones[index % tones.length],
   }))
 })
+
+const normalizedScore = computed(() => {
+  const score = Number(result.value.pressure_score)
+
+  if (!Number.isFinite(score)) {
+    return 0
+  }
+
+  return Math.max(0, Math.min(100, Math.round(score)))
+})
+
+const scoreRingStyle = computed(() => ({
+  '--score-ring-dashoffset': `${(
+    scoreRingCircumference -
+    (scoreRingCircumference * normalizedScore.value) / 100
+  ).toFixed(1)}px`,
+}))
 </script>
 
 <template>
@@ -125,7 +143,7 @@ const sourceBreakdown = computed(() => {
       <article class="score-card pop-card pop-shadow" :aria-label="`压力分数 ${result.pressure_score}/100`">
         <span class="floating-icon material-symbol" aria-hidden="true">vital_signs</span>
         <h2>当前压力指数</h2>
-        <div class="score-ring">
+        <div class="score-ring" :style="scoreRingStyle">
           <svg viewBox="0 0 192 192" aria-hidden="true">
             <circle class="score-ring-track" cx="96" cy="96" r="80"></circle>
             <circle class="score-ring-fill" cx="96" cy="96" r="80"></circle>

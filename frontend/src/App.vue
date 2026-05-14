@@ -4,13 +4,9 @@ import { RouterLink, RouterView } from 'vue-router'
 const navItems = [
   { name: 'home', label: '首页', icon: 'dashboard', mobileIcon: 'dashboard' },
   { name: 'record', label: '事件记录', icon: 'edit_note', mobileIcon: 'edit_note' },
+  { name: 'analysis', label: '压力分析', icon: 'analytics', mobileIcon: 'analytics' },
   { name: 'simulate', label: '沟通模拟', icon: 'forum', mobileIcon: 'forum' },
   { name: 'review', label: '沟通复盘', icon: 'assignment', mobileIcon: 'assignment' },
-  { name: 'analysis', label: '压力分析', icon: 'analytics', mobileIcon: 'analytics' },
-]
-
-const futureItems = [
-  { label: 'AI 沙盒', icon: 'forum', mobileIcon: 'forum' },
 ]
 
 const brandAvatarSrc =
@@ -38,11 +34,6 @@ const brandAvatarSrc =
           <span class="material-symbol" aria-hidden="true">{{ item.icon }}</span>
           <span>{{ item.label }}</span>
         </RouterLink>
-
-        <button v-for="item in futureItems" :key="item.label" class="nav-pill nav-pill-muted" disabled>
-          <span class="material-symbol" aria-hidden="true">{{ item.icon }}</span>
-          <span>{{ item.label }}</span>
-        </button>
       </nav>
 
       <RouterLink class="sidebar-cta" :to="{ name: 'record' }">
@@ -77,10 +68,6 @@ const brandAvatarSrc =
         <span class="material-symbol" aria-hidden="true">{{ item.mobileIcon }}</span>
         <span>{{ item.label }}</span>
       </RouterLink>
-      <button v-for="item in futureItems" :key="item.label" class="mobile-report" disabled>
-        <span class="material-symbol" aria-hidden="true">{{ item.mobileIcon }}</span>
-        <span>{{ item.label }}</span>
-      </button>
     </nav>
   </div>
 </template>

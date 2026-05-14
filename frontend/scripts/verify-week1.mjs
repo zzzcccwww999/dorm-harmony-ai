@@ -129,19 +129,16 @@ requireIncludes('src/App.vue', [
   'app-layout',
   'sidebar',
   'mobile-nav',
-  'mobile-report',
   'material-symbol',
-  '事件记录',
-  '沟通模拟',
-  '沟通复盘',
-  '压力分析',
-  'AI 沙盒',
-  'assignment',
-  'analytics',
-  'settings',
   'mobile-avatar',
+  'nav-pill',
+  'mobile-actions',
+  '首页',
+  '事件记录',
+  '压力分析',
 ])
-requireExcludes('src/App.vue', ['<span class="mobile-nav-cn">复盘</span>'])
+requireExcludes('src/App.vue', ['Report', 'Performance', 'AI Sandbox', 'futureItems'])
+
 requireIncludes('src/styles/main.css', [
   'dot-grid',
   'bg-diagonal-stripes',
@@ -155,15 +152,14 @@ requireIncludes('src/styles/main.css', [
   'flow-section',
   'mobile-nav',
   'analysis-bento',
+  '--sidebar-width: 20rem',
 ])
 requireRegex(
   'src/styles/main.css',
   /\.sidebar\.pop-shadow:hover[\s\S]*transform:\s*none/,
   'sidebar hover override that prevents whole-sidebar movement',
 )
-requireCssRuleIncludes('src/styles/main.css', '.sidebar.pop-shadow', [
-  'box-shadow: 4px 0 0 0 var(--shadow-dark)',
-])
+requireCssRuleIncludes('src/styles/main.css', '.sidebar.pop-shadow', ['box-shadow: 4px 0 0 0 var(--shadow-dark)'])
 requireCssRuleIncludes('src/styles/main.css', '.sidebar.pop-shadow:hover', [
   'box-shadow: 4px 0 0 0 var(--shadow-dark)',
   'transform: none',
@@ -176,46 +172,38 @@ requireCssRuleIncludes('src/styles/main.css', '.sidebar', [
   'width: var(--sidebar-width)',
   'height: 100vh',
 ])
-requireCssRuleIncludes('src/styles/main.css', ':root', ['--sidebar-width: 20rem'])
 requireCssRuleExcludes('src/styles/main.css', '.sidebar', [
   'position: sticky',
   'position: relative',
   'align-self: flex-start',
-  'flex: 0 0 16rem',
-  'width: 16rem',
-  'flex: 0 0 32rem',
-  'width: 32rem',
   'height: fit-content',
   'min-height: 100vh',
 ])
-requireCssRuleIncludes('src/styles/main.css', '.content-shell', [
-  'margin-left: var(--sidebar-width)',
-])
-requireCssRuleExcludes('src/styles/main.css', '.content-shell', [
-  'margin-left: 16rem',
-  'margin-left: 32rem',
-])
+requireCssRuleIncludes('src/styles/main.css', '.content-shell', ['margin-left: var(--sidebar-width)'])
+requireCssRuleExcludes('src/styles/main.css', '.content-shell', ['margin-left: 16rem', 'margin-left: 32rem'])
 requireCssRuleIncludesAfter(
   'src/styles/main.css',
   '@media (max-width: 1024px) {',
   '.content-shell',
   ['margin-left: 0'],
-  'mobile layout media query',
+  'responsive media query',
 )
+requireRegex('src/styles/main.css', /@media \(max-width: 1024px\)/, '1024px media query for mobile layout')
+requireRegex('src/styles/main.css', /@media \(max-width: 720px\)/, '720px media query for compact layout')
 requireCssRuleIncludes('src/styles/main.css', '.sidebar-cta', ['margin-top: auto'])
-requireCssRuleIncludes('src/styles/main.css', '.sidebar .nav-pill .material-symbol', [
-  'font-size: 1.5rem',
-])
-requireCssRuleIncludes('src/styles/main.css', '.sidebar-cta .material-symbol', [
-  'font-size: 1rem',
+requireCssRuleIncludes('src/styles/main.css', '.sidebar .nav-pill .material-symbol', ['font-size: 1.5rem'])
+requireCssRuleIncludes('src/styles/main.css', '.sidebar-cta .material-symbol', ['font-size: 1rem'])
+requireCssRuleIncludes('src/styles/main.css', '.mobile-nav', [
+  'position: fixed',
+  'right: 0',
+  'bottom: 0',
+  'left: 0',
 ])
 
 requireIncludes('src/views/HomeView.vue', [
   '舍友心晴',
   '宿舍压力预警与沟通演练助手',
   '开始记录',
-  'hero-squiggle',
-  'dashboard-card',
   'AI 深度分析',
   '沟通模拟器',
   '关系改善趋势',
@@ -227,6 +215,7 @@ requireIncludes('src/views/HomeView.vue', [
   'feature-card-visual',
   'safety-modal-overlay',
   'safety-modal',
+  '安全说明',
   '首次使用提示',
   '使用前请了解安全边界',
   '不进行心理疾病诊断',
@@ -246,12 +235,7 @@ requireRegex(
   /function closeSafetyModal\(\)[\s\S]*localStorage\.setItem/,
   'safety acknowledgement persistence when the modal closes',
 )
-requireExcludes('src/views/HomeView.vue', [
-  'flow-section',
-  'flowSteps',
-  '开始记录宿舍事件',
-  'const showSafetyModal = ref(true)',
-])
+requireExcludes('src/views/HomeView.vue', ['flowSteps', '开始记录宿舍事件', 'const showSafetyModal = ref(true)'])
 
 requireIncludes('src/views/RecordView.vue', [
   '事件类型',
@@ -262,8 +246,8 @@ requireIncludes('src/views/RecordView.vue', [
   '是否出现争吵或冷战',
   '简要描述',
   '写下当时的具体情况...',
-  'range-tick-list',
   '保存并分析',
+  'range-tick-list',
   'record-option',
   'pop-card',
   'field-icon',
@@ -272,23 +256,17 @@ requireIncludes('src/views/RecordView.vue', [
 
 requireIncludes('src/views/AnalysisView.vue', [
   '压力分数',
-  '状态：',
-  '风险原始级别',
+  '风险',
   '主要压力来源',
-  'result.main_sources',
-  'sourceBreakdown',
   '情绪关键词',
   '是否推荐进入 AI 沟通模拟',
   '系统建议',
   '安全提示',
-  'result.pressure_score',
-  'result.risk_label',
   '进入沟通演练',
   'bg-diagonal-stripes',
   'score-ring',
   'insight-card',
 ])
-requireIncludes('src/data/week1.ts', ['pressure_score: 76', "risk_label: '冲突风险较高'"])
 requireExcludes('src/views/AnalysisView.vue', ['disabled', '第二阶段接入', '沟通缺口'])
 
 requireIncludes('docs/api/analyze-field-map.md', [

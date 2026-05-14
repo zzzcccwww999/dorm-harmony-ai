@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, statSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -25,22 +25,55 @@ function requireIncludes(relativePath, phrases) {
   }
 }
 
-requireIncludes('package.json', ['"verify:phase3": "node scripts/verify-phase3.mjs"'])
+function requireRegex(relativePath, pattern, description) {
+  const content = read(relativePath)
 
-requireIncludes('vite.config.ts', [
-  'server:',
-  'proxy:',
-  "'/api'",
-  'http://127.0.0.1:8000',
-  'changeOrigin: true',
-])
+  if (!pattern.test(content)) {
+    failures.push(`${relativePath} is missing ${description}`)
+  }
+}
 
-requireIncludes('src/data/week1.ts', ['/api/analyze', '/api/simulate', '/api/review'])
+function requireExcludes(relativePath, phrases) {
+  const content = read(relativePath)
 
-function requireExists(relativePath) {
+  for (const phrase of phrases) {
+    if (content.includes(phrase)) {
+      failures.push(`${relativePath} should not include "${phrase}"`)
+    }
+  }
+}
+
+function requireCssRuleIncludes(relativePath, selector, declarations) {
+  const content = read(relativePath)
+  const rule = content.match(new RegExp(`${selector.replaceAll('.', '\\.')}\\s*\\{([^}]*)\\}`))
+
+  if (!rule) {
+    failures.push(`${relativePath} is missing ${selector} rule`)
+    return
+  }
+
+  const ruleDeclarations = rule[1]
+    .split(';')
+    .map((declaration) => declaration.trim())
+    .filter(Boolean)
+
+  for (const declaration of declarations) {
+    if (!ruleDeclarations.includes(declaration)) {
+      failures.push(`${relativePath} ${selector} rule is missing "${declaration}"`)
+    }
+  }
+}
+
+function requireNonEmptyFile(relativePath) {
   const absolutePath = join(root, relativePath)
+
   if (!existsSync(absolutePath)) {
     failures.push(`Missing file: ${relativePath}`)
+    return
+  }
+
+  if (statSync(absolutePath).size <= 0) {
+    failures.push(`${relativePath} is empty`)
   }
 }
 
@@ -56,6 +89,168 @@ function requireNoMarkdownFormatArtifacts(relativePath) {
   }
 }
 
+requireIncludes('package.json', ['"verify:phase3": "node scripts/verify-phase3.mjs"'])
+
+requireIncludes('vite.config.ts', [
+  'server:',
+  'proxy:',
+  "'/api'",
+  'http://127.0.0.1:8000',
+  'changeOrigin: true',
+])
+
+requireIncludes('src/data/week1.ts', ['/api/analyze', '/api/simulate', '/api/review'])
+
+requireIncludes('src/router/index.ts', [
+  '/',
+  '/record',
+  '/analysis',
+  '/simulate',
+  '/review',
+  "name: 'home'",
+  "name: 'record'",
+  "name: 'analysis'",
+  "name: 'simulate'",
+  "name: 'review'",
+  'HomeView',
+  'RecordView',
+  'AnalysisView',
+  'SimulationView',
+  'ReviewView',
+])
+
+// A3 flow hardening markers
+requireRegex(
+  'src/App.vue',
+  /const navItems = \[[\s\S]*name:\s*'home'[\s\S]*name:\s*'record'[\s\S]*name:\s*'analysis'[\s\S]*name:\s*'simulate'[\s\S]*name:\s*'review'/,
+  'Navigation order: home -> record -> analysis -> simulate -> review',
+)
+requireRegex(
+  'src/App.vue',
+  /<nav class="mobile-nav[^"]*"[\s\S]*v-for="item in navItems"[\s\S]*<\/nav>/,
+  'Mobile nav uses navItems for five-core flow',
+)
+requireIncludes('src/App.vue', ['首页', '事件记录', '压力分析', '沟通模拟', '沟通复盘'])
+requireExcludes('src/App.vue', ['futureItems', 'AI 沙盒'])
+
+requireRegex(
+  'src/views/RecordView.vue',
+  /const description = form\.description\.trim\(\)[\s\S]*if\s*\(\s*!description\s*\)\s*{[\s\S]*submitError\.value/,
+  'Record empty description guard before submission',
+)
+
+requireRegex(
+  'src/views/RecordView.vue',
+  /submitError\.value\s*=\s*['"][^'"]*(简要描述|描述)[^'"]*['"]/,
+  'Record empty description user message',
+)
+
+requireRegex(
+  'src/views/HomeView.vue',
+  /if \(action === '开启分析'\)[\s\S]*return 'record'/,
+  'Home action "开启分析" maps to record',
+)
+requireRegex(
+  'src/views/HomeView.vue',
+  /if \(action === '进入沙盒'\)[\s\S]*return 'simulate'/,
+  'Home action "进入沙盒" maps to simulate',
+)
+requireRegex(
+  'src/views/HomeView.vue',
+  /if \(action === '查看报告'\)[\s\S]*return 'review'/,
+  'Home action "查看报告" maps to review',
+)
+
+requireRegex(
+  'src/views/AnalysisView.vue',
+  /RouterLink[\s\S]*name:\s*'simulate'[\s\S]*进入沟通演练/,
+  'Analysis action linking to simulation',
+)
+requireIncludes('src/views/AnalysisView.vue', ['scoreRingCircumference', 'scoreRingStyle'])
+requireIncludes('src/styles/main.css', ['--score-ring-dashoffset'])
+requireRegex('src/styles/main.css', /score-ring-fill[\s\S]*--score-ring-dashoffset/, 'Score ring style uses dynamic CSS variable')
+
+requireIncludes('src/views/SimulationView.vue', ['SIMULATION_RESULT_STORAGE_KEY', 'localStorage.setItem'])
+requireIncludes('src/views/SimulationView.vue', [
+  'savedAnalysisSources',
+  'savedAnalysisEmotionKeywords',
+  'savedAnalysisTrend',
+  'savedAnalysisSuggestion',
+  'savedAnalysisScore',
+  '压力分数：',
+  '压力来源：',
+  '情绪关键词：',
+  '趋势提示：',
+  '建议：',
+])
+requireRegex(
+  'src/views/SimulationView.vue',
+  /if\s*\(\s*!message\s*\)\s*{[\s\S]*submitError\.value\s*=\s*['"][^'"]*输入[^'"]*['"]/,
+  'Simulation empty input prompt before submit',
+)
+requireIncludes('src/views/SimulationView.vue', ['const canEnterReview = computed', 'v-if="canEnterReview"', 'reviewGateMessage'])
+requireRegex(
+  'src/views/SimulationView.vue',
+  /const canEnterReview = computed\(\(\) => hasUsableSimulation\.value && replies\.value\.length > 0\)/,
+  'Simulation review gating computed state',
+)
+
+requireIncludes('src/views/ReviewView.vue', [
+  'ANALYSIS_RESULT_STORAGE_KEY',
+  'SIMULATION_RESULT_STORAGE_KEY',
+  'REVIEW_RESULT_STORAGE_KEY',
+  'localStorage.getItem',
+  'localStorage.setItem',
+])
+requireRegex(
+  'src/views/ReviewView.vue',
+  /localStorage\.getItem\(ANALYSIS_RESULT_STORAGE_KEY\)[\s\S]*localStorage\.getItem\(SIMULATION_RESULT_STORAGE_KEY\)/,
+  'Review using analysis + simulation cache before request',
+)
+requireRegex(
+  'src/views/ReviewView.vue',
+  /localStorage\.setItem\(\s*REVIEW_RESULT_STORAGE_KEY/,
+  'Review persists generated result cache',
+)
+
+// Responsive markers
+requireRegex('src/styles/main.css', /@media \(max-width: 1024px\)/, '1024px responsive media query')
+requireRegex('src/styles/main.css', /@media \(max-width: 720px\)/, '720px responsive media query')
+
+requireCssRuleIncludes('src/styles/main.css', '.mobile-nav', ['position: fixed'])
+requireRegex(
+  'src/styles/main.css',
+  /@media \(max-width: 1024px\)[\s\S]*\.mobile-nav[\s\S]*display:\s*grid/,
+  'mobile nav using grid in responsive breakpoint',
+)
+
+requireRegex(
+  'src/styles/main.css',
+  /@media \(max-width: 720px\)[\s\S]*\.simulation-layout[\s\S]*grid-template-columns:\s*1fr/,
+  'simulation grid collapses in compact layout',
+)
+requireRegex(
+  'src/styles/main.css',
+  /@media \(max-width: 720px\)[\s\S]*\.review-score-grid[\s\S]*grid-template-columns:\s*1fr/,
+  'review score grid collapses in compact layout',
+)
+requireRegex(
+  'src/styles/main.css',
+  /@media \(max-width: 720px\)[\s\S]*\.review-section-grid[\s\S]*grid-template-columns:\s*1fr/,
+  'review section grid collapses in compact layout',
+)
+requireRegex(
+  'src/styles/main.css',
+  /@media \(max-width: 720px\)[\s\S]*\.speech-rewrite-row[\s\S]*grid-template-columns:\s*1fr/,
+  'review rewrite row collapses in compact layout',
+)
+requireRegex(
+  'src/styles/main.css',
+  /@media \(max-width: 720px\)[\s\S]*\.simulation-input-bar[\s\S]*align-items:\s*stretch/,
+  'simulation input bar keeps compact layout at mobile width',
+)
+
+// Final gate: phase-3 demo documentation
 const requiredFiles = [
   {
     path: 'docs/demo/phase3-frontend-fix-log.md',
@@ -72,14 +267,7 @@ const requiredFiles = [
   },
   {
     path: 'docs/demo/phase3-responsive-check.md',
-    phrases: [
-      'A3-3',
-      '移动底部导航',
-      '表单选项',
-      '聊天气泡',
-      '复盘报告',
-      '无横向溢出',
-    ],
+    phrases: ['A3-3', '移动底部导航', '表单选项', '聊天气泡', '复盘报告', '无横向溢出'],
   },
   {
     path: 'docs/demo/phase3-screenshot-materials.md',
@@ -121,7 +309,7 @@ for (const screenshot of [
   'docs/demo/screenshots/simulate.png',
   'docs/demo/screenshots/review.png',
 ]) {
-  requireExists(screenshot)
+  requireNonEmptyFile(screenshot)
 }
 
 for (const markdownFile of [

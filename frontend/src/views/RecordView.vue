@@ -21,6 +21,14 @@ const submitError = ref('')
 
 async function submitRecord() {
   submitError.value = ''
+  const description = form.description.trim()
+
+  if (!description) {
+    submitError.value = '请先填写简要描述，便于生成更准确的分析'
+    return
+  }
+
+  form.description = description
   isSubmitting.value = true
 
   try {

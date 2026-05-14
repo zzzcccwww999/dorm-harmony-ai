@@ -32,8 +32,14 @@ const simulationNotice = ref('')
 const safetyNote = ref('')
 const replies = ref<SimulationReply[]>([...designPreview.replies])
 const savedAnalysisRiskLevel = ref<AnalyzeResult['risk_level'] | undefined>()
+const savedAnalysisSources = ref<string[]>([])
+const savedAnalysisEmotionKeywords = ref<string[]>([])
+const savedAnalysisTrend = ref('')
+const savedAnalysisSuggestion = ref('')
+const savedAnalysisScore = ref<number | null>(null)
 const savedAnalysisContext = ref('')
 const storedSimulationMeta = ref('')
+const hasUsableSimulation = ref(false)
 
 type RecordLike = Record<string, unknown>
 
@@ -94,8 +100,28 @@ function buildRequestContext() {
     parts.push(analysisPart)
   }
 
+  if (savedAnalysisScore.value !== null) {
+    parts.push(`压力分数：${savedAnalysisScore.value}`)
+  }
+
   if (savedAnalysisRiskLevel.value) {
     parts.push(`风险等级：${savedAnalysisRiskLevel.value}`)
+  }
+
+  if (savedAnalysisSources.value.length > 0) {
+    parts.push(`压力来源：${savedAnalysisSources.value.join('、')}`)
+  }
+
+  if (savedAnalysisEmotionKeywords.value.length > 0) {
+    parts.push(`情绪关键词：${savedAnalysisEmotionKeywords.value.join('、')}`)
+  }
+
+  if (savedAnalysisTrend.value) {
+    parts.push(`趋势提示：${savedAnalysisTrend.value}`)
+  }
+
+  if (savedAnalysisSuggestion.value) {
+    parts.push(`建议：${savedAnalysisSuggestion.value}`)
   }
 
   return parts.join(' ')
@@ -110,6 +136,7 @@ function setDefaultSimulationState() {
   simulationNotice.value = ''
   safetyNote.value = designPreview.safety_note
   storedSimulationMeta.value = ''
+  hasUsableSimulation.value = false
 }
 
 const currentScenePrompt = computed(() => {
@@ -131,6 +158,13 @@ function loadAnalysisContext() {
 
     savedAnalysisContext.value = parsed.disclaimer ?? ''
     savedAnalysisRiskLevel.value = parsed.risk_level
+    savedAnalysisScore.value = parsed.pressure_score
+    savedAnalysisSources.value = Array.isArray(parsed.main_sources) ? [...parsed.main_sources] : []
+    savedAnalysisEmotionKeywords.value = Array.isArray(parsed.emotion_keywords)
+      ? [...parsed.emotion_keywords]
+      : []
+    savedAnalysisTrend.value = parsed.trend_message
+    savedAnalysisSuggestion.value = parsed.suggestion
   } catch {
     // ignore malformed analysis cache
   }
@@ -153,7 +187,8 @@ function loadLastEventHint() {
     const description = typeof parsed.description === 'string' ? parsed.description.trim() : ''
 
     if (description.length > 0) {
-      savedAnalysisContext.value = `${savedAnalysisContext.value}${savedAnalysisContext.value ? '；' : ''} ${description}`
+      const descriptionHint = `事件描述：${description}`
+      savedAnalysisContext.value = `${savedAnalysisContext.value}${savedAnalysisContext.value ? '；' : ''}${descriptionHint}`
     }
 
     const emotionHint =
@@ -185,6 +220,7 @@ function hydrateFromSimulationCache() {
       simulationNotice.value = parsed.response.demo_notice
       safetyNote.value = parsed.response.safety_note
       storedSimulationMeta.value = parsed.response.is_demo ? '演示数据' : '后端返回'
+      hasUsableSimulation.value = parsed.response.replies.length > 0
       return
     }
 
@@ -194,6 +230,7 @@ function hydrateFromSimulationCache() {
       simulationNotice.value = parsed.demo_notice
       safetyNote.value = parsed.safety_note
       storedSimulationMeta.value = parsed.is_demo ? '演示数据' : '后端返回'
+      hasUsableSimulation.value = parsed.replies.length > 0
     }
   } catch {
     // ignore malformed simulation cache
@@ -205,6 +242,12 @@ onMounted(() => {
   loadLastEventHint()
   hydrateFromSimulationCache()
 })
+
+const canEnterReview = computed(() => hasUsableSimulation.value && replies.value.length > 0)
+
+const reviewGateMessage = computed(() =>
+  canEnterReview.value ? '已有本次演练结果，可生成复盘报告。' : '请先发送一次模拟对话，再进入复盘。',
+)
 
 function selectScenario(scene: string) {
   currentScene.value = scene
@@ -235,6 +278,7 @@ async function sendMessage() {
     simulationNotice.value = result.demo_notice
     safetyNote.value = result.safety_note
     storedSimulationMeta.value = result.is_demo ? '演示数据' : '后端返回'
+    hasUsableSimulation.value = result.replies.length > 0
 
     try {
       localStorage.setItem(
@@ -447,10 +491,17 @@ function resetConversation() {
     </section>
 
     <section class="simulation-end-bar">
-      <RouterLink class="secondary-action pop-shadow" :to="{ name: 'review' }">
+      <RouterLink
+        v-if="canEnterReview"
+        class="secondary-action pop-shadow"
+        :to="{ name: 'review' }"
+      >
         生成复盘报告
       </RouterLink>
-      <p class="simulation-meta">沟通话术</p>
+      <button v-else class="secondary-action pop-shadow" type="button" disabled>
+        生成复盘报告
+      </button>
+      <p class="simulation-meta">{{ reviewGateMessage }}</p>
     </section>
   </main>
 </template>
