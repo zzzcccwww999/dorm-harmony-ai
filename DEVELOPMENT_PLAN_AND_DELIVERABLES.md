@@ -195,6 +195,16 @@
 | A3-4 | 整理页面截图素材 | 截取首页、事件记录页、压力分析页、AI 沟通模拟页、沟通复盘页 | 页面截图素材 | 截图覆盖完整核心流程 |
 | A3-5 | 准备演示操作路径 | 整理一条稳定演示路径，使用典型噪音冲突案例 | 演示操作路径说明 | 按步骤操作可以稳定跑完整流程 |
 
+### 6.2.1 A3 任务收口状态（曹乐）
+
+| 任务编号 | 状态 | 证据文件 |
+| --- | --- | --- |
+| A3-1 | 已完成（可验收） | `frontend/docs/demo/phase3-frontend-fix-log.md`（流程闭环、后端不可用演示兜底） |
+| A3-2 | 已完成（可验收） | `frontend/docs/demo/phase3-frontend-fix-log.md`（UI 优化与排版） |
+| A3-3 | 已完成（可验收） | `frontend/docs/demo/phase3-responsive-check.md`（桌面 1440、平板 1024、手机 390） |
+| A3-4 | 已完成（可验收） | `frontend/docs/demo/phase3-screenshot-materials.md`（home/record/analysis/simulate/review） |
+| A3-5 | 已完成（可验收） | `frontend/docs/demo/phase3-demo-runbook.md`（稳定路径与录制说明） |
+
 ### 6.3 共同任务
 
 | 任务编号 | 任务 | 具体要求 | 阶段交付物 | 验收标准 |
