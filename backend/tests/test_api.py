@@ -1,13 +1,27 @@
 import inspect
 import json
+from datetime import date, timedelta
 
 from fastapi.testclient import TestClient
 import pytest
 
-from app.ai_service import AIServiceConfigurationError, AIServiceUnavailableError
-from app.main import _get_cors_origins, app, get_ai_service, review, simulate
+from app.ai_service import (
+    AIServiceConfigurationError,
+    AIServiceUnavailableError,
+    DormHarmonyAIService,
+)
+from app.event_store import InMemoryEventStore
+from app.main import (
+    _get_cors_origins,
+    app,
+    get_ai_service,
+    get_event_store,
+    archive_insight,
+    review,
+    simulate,
+)
 from app.safety import SAFETY_DISCLAIMER
-from app.schemas import ReviewResponse, RoommateReply, SimulateResponse
+from app.schemas import ArchiveInsightResponse, ReviewResponse, RoommateReply, SimulateResponse
 
 
 client = TestClient(app)
@@ -52,6 +66,17 @@ class FakeAIService:
             ),
         )
 
+    def archive_insight(self, events, analysis):
+        return ArchiveInsightResponse(
+            insight="事件主要集中在夜间噪音，当前压力更多来自休息边界被持续打断。",
+            care_suggestion="先保证睡眠和情绪恢复，再选择白天提出 11 点后的安静规则。",
+            communication_focus=["明确 11 点后的耳机规则", "用具体影响表达需求"],
+            safety_note=(
+                "仅用于沟通训练建议，不代表真实舍友想法，不进行心理诊断，"
+                "不进行医学判断，不进行人格评价；如压力持续升高请联系辅导员或心理老师寻求现实支持。"
+            ),
+        )
+
 
 class MissingKeyService:
     def simulate(self, request):
@@ -64,6 +89,11 @@ class MissingKeyService:
             "AI 服务未配置：请设置 DEEPSEEK_API_KEY（推荐）或 OPENAI_API_KEY（兼容旧配置）。"
         )
 
+    def archive_insight(self, events, analysis):
+        raise AIServiceConfigurationError(
+            "AI 服务未配置：请设置 DEEPSEEK_API_KEY（推荐）或 OPENAI_API_KEY（兼容旧配置）。"
+        )
+
 
 class BrokenAIService:
     def simulate(self, request):
@@ -71,6 +101,34 @@ class BrokenAIService:
 
     def review(self, request):
         raise AIServiceUnavailableError("AI 服务暂时不可用，请稍后重试。")
+
+    def archive_insight(self, events, analysis):
+        raise AIServiceUnavailableError("AI 服务暂时不可用，请稍后重试。")
+
+
+class CapturingArchiveInsightService(FakeAIService):
+    def __init__(self):
+        self.archive_insight_called = False
+
+    def archive_insight(self, events, analysis):
+        self.archive_insight_called = True
+        return super().archive_insight(events, analysis)
+
+
+class UnsafeArchiveInsightRunner:
+    def generate_simulation(self, request):
+        raise AssertionError("simulate should not be called")
+
+    def generate_review(self, request):
+        raise AssertionError("review should not be called")
+
+    def generate_archive_insight(self, events, analysis):
+        return {
+            "insight": "事件主要集中在夜间噪音。",
+            "care_suggestion": "先保证睡眠和情绪恢复。",
+            "communication_focus": ["明确 11 点后的耳机规则"],
+            "safety_note": "祝你沟通顺利。",
+        }
 
 
 class CapturingReviewService(FakeAIService):
@@ -87,11 +145,29 @@ def assert_llm_key_hint(detail):
     assert "OPENAI_API_KEY" in detail
 
 
+def create_noise_event_for_archive():
+    return client.post(
+        "/api/events",
+        json={
+            "event_date": date.today().isoformat(),
+            "event_type": "noise",
+            "severity": 4,
+            "frequency": "weekly_multiple",
+            "emotion": "anxious",
+            "has_communicated": False,
+            "has_conflict": True,
+            "description": "舍友晚上打游戏声音很大，影响睡眠。",
+        },
+    )
+
+
 @pytest.fixture(autouse=True)
-def clear_ai_service_override():
+def clear_dependency_overrides():
     app.dependency_overrides.pop(get_ai_service, None)
+    app.dependency_overrides.pop(get_event_store, None)
     yield
     app.dependency_overrides.pop(get_ai_service, None)
+    app.dependency_overrides.pop(get_event_store, None)
 
 
 def test_health_endpoint_returns_ok_status():
@@ -137,6 +213,143 @@ def test_analyze_endpoint_returns_structured_pressure_analysis():
     assert "当前压力值为 76" in body["trend_message"]
     assert "沟通演练" in body["suggestion"]
     assert body["disclaimer"] == SAFETY_DISCLAIMER
+
+
+def test_create_event_record_returns_saved_event_and_single_analysis():
+    app.dependency_overrides[get_event_store] = lambda: InMemoryEventStore()
+
+    response = client.post(
+        "/api/events",
+        json={
+            "event_date": "2026-05-15",
+            "event_type": "noise",
+            "severity": 4,
+            "frequency": "weekly_multiple",
+            "emotion": "anxious",
+            "has_communicated": False,
+            "has_conflict": True,
+            "description": "舍友晚上打游戏声音很大，影响睡眠。",
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["event_date"] == "2026-05-15"
+    assert body["single_analysis"]["pressure_score"] == 76
+
+
+def test_create_event_record_rejects_future_event_date():
+    app.dependency_overrides[get_event_store] = lambda: InMemoryEventStore()
+
+    response = client.post(
+        "/api/events",
+        json={
+            "event_date": (date.today() + timedelta(days=1)).isoformat(),
+            "event_type": "noise",
+            "severity": 4,
+            "frequency": "weekly_multiple",
+            "emotion": "anxious",
+            "has_communicated": False,
+            "has_conflict": True,
+            "description": "舍友晚上打游戏声音很大，影响睡眠。",
+        },
+    )
+
+    assert response.status_code == 422
+
+
+def test_list_event_records_returns_archive_ordered_by_store():
+    event_store = InMemoryEventStore()
+    app.dependency_overrides[get_event_store] = lambda: event_store
+
+    first_response = client.post(
+        "/api/events",
+        json={
+            "event_date": "2026-05-14",
+            "event_type": "noise",
+            "severity": 3,
+            "frequency": "occasional",
+            "emotion": "irritable",
+            "has_communicated": True,
+            "has_conflict": False,
+            "description": "旧事件。",
+        },
+    )
+    second_response = client.post(
+        "/api/events",
+        json={
+            "event_date": "2026-05-15",
+            "event_type": "noise",
+            "severity": 4,
+            "frequency": "weekly_multiple",
+            "emotion": "anxious",
+            "has_communicated": False,
+            "has_conflict": True,
+            "description": "新事件。",
+        },
+    )
+    response = client.get("/api/events")
+
+    assert first_response.status_code == 200
+    assert second_response.status_code == 200
+    assert response.status_code == 200
+    body = response.json()
+    assert body.keys() == {"events"}
+    assert [event["event_date"] for event in body["events"]] == [
+        "2026-05-15",
+        "2026-05-14",
+    ]
+    assert body["events"][0]["single_analysis"]["pressure_score"] == 76
+
+
+def test_event_analysis_endpoint_returns_archive_pressure_for_shared_store():
+    event_store = InMemoryEventStore()
+    app.dependency_overrides[get_event_store] = lambda: event_store
+    today = date.today().isoformat()
+
+    create_response = client.post(
+        "/api/events",
+        json={
+            "event_date": today,
+            "event_type": "noise",
+            "severity": 4,
+            "frequency": "weekly_multiple",
+            "emotion": "anxious",
+            "has_communicated": False,
+            "has_conflict": True,
+            "description": "舍友晚上打游戏声音很大，影响睡眠。",
+        },
+    )
+    response = client.get("/api/events/analysis")
+
+    assert create_response.status_code == 200
+    assert response.status_code == 200
+    body = response.json()
+    assert body["pressure_score"] == 76
+    assert body["risk_level"] == "high"
+    assert body["main_sources"]
+    assert body["event_count"] == 1
+    assert body["active_30d_count"] == 1
+    assert body["source_breakdown"]
+    assert sum(source["percent"] for source in body["source_breakdown"]) == 100
+    for source in body["source_breakdown"]:
+        assert 0 <= source["percent"] <= 100
+        assert source["contribution"] >= 0
+
+
+def test_event_analysis_endpoint_handles_empty_archive():
+    event_store = InMemoryEventStore()
+    app.dependency_overrides[get_event_store] = lambda: event_store
+
+    response = client.get("/api/events/analysis")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["pressure_score"] == 0
+    assert body["risk_level"] == "stable"
+    assert body["event_count"] == 0
+    assert body["source_breakdown"] == []
+    assert "先记录事件" in body["suggestion"]
 
 
 def test_cors_preflight_allows_local_vite_frontend():
@@ -193,6 +406,7 @@ def test_analyze_endpoint_rejects_out_of_range_severity():
 
 def test_ai_endpoints_run_as_sync_functions_for_threadpool_execution():
     assert not inspect.iscoroutinefunction(simulate)
+    assert not inspect.iscoroutinefunction(archive_insight)
     assert not inspect.iscoroutinefunction(review)
 
 
@@ -492,6 +706,82 @@ def test_review_endpoint_returns_503_when_ai_key_missing():
 
     assert response.status_code == 503
     assert_llm_key_hint(response.json()["detail"])
+
+
+def test_archive_insight_endpoint_returns_400_when_archive_is_empty():
+    event_store = InMemoryEventStore()
+    ai_service = CapturingArchiveInsightService()
+    app.dependency_overrides[get_event_store] = lambda: event_store
+    app.dependency_overrides[get_ai_service] = lambda: ai_service
+
+    response = client.post("/api/events/insight")
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "请先记录至少一条事件后再生成 AI 心晴见解。"
+    assert ai_service.archive_insight_called is False
+
+
+def test_archive_insight_endpoint_returns_503_when_ai_key_missing():
+    event_store = InMemoryEventStore()
+    app.dependency_overrides[get_event_store] = lambda: event_store
+    app.dependency_overrides[get_ai_service] = lambda: MissingKeyService()
+
+    create_response = create_noise_event_for_archive()
+    response = client.post("/api/events/insight")
+
+    assert create_response.status_code == 200
+    assert response.status_code == 503
+    assert_llm_key_hint(response.json()["detail"])
+
+
+def test_archive_insight_endpoint_returns_502_when_ai_service_fails():
+    event_store = InMemoryEventStore()
+    app.dependency_overrides[get_event_store] = lambda: event_store
+    app.dependency_overrides[get_ai_service] = lambda: BrokenAIService()
+
+    create_response = create_noise_event_for_archive()
+    response = client.post("/api/events/insight")
+
+    assert create_response.status_code == 200
+    assert response.status_code == 502
+    assert "AI 服务暂时不可用" in response.json()["detail"]
+
+
+def test_archive_insight_endpoint_returns_502_when_safety_note_is_unsafe():
+    event_store = InMemoryEventStore()
+    app.dependency_overrides[get_event_store] = lambda: event_store
+    app.dependency_overrides[get_ai_service] = lambda: DormHarmonyAIService(
+        runner=UnsafeArchiveInsightRunner()
+    )
+
+    create_response = create_noise_event_for_archive()
+    response = client.post("/api/events/insight")
+
+    assert create_response.status_code == 200
+    assert response.status_code == 502
+    assert "AI 输出结构异常" in response.json()["detail"]
+
+
+def test_archive_insight_endpoint_returns_structured_ai_insight():
+    event_store = InMemoryEventStore()
+    app.dependency_overrides[get_event_store] = lambda: event_store
+    app.dependency_overrides[get_ai_service] = lambda: FakeAIService()
+
+    create_response = create_noise_event_for_archive()
+    response = client.post("/api/events/insight")
+
+    assert create_response.status_code == 200
+    assert response.status_code == 200
+    body = response.json()
+    assert body.keys() == {
+        "insight",
+        "care_suggestion",
+        "communication_focus",
+        "safety_note",
+    }
+    assert "夜间噪音" in body["insight"]
+    assert body["communication_focus"]
+    assert "不进行心理诊断" in body["safety_note"]
 
 
 def test_simulate_endpoint_returns_502_when_ai_service_fails():

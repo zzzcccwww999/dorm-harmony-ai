@@ -1,5 +1,9 @@
+from datetime import date, datetime
+import sys
+import types
+
 import pytest
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 
 from app.ai_service import (
     AISettings,
@@ -11,7 +15,11 @@ from app.ai_service import (
     load_ai_settings,
 )
 from app.schemas import (
+    AnalyzeResponse,
+    ArchiveAnalysisResponse,
+    ArchiveInsightResponse,
     DialogueMessage,
+    EventRecord,
     ReviewRequest,
     ReviewResponse,
     RoommateReply,
@@ -30,6 +38,11 @@ REVIEW_SAFETY_NOTE = (
     "不进行心理诊断、不进行医学判断、不进行人格评价。"
     "如压力持续升高，请寻求现实支持或联系辅导员、心理老师。"
 )
+ARCHIVE_INSIGHT_SAFETY_NOTE = (
+    "本建议仅用于沟通训练建议，不代表真实舍友想法，"
+    "不进行心理诊断、不进行医学判断、不进行人格评价。"
+    "如压力持续升高，请联系辅导员或心理老师寻求现实支持。"
+)
 
 
 @pytest.fixture(autouse=True)
@@ -37,6 +50,14 @@ def isolate_project_env_file(monkeypatch, tmp_path):
     from app import env as env_module
 
     monkeypatch.setattr(env_module, "DEFAULT_ENV_FILE", tmp_path / ".env.missing")
+    if "langchain_deepseek" not in sys.modules:
+        module = types.ModuleType("langchain_deepseek")
+
+        class PlaceholderChatDeepSeek:
+            pass
+
+        module.ChatDeepSeek = PlaceholderChatDeepSeek
+        monkeypatch.setitem(sys.modules, "langchain_deepseek", module)
 
 
 class FakeRunner:
@@ -72,12 +93,23 @@ class FakeRunner:
             safety_note=REVIEW_SAFETY_NOTE,
         )
 
+    def generate_archive_insight(self, events, analysis):
+        return ArchiveInsightResponse(
+            insight="近 30 天噪音事件集中出现，主要压力来自休息边界被反复打断。",
+            care_suggestion="先照顾睡眠和情绪稳定，再选择白天提出具体规则。",
+            communication_focus=["围绕 11 点后的安静规则沟通"],
+            safety_note=ARCHIVE_INSIGHT_SAFETY_NOTE,
+        )
+
 
 class BrokenRunner:
     def generate_simulation(self, request):
         raise RuntimeError("network exploded with secret sk-test")
 
     def generate_review(self, request):
+        raise RuntimeError("network exploded with secret sk-test")
+
+    def generate_archive_insight(self, events, analysis):
         raise RuntimeError("network exploded with secret sk-test")
 
 
@@ -87,6 +119,9 @@ class BadShapeRunner:
 
     def generate_review(self, request):
         return {"summary": "missing fields"}
+
+    def generate_archive_insight(self, events, analysis):
+        return {"insight": "missing fields"}
 
 
 class DictRunner:
@@ -122,6 +157,14 @@ class DictRunner:
             "safety_note": REVIEW_SAFETY_NOTE,
         }
 
+    def generate_archive_insight(self, events, analysis):
+        return {
+            "insight": "近 30 天噪音事件集中出现，主要压力来自休息边界被反复打断。",
+            "care_suggestion": "先照顾睡眠和情绪稳定，再选择白天提出具体规则。",
+            "communication_focus": ["围绕 11 点后的安静规则沟通"],
+            "safety_note": ARCHIVE_INSIGHT_SAFETY_NOTE,
+        }
+
 
 class ExplodingStructuredLLM:
     def invoke(self, messages):
@@ -141,6 +184,14 @@ class CapturingStructuredLLM:
         self.schema = schema
 
     def invoke(self, messages):
+        if self.schema is ArchiveInsightResponse:
+            return {
+                "insight": "近 30 天噪音事件集中出现，主要压力来自休息边界被反复打断。",
+                "care_suggestion": "先照顾睡眠和情绪稳定，再选择白天提出具体规则。",
+                "communication_focus": ["围绕 11 点后的安静规则沟通"],
+                "safety_note": ARCHIVE_INSIGHT_SAFETY_NOTE,
+            }
+
         return {
             "replies": [
                 {
@@ -194,6 +245,49 @@ def assert_exception_chain_is_sanitized(error):
     assert error.__context__ is None
     assert "sk-test" not in str(error.__cause__)
     assert "sk-test" not in str(error.__context__)
+
+
+@pytest.fixture
+def archive_events_and_analysis():
+    event = EventRecord(
+        id="event-1",
+        created_at=datetime(2026, 5, 15, 8, 0, 0),
+        event_date=date(2026, 5, 15),
+        event_type="noise",
+        severity=4,
+        frequency="weekly_multiple",
+        emotion="anxious",
+        has_communicated=False,
+        has_conflict=True,
+        description="舍友晚上打游戏声音很大，影响睡眠。",
+        single_analysis=AnalyzeResponse(
+            pressure_score=76,
+            risk_level="high",
+            risk_label="冲突风险较高",
+            main_sources=["噪音冲突"],
+            emotion_keywords=["焦虑"],
+            trend_message="当前压力值为 76。",
+            suggestion="建议先进行沟通演练。",
+            recommend_simulation=True,
+            disclaimer="本结果不作为心理诊断依据。",
+        ),
+    )
+    analysis = ArchiveAnalysisResponse(
+        pressure_score=76,
+        risk_level="high",
+        risk_label="冲突风险较高",
+        main_sources=["噪音冲突"],
+        emotion_keywords=["焦虑"],
+        trend_message="事件档案共记录 1 条事件。",
+        suggestion="建议先进行沟通演练。",
+        recommend_simulation=True,
+        disclaimer="本结果不作为心理诊断依据。",
+        event_count=1,
+        active_30d_count=1,
+        source_breakdown=[],
+    )
+
+    return [event], analysis
 
 
 def test_load_ai_settings_requires_llm_api_key(monkeypatch):
@@ -316,6 +410,17 @@ def test_service_returns_review_from_runner():
     assert "不进行心理诊断" in response.safety_note
 
 
+def test_service_returns_archive_insight_from_runner(archive_events_and_analysis):
+    events, analysis = archive_events_and_analysis
+    service = DormHarmonyAIService(runner=FakeRunner())
+
+    response = service.archive_insight(events, analysis)
+
+    assert isinstance(response, ArchiveInsightResponse)
+    assert "噪音事件" in response.insight
+    assert response.communication_focus == ["围绕 11 点后的安静规则沟通"]
+
+
 def test_service_normalizes_simulation_dict_from_runner():
     request = SimulateRequest(scenario="噪音冲突", user_message="晚上能不能小声一点？")
     service = DormHarmonyAIService(runner=DictRunner())
@@ -341,12 +446,34 @@ def test_service_normalizes_review_dict_from_runner():
     assert response.next_steps == ["选择白天双方都方便的时间再确认规则"]
 
 
+def test_service_normalizes_archive_insight_dict_from_runner(archive_events_and_analysis):
+    events, analysis = archive_events_and_analysis
+    service = DormHarmonyAIService(runner=DictRunner())
+
+    response = service.archive_insight(events, analysis)
+
+    assert isinstance(response, ArchiveInsightResponse)
+    assert response.communication_focus == ["围绕 11 点后的安静规则沟通"]
+    assert "不进行心理诊断" in response.safety_note
+
+
 def test_service_sanitizes_runner_failures():
     request = SimulateRequest(scenario="噪音冲突", user_message="晚上能不能小声一点？")
     service = DormHarmonyAIService(runner=BrokenRunner())
 
     with pytest.raises(AIServiceUnavailableError) as exc_info:
         service.simulate(request)
+
+    assert "AI 服务暂时不可用" in str(exc_info.value)
+    assert_exception_chain_is_sanitized(exc_info.value)
+
+
+def test_service_sanitizes_archive_insight_runner_failures(archive_events_and_analysis):
+    events, analysis = archive_events_and_analysis
+    service = DormHarmonyAIService(runner=BrokenRunner())
+
+    with pytest.raises(AIServiceUnavailableError) as exc_info:
+        service.archive_insight(events, analysis)
 
     assert "AI 服务暂时不可用" in str(exc_info.value)
     assert_exception_chain_is_sanitized(exc_info.value)
@@ -359,6 +486,17 @@ def test_service_rejects_invalid_runner_shape():
     with pytest.raises(AIOutputStructureError) as exc_info:
         service.simulate(request)
 
+    assert_exception_chain_is_sanitized(exc_info.value)
+
+
+def test_service_rejects_invalid_archive_insight_runner_shape(archive_events_and_analysis):
+    events, analysis = archive_events_and_analysis
+    service = DormHarmonyAIService(runner=BadShapeRunner())
+
+    with pytest.raises(AIOutputStructureError) as exc_info:
+        service.archive_insight(events, analysis)
+
+    assert "AI 输出结构异常" in str(exc_info.value)
     assert_exception_chain_is_sanitized(exc_info.value)
 
 
@@ -432,6 +570,44 @@ def test_langchain_runner_sends_json_contract_prompt(monkeypatch):
     assert any("JSON" in content for content in system_messages)
     assert any('"roommate"' in content for content in system_messages)
     assert any('"personality"' in content for content in system_messages)
+
+
+def test_langchain_runner_sends_archive_insight_schema_and_prompt(
+    monkeypatch,
+    archive_events_and_analysis,
+):
+    CapturingChatDeepSeek.latest_messages = None
+    CapturingChatDeepSeek.latest_structured_kwargs = None
+    monkeypatch.setattr("langchain_deepseek.ChatDeepSeek", CapturingInvokeChatDeepSeek)
+    runner = LangChainDeepSeekRunner(
+        settings=AISettings(
+            api_key="deepseek-key",
+            model="deepseek-v4-flash",
+            base_url="https://api.deepseek.com",
+            timeout=20.0,
+        )
+    )
+    events, analysis = archive_events_and_analysis
+
+    response = runner.generate_archive_insight(events, analysis)
+
+    assert isinstance(response, ArchiveInsightResponse)
+    assert CapturingChatDeepSeek.latest_structured_kwargs == {"method": "json_mode"}
+    assert CapturingChatDeepSeek.latest_messages is not None
+    system_messages = [
+        str(message.content)
+        for message in CapturingChatDeepSeek.latest_messages
+        if isinstance(message, SystemMessage)
+    ]
+    human_messages = [
+        str(message.content)
+        for message in CapturingChatDeepSeek.latest_messages
+        if isinstance(message, HumanMessage)
+    ]
+    assert any("ArchiveInsightResponse" in content for content in system_messages)
+    assert any("archive insight" in content for content in system_messages)
+    assert any("events:" in content for content in human_messages)
+    assert any("archive_analysis:" in content for content in human_messages)
 
 
 def test_default_service_constructs_without_llm_api_key(monkeypatch):

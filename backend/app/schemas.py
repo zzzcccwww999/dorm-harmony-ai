@@ -1,5 +1,6 @@
 """前后端接口契约和 AI 结构化输出模型。"""
 
+from datetime import date, datetime
 from enum import StrEnum
 from typing import Literal
 
@@ -65,6 +66,79 @@ class AnalyzeResponse(BaseModel):
     suggestion: str
     recommend_simulation: bool
     disclaimer: str
+
+
+class EventRecordCreate(AnalyzeRequest):
+    event_date: date
+
+    @field_validator("event_date")
+    @classmethod
+    def reject_future_event_date(cls, value: date) -> date:
+        if value > date.today():
+            raise ValueError("event_date must not be in the future")
+
+        return value
+
+
+class EventRecord(EventRecordCreate):
+    id: str
+    created_at: datetime
+    single_analysis: AnalyzeResponse
+
+
+class EventArchiveResponse(BaseModel):
+    events: list[EventRecord]
+
+
+class SourceBreakdown(BaseModel):
+    label: str
+    percent: int
+    contribution: float
+
+
+class ArchiveAnalysisResponse(AnalyzeResponse):
+    event_count: int
+    active_30d_count: int
+    source_breakdown: list[SourceBreakdown]
+
+
+class ArchiveInsightResponse(BaseModel):
+    insight: str
+    care_suggestion: str
+    communication_focus: list[str] = Field(min_length=1)
+    safety_note: str
+
+    @field_validator("insight", "care_suggestion", "safety_note", mode="before")
+    @classmethod
+    def trim_and_require_text(cls, value: str) -> str:
+        if not isinstance(value, str):
+            raise ValueError("field must be a string")
+
+        text = value.strip()
+        if not text:
+            raise ValueError("field must not be empty")
+
+        return text
+
+    @field_validator("communication_focus")
+    @classmethod
+    def require_non_empty_focus_items(cls, value: list[str]) -> list[str]:
+        cleaned_items: list[str] = []
+        for item in value:
+            if not isinstance(item, str):
+                raise ValueError("communication_focus items must be strings")
+
+            cleaned_item = item.strip()
+            if not cleaned_item:
+                raise ValueError("communication_focus items must not be empty")
+            cleaned_items.append(cleaned_item)
+
+        return cleaned_items
+
+    @field_validator("safety_note", mode="after")
+    @classmethod
+    def validate_safety_note(cls, value: str) -> str:
+        return _validate_safety_note_boundaries(value)
 
 
 RoommateName = Literal["舍友 A", "舍友 B", "舍友 C"]
@@ -147,11 +221,40 @@ def _validate_safety_note_boundaries(value: str) -> str:
     return safety_note
 
 
+class DialogueMessage(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    speaker: DialogueSpeaker
+    message: str = Field(max_length=500)
+
+    @field_validator("speaker", mode="before")
+    @classmethod
+    def normalize_frontend_speaker_alias(cls, value: str) -> str:
+        if not isinstance(value, str):
+            raise ValueError("speaker must be a string")
+
+        speaker = value.strip()
+        return FRONTEND_DIALOGUE_SPEAKER_ALIASES.get(speaker, speaker)
+
+    @field_validator("message", mode="before")
+    @classmethod
+    def trim_and_require_message(cls, value: str) -> str:
+        if not isinstance(value, str):
+            raise ValueError("message must be a string")
+
+        message = value.strip()
+        if not message:
+            raise ValueError("message must not be empty")
+
+        return message
+
+
 class SimulateRequest(BaseModel):
     scenario: str = Field(max_length=300)
     user_message: str = Field(max_length=500)
     risk_level: AnalyzeRiskLevel | None = None
     context: str | None = Field(default=None, max_length=500)
+    dialogue: list[DialogueMessage] = Field(default_factory=list, max_length=20)
 
     @field_validator("scenario", "user_message", mode="before")
     @classmethod
@@ -229,34 +332,6 @@ class SimulateResponse(BaseModel):
             raise ValueError("replies must contain fixed roommate roles in order")
 
         return self
-
-
-class DialogueMessage(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    speaker: DialogueSpeaker
-    message: str = Field(max_length=500)
-
-    @field_validator("speaker", mode="before")
-    @classmethod
-    def normalize_frontend_speaker_alias(cls, value: str) -> str:
-        if not isinstance(value, str):
-            raise ValueError("speaker must be a string")
-
-        speaker = value.strip()
-        return FRONTEND_DIALOGUE_SPEAKER_ALIASES.get(speaker, speaker)
-
-    @field_validator("message", mode="before")
-    @classmethod
-    def trim_and_require_message(cls, value: str) -> str:
-        if not isinstance(value, str):
-            raise ValueError("message must be a string")
-
-        message = value.strip()
-        if not message:
-            raise ValueError("message must not be empty")
-
-        return message
 
 
 class ReviewOriginalEvent(BaseModel):

@@ -1,10 +1,14 @@
+from datetime import date, datetime
+
 import pytest
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import ValidationError
 
 from app.ai_prompts import (
+    ARCHIVE_INSIGHT_SYSTEM_PROMPT,
     REVIEW_SYSTEM_PROMPT,
     SIMULATE_SYSTEM_PROMPT,
+    build_archive_insight_messages,
     build_review_messages,
     build_simulate_messages,
 )
@@ -12,7 +16,11 @@ from app.demo_data import DEMO_SCENARIOS
 from app.schemas import (
     AnalyzeRequest,
     AnalyzeResponse,
+    ArchiveInsightResponse,
+    ArchiveAnalysisResponse,
     DialogueMessage,
+    EventRecord,
+    EventRecordCreate,
     ReviewRequest,
     ReviewResponse,
     RoommateReply,
@@ -57,6 +65,21 @@ def test_simulate_request_normalizes_blank_risk_level_to_none():
     )
 
     assert request.risk_level is None
+
+
+def test_simulate_request_accepts_prior_dialogue_for_continuous_conversation():
+    request = SimulateRequest(
+        scenario="舍友晚上打游戏声音很大，影响睡眠。",
+        user_message="那我们能不能约定 11 点后戴耳机？",
+        risk_level="high",
+        dialogue=[
+            {"speaker": "user", "message": "晚上能不能小声一点？"},
+            {"speaker": "roommate_a", "message": "我也没开很大声吧。"},
+        ],
+    )
+
+    assert len(request.dialogue) == 2
+    assert request.dialogue[1].speaker == "roommate_a"
 
 
 def test_simulate_request_rejects_unknown_risk_level():
@@ -218,6 +241,128 @@ def test_build_review_messages_serializes_controlled_original_event():
     assert '"pressure_score": 76' in message_content
 
 
+def test_build_simulate_messages_includes_prior_dialogue_before_current_message():
+    request = SimulateRequest(
+        scenario="舍友晚上打游戏声音很大，影响睡眠。",
+        user_message="那我们能不能约定 11 点后戴耳机？",
+        dialogue=[
+            {"speaker": "user", "message": "晚上能不能小声一点？"},
+            {"speaker": "roommate_a", "message": "我也没开很大声吧。"},
+        ],
+    )
+
+    messages = build_simulate_messages(request)
+
+    message_content = str(messages[-1].content)
+    assert "如果 dialogue 非空，请把本次 user_message 视为同一场景下的下一轮对话" in message_content
+    assert "user: 晚上能不能小声一点？" in message_content
+    assert "roommate_a: 我也没开很大声吧。" in message_content
+    assert message_content.index("roommate_a: 我也没开很大声吧。") < message_content.index(
+        "user_message: 那我们能不能约定 11 点后戴耳机？"
+    )
+
+
+def test_archive_insight_response_requires_actionable_safety_bounded_fields():
+    response = ArchiveInsightResponse(
+        insight="近 30 天噪音事件集中出现，主要压力来自休息边界被反复打断。",
+        care_suggestion="先照顾睡眠和情绪稳定，再选择白天提出具体规则。",
+        communication_focus=["围绕 11 点后的安静规则沟通", "先确认对方是否能接受耳机方案"],
+        safety_note=(
+            "本建议仅用于沟通训练建议，不代表真实舍友想法，不进行心理诊断，"
+            "不进行医学判断，不进行人格评价；如压力持续升高，请联系辅导员或心理老师寻求现实支持。"
+        ),
+    )
+
+    assert response.communication_focus[0] == "围绕 11 点后的安静规则沟通"
+
+
+def test_archive_insight_response_rejects_empty_focus_item():
+    with pytest.raises(ValidationError):
+        ArchiveInsightResponse(
+            insight="近 30 天噪音事件集中出现。",
+            care_suggestion="先照顾睡眠和情绪稳定。",
+            communication_focus=["   "],
+            safety_note=(
+                "本建议仅用于沟通训练建议，不代表真实舍友想法，不进行心理诊断，"
+                "不进行医学判断，不进行人格评价；如压力持续升高，请联系辅导员或心理老师寻求现实支持。"
+            ),
+        )
+
+
+def test_archive_insight_response_rejects_unsafe_safety_note():
+    with pytest.raises(ValidationError):
+        ArchiveInsightResponse(
+            insight="近 30 天噪音事件集中出现。",
+            care_suggestion="先照顾睡眠和情绪稳定。",
+            communication_focus=["围绕 11 点后的安静规则沟通"],
+            safety_note="祝你沟通顺利。",
+        )
+
+
+def test_build_archive_insight_messages_serializes_events_and_analysis():
+    event_payload = EventRecordCreate(
+        event_date=date(2026, 5, 15),
+        event_type="noise",
+        severity=4,
+        frequency="weekly_multiple",
+        emotion="anxious",
+        has_communicated=False,
+        has_conflict=True,
+        description="舍友晚上打游戏声音很大，影响睡眠。",
+    )
+    event = EventRecord(
+        **event_payload.model_dump(),
+        id="event-1",
+        created_at=datetime(2026, 5, 15, 8, 0, 0),
+        single_analysis=AnalyzeResponse(
+            pressure_score=76,
+            risk_level="high",
+            risk_label="冲突风险较高",
+            main_sources=["噪音冲突"],
+            emotion_keywords=["焦虑"],
+            trend_message="当前压力值为 76。",
+            suggestion="建议先进行沟通演练。",
+            recommend_simulation=True,
+            disclaimer="本结果不作为心理诊断依据。",
+        ),
+    )
+    analysis = ArchiveAnalysisResponse(
+        pressure_score=76,
+        risk_level="high",
+        risk_label="冲突风险较高",
+        main_sources=["噪音冲突"],
+        emotion_keywords=["焦虑"],
+        trend_message="事件档案共记录 1 条事件。",
+        suggestion="建议先进行沟通演练。",
+        recommend_simulation=True,
+        disclaimer="本结果不作为心理诊断依据。",
+        event_count=1,
+        active_30d_count=1,
+        source_breakdown=[],
+    )
+
+    messages = build_archive_insight_messages([event], analysis)
+
+    message_content = str(messages[-1].content)
+    assert "events:" in message_content
+    assert "archive_analysis:" in message_content
+    assert "舍友晚上打游戏声音很大" in message_content
+    assert '"event_date": "2026-05-15"' in message_content
+    assert '"event_type": "noise"' in message_content
+    assert '"severity": 4' in message_content
+    assert '"frequency": "weekly_multiple"' in message_content
+    assert '"emotion": "anxious"' in message_content
+    assert '"has_communicated": false' in message_content
+    assert '"has_conflict": true' in message_content
+    assert '"description": "舍友晚上打游戏声音很大，影响睡眠。"' in message_content
+    assert '"pressure_score": 76' in message_content
+    assert "event-1" not in message_content
+    assert "created_at" not in message_content
+    assert "single_analysis" not in message_content
+    assert "本结果不作为心理诊断依据" not in message_content
+    assert "disclaimer" not in message_content
+
+
 def test_review_response_requires_actionable_lists():
     response = ReviewResponse(
         summary="用户表达了睡眠受影响的事实，整体语气较温和。",
@@ -293,6 +438,7 @@ def test_prompts_contain_role_and_safety_boundaries():
     for phrase in required_phrases:
         assert phrase in SIMULATE_SYSTEM_PROMPT
         assert phrase in REVIEW_SYSTEM_PROMPT
+        assert phrase in ARCHIVE_INSIGHT_SYSTEM_PROMPT
 
     assert "舍友 A" in SIMULATE_SYSTEM_PROMPT
     assert "直接型" in SIMULATE_SYSTEM_PROMPT
@@ -305,8 +451,10 @@ def test_prompts_contain_role_and_safety_boundaries():
 def test_prompts_include_schema_accepted_safety_note_phrases():
     assert "仅用于宿舍沟通演练" in SIMULATE_SYSTEM_PROMPT
     assert "仅用于沟通训练建议" in REVIEW_SYSTEM_PROMPT
+    assert "仅用于沟通训练建议" in ARCHIVE_INSIGHT_SYSTEM_PROMPT
     assert "不代表真实舍友想法" in SIMULATE_SYSTEM_PROMPT
     assert "不代表真实舍友想法" in REVIEW_SYSTEM_PROMPT
+    assert "不代表真实舍友想法" in ARCHIVE_INSIGHT_SYSTEM_PROMPT
 
 
 def test_prompts_include_deepseek_json_output_contract():
