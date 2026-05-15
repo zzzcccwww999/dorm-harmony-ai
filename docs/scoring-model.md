@@ -70,3 +70,67 @@ pressure_score = round(
 | 已有冲突 | 100 | 10% | 10 |
 
 合计为 76，风险等级为 `high`，中文标签为“冲突风险较高”。该结果只表示宿舍关系压力趋势，不作为心理诊断、医学诊断或人格评价依据。
+
+## 事件档案总压力模型
+
+事件档案总压力用于 `GET /api/events/analysis`，输入为已经记录的全部事件。模型先复用单事件
+`analyze_pressure()` 计算每条事件的 `single_score_i`，再结合事件日期评估当前档案压力。
+
+### 时间权重
+
+| 距离事件发生天数 | `recency_weight_i` |
+| --- | --- |
+| `days_since_event <= 7` | 1.00 |
+| `8 <= days_since_event <= 14` | 0.85 |
+| `15 <= days_since_event <= 30` | 0.70 |
+| `31 <= days_since_event <= 60` | 0.50 |
+| `days_since_event > 60` | 0.30 |
+
+### 总压力公式
+
+```text
+weighted_average =
+  sum(single_score_i * recency_weight_i) / max(sum(recency_weight_i), 1)
+
+active_30d_count = count(events where days_since_event <= 30)
+event_type_count = count(distinct event_type in all events)
+
+accumulation_bonus =
+  min(15, round(5 * ln(1 + max(active_30d_count - 1, 0))))
+
+diversity_bonus =
+  min(8, 2 * max(event_type_count - 1, 0))
+
+archive_pressure_score =
+  clamp(round(weighted_average + accumulation_bonus + diversity_bonus), 0, 100)
+```
+
+`max(sum(recency_weight_i), 1)` 用于表达“当前压力”的衰减：只有旧事件时，低时间权重不会在分母中被完全抵消；近期单条事件仍保持接近单事件分数。
+
+### 主要压力来源贡献
+
+对每条事件累加贡献：
+
+```text
+event_source_label contribution += single_score_i * recency_weight_i * 0.55
+
+if frequency is weekly_multiple or daily:
+  "发生频率较高" contribution += FREQUENCY_SCORES[frequency] * recency_weight_i * 0.20
+
+if has_communicated is false:
+  "尚未有效沟通" contribution += 100 * recency_weight_i * 0.15
+
+if has_conflict is true:
+  "已出现争吵或冷战" contribution += 100 * recency_weight_i * 0.10
+```
+
+按贡献值从高到低取前 3 个标签，先四舍五入为百分比，再把百分比差值调整到贡献最大的来源，确保返回的 3 个来源百分比总和严格等于 100。
+
+### 预期行为
+
+| 情况 | 预期 |
+| --- | --- |
+| 单条近期事件 | 总压力接近该事件单事件分数，不额外放大；夜间噪音示例为 76，风险等级为 `high` |
+| 近期多次事件 | 近 30 天多条事件会触发累计加成，不同事件类型会触发少量多源加成，可能进入 `severe` |
+| 旧事件 | 60 天前事件仍有低权重影响，但不会主导当前压力 |
+| 无事件 | 返回 `pressure_score=0`、`risk_level=stable`、`risk_label=关系平稳`，并提示先记录事件 |
