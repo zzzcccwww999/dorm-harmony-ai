@@ -7,15 +7,22 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
-from app.env import load_project_env
 from app.ai_service import (
     AIServiceConfigurationError,
     AIServiceUnavailableError,
     DormHarmonyAIService,
 )
+from app.archive_analysis import analyze_archive_pressure
+from app.env import load_project_env
+from app.event_store import JsonEventStore
 from app.schemas import (
     AnalyzeRequest,
     AnalyzeResponse,
+    ArchiveAnalysisResponse,
+    ArchiveInsightResponse,
+    EventArchiveResponse,
+    EventRecord,
+    EventRecordCreate,
     ReviewRequest,
     ReviewResponse,
     SimulateRequest,
@@ -52,6 +59,11 @@ def get_ai_service() -> DormHarmonyAIService:
     return DormHarmonyAIService()
 
 
+def get_event_store() -> JsonEventStore:
+    """FastAPI 依赖注入入口，测试中可覆盖事件档案存储。"""
+    return JsonEventStore()
+
+
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -60,6 +72,51 @@ async def health() -> dict[str, str]:
 @app.post("/api/analyze", response_model=AnalyzeResponse)
 async def analyze(request: AnalyzeRequest) -> AnalyzeResponse:
     return analyze_pressure(request)
+
+
+@app.post("/api/events", response_model=EventRecord)
+def create_event_record(
+    request: EventRecordCreate,
+    event_store: JsonEventStore = Depends(get_event_store),
+) -> EventRecord:
+    return event_store.add(request)
+
+
+@app.get("/api/events", response_model=EventArchiveResponse)
+def list_event_records(
+    event_store: JsonEventStore = Depends(get_event_store),
+) -> EventArchiveResponse:
+    return EventArchiveResponse(events=event_store.list())
+
+
+@app.get("/api/events/analysis", response_model=ArchiveAnalysisResponse)
+def analyze_event_archive(
+    event_store: JsonEventStore = Depends(get_event_store),
+) -> ArchiveAnalysisResponse:
+    return analyze_archive_pressure(event_store.list())
+
+
+@app.post("/api/events/insight", response_model=ArchiveInsightResponse)
+def archive_insight(
+    event_store: JsonEventStore = Depends(get_event_store),
+    ai_service: DormHarmonyAIService = Depends(get_ai_service),
+) -> ArchiveInsightResponse:
+    events = event_store.list()
+    if not events:
+        raise HTTPException(
+            status_code=400,
+            detail="请先记录至少一条事件后再生成 AI 心晴见解。",
+        )
+
+    analysis = analyze_archive_pressure(events)
+    try:
+        return ai_service.archive_insight(events, analysis)
+    except AIServiceConfigurationError as exc:
+        # 配置缺失是本地部署问题，前端按 503 展示“需要配置 AI 服务”。
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except AIServiceUnavailableError as exc:
+        # 已配置但模型调用失败或输出异常，按 502 处理为上游服务不可用。
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 
 @app.post("/api/simulate", response_model=SimulateResponse)

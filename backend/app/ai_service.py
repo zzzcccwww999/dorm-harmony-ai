@@ -8,9 +8,21 @@ from typing import Protocol, TypeVar
 from langchain_core.messages import BaseMessage
 from pydantic import BaseModel, ValidationError
 
-from app.ai_prompts import build_review_messages, build_simulate_messages
+from app.ai_prompts import (
+    build_archive_insight_messages,
+    build_review_messages,
+    build_simulate_messages,
+)
 from app.env import load_project_env
-from app.schemas import ReviewRequest, ReviewResponse, SimulateRequest, SimulateResponse
+from app.schemas import (
+    ArchiveAnalysisResponse,
+    ArchiveInsightResponse,
+    EventRecord,
+    ReviewRequest,
+    ReviewResponse,
+    SimulateRequest,
+    SimulateResponse,
+)
 
 
 class AIServiceConfigurationError(RuntimeError):
@@ -38,6 +50,13 @@ class AIRunner(Protocol):
         raise NotImplementedError
 
     def generate_review(self, request: ReviewRequest) -> ReviewResponse:
+        raise NotImplementedError
+
+    def generate_archive_insight(
+        self,
+        events: list[EventRecord],
+        analysis: ArchiveAnalysisResponse,
+    ) -> ArchiveInsightResponse:
         raise NotImplementedError
 
 
@@ -94,6 +113,16 @@ class LangChainDeepSeekRunner:
 
     def generate_review(self, request: ReviewRequest) -> ReviewResponse:
         return self._invoke_structured(ReviewResponse, build_review_messages(request))
+
+    def generate_archive_insight(
+        self,
+        events: list[EventRecord],
+        analysis: ArchiveAnalysisResponse,
+    ) -> ArchiveInsightResponse:
+        return self._invoke_structured(
+            ArchiveInsightResponse,
+            build_archive_insight_messages(events, analysis),
+        )
 
     def _invoke_structured(
         self, schema: type[OutputModel], messages: Sequence[BaseMessage]
@@ -179,6 +208,32 @@ class DormHarmonyAIService:
             raise public_error
 
         return _ensure_model_instance(result, ReviewResponse)
+
+    def archive_insight(
+        self,
+        events: list[EventRecord],
+        analysis: ArchiveAnalysisResponse,
+    ) -> ArchiveInsightResponse:
+        public_error: AIServiceUnavailableError | None = None
+        result: object | None = None
+
+        try:
+            result = self._get_runner().generate_archive_insight(events, analysis)
+        except AIServiceConfigurationError:
+            raise
+        except AIOutputStructureError:
+            public_error = AIOutputStructureError(_STRUCTURE_ERROR_MESSAGE)
+        except AIServiceUnavailableError:
+            public_error = AIServiceUnavailableError(_UNAVAILABLE_ERROR_MESSAGE)
+        except ValidationError:
+            public_error = AIOutputStructureError(_STRUCTURE_ERROR_MESSAGE)
+        except Exception:
+            public_error = AIServiceUnavailableError(_UNAVAILABLE_ERROR_MESSAGE)
+
+        if public_error is not None:
+            raise public_error
+
+        return _ensure_model_instance(result, ArchiveInsightResponse)
 
 
 def _ensure_model_instance(value: object, schema: type[OutputModel]) -> OutputModel:

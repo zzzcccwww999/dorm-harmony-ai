@@ -1,6 +1,6 @@
 # 后端 API 契约
 
-本文档记录当前后端已实现接口。运行时 AI 接口已接入 FastAPI + LangChain + DeepSeek 服务层，已提供健康检查、压力分析、沟通模拟和沟通复盘接口；第三阶段已补充本地 Vite 代理、FastAPI CORS 和复盘字段兼容。历史记录存储与查询仍未实现。
+本文档记录当前后端已实现接口。运行时 AI 接口已接入 FastAPI + LangChain + DeepSeek 服务层，已提供健康检查、压力分析、事件档案、沟通模拟、沟通复盘和事件档案 AI 心晴见解接口；第三阶段已补充本地 Vite 代理、FastAPI CORS 和复盘字段兼容。
 
 ## 安全边界
 
@@ -131,6 +131,9 @@ export DORM_HARMONY_CORS_ORIGINS="http://localhost:3000,http://127.0.0.1:7357"
 | `user_message` | string | 用户准备表达的话术，最长 500 字符 |
 | `risk_level` | string | 可选，来自 `/api/analyze` 的风险等级，枚举为 `stable` / `pressure` / `high` / `severe` |
 | `context` | string | 可选，补充背景，最长 500 字符 |
+| `dialogue` | object[] | 可选，历史对话，最多 20 条；为空或不传时按单轮模拟处理 |
+| `dialogue[].speaker` | string | 发言者，枚举为 `user` / `roommate_a` / `roommate_b` / `roommate_c` / `system` |
+| `dialogue[].message` | string | 单条对话内容，最长 500 字符 |
 
 响应字段：
 
@@ -146,9 +149,21 @@ export DORM_HARMONY_CORS_ORIGINS="http://localhost:3000,http://127.0.0.1:7357"
   "scenario": "舍友晚上打游戏声音较大，影响睡眠",
   "user_message": "我想和你商量一下，晚上能不能把游戏声音调小一点，我最近睡眠受影响比较明显。",
   "risk_level": "high",
-  "context": "用户尚未正式沟通过，但已经因为噪音问题感到焦虑。"
+  "context": "用户尚未正式沟通过，但已经因为噪音问题感到焦虑。",
+  "dialogue": [
+    {
+      "speaker": "user",
+      "message": "晚上能不能小声一点？"
+    },
+    {
+      "speaker": "roommate_a",
+      "message": "我也没开很大声吧。"
+    }
+  ]
 }
 ```
+
+连续对话语义：当 `dialogue` 非空时，后端会把本次 `user_message` 视为同一场景下的下一轮对话，提示 AI 不要重启场景，也不要重复上一轮已经说过的内容。
 
 响应示例：
 
@@ -179,7 +194,7 @@ export DORM_HARMONY_CORS_ORIGINS="http://localhost:3000,http://127.0.0.1:7357"
 
 状态：在保留 `/api/simulate` 完整 JSON 契约的基础上新增。该接口用于前端模拟页按顺序展示三位虚拟舍友回复；后端仍先生成并校验完整 `SimulateResponse`，再按舍友 A、舍友 B、舍友 C 的顺序输出事件。
 
-请求字段：与 `POST /api/simulate` 完全一致。
+请求字段：与 `POST /api/simulate` 完全一致，包括可选 `dialogue` 历史对话字段。
 
 响应格式：`application/x-ndjson`，每行一个 JSON object。
 
@@ -194,6 +209,44 @@ export DORM_HARMONY_CORS_ORIGINS="http://localhost:3000,http://127.0.0.1:7357"
 ```
 
 错误语义：配置缺失仍返回 `503`；LangChain / DeepSeek 调用失败或 AI 输出结构异常仍返回 `502`。这些错误会在流开始前以普通 HTTP 错误返回，不会输出半截 NDJSON。
+
+### POST /api/events/insight
+
+状态：已实现。基于当前事件档案和 `/api/events/analysis` 的总压力分析调用 DeepSeek `deepseek-v4-flash`，生成结构化 AI 心晴见解。
+
+请求字段：无请求体。后端从当前事件档案读取已记录事件，并在服务端重新计算总压力分析。
+
+响应字段：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `insight` | string | 基于事件档案的心晴见解，不能为空 |
+| `care_suggestion` | string | 照顾情绪、睡眠和现实安全的建议，不能为空 |
+| `communication_focus` | string[] | 下一次沟通最需要聚焦的事项，至少 1 条，每条不能为空 |
+| `safety_note` | string | 非诊断性安全提示，必须包含“不代表真实舍友想法”“不进行心理诊断/心理疾病诊断”“不进行医学判断”“不进行人格评价”和现实支持提示 |
+
+响应示例：
+
+```json
+{
+  "insight": "近 30 天记录的事件主要集中在夜间噪音，当前压力更多来自休息边界被持续打断。",
+  "care_suggestion": "建议先保证睡眠和情绪恢复，再选择白天情绪稳定时提出 11 点后的安静规则。",
+  "communication_focus": [
+    "明确 11 点后的耳机或低音量规则",
+    "用具体影响表达需求，避免直接评价对方"
+  ],
+  "safety_note": "本建议仅用于沟通训练建议，不代表真实舍友想法，不进行心理诊断，不进行医学判断，不进行人格评价。如压力持续升高，请联系辅导员或心理老师寻求现实支持。"
+}
+```
+
+错误语义：
+
+| 场景 | HTTP 状态码 | 说明 |
+| --- | --- | --- |
+| 当前没有事件档案 | `400` | 返回 `请先记录至少一条事件后再生成 AI 心晴见解。` |
+| 未配置 `DEEPSEEK_API_KEY` 或兼容的 `OPENAI_API_KEY` | `503` | AI 服务未配置，不返回模板伪结果 |
+| LangChain / DeepSeek 调用失败 | `502` | 上游模型调用失败 |
+| AI 输出结构异常或 `safety_note` 不符合安全边界 | `502` | 模型输出无法解析为 `ArchiveInsightResponse`，或安全提示缺少必要边界 |
 
 ### POST /api/review
 
@@ -279,8 +332,8 @@ export DORM_HARMONY_CORS_ORIGINS="http://localhost:3000,http://127.0.0.1:7357"
 | 场景 | HTTP 状态码 | 说明 |
 | --- | --- | --- |
 | 请求字段非法 | `422` | FastAPI / Pydantic 校验失败，返回字段级错误信息 |
-| 未配置 `DEEPSEEK_API_KEY` 或兼容的 `OPENAI_API_KEY` | `503` | AI 服务未配置，`/api/simulate` 和 `/api/review` 不返回模板伪结果 |
+| 未配置 `DEEPSEEK_API_KEY` 或兼容的 `OPENAI_API_KEY` | `503` | AI 服务未配置，`/api/simulate`、`/api/review` 和 `/api/events/insight` 不返回模板伪结果 |
 | LangChain / DeepSeek 调用失败 | `502` | 上游模型调用失败，后端返回 AI 服务调用失败语义 |
-| AI 输出结构不符合契约 | `502` | 模型输出无法解析为接口约定结构，后端返回 AI 输出结构错误语义 |
+| AI 输出结构不符合契约或安全边界 | `502` | 模型输出无法解析为接口约定结构，或 `safety_note` 缺少必要安全边界，后端返回 AI 输出结构错误语义 |
 
 注意：前端在无 `DEEPSEEK_API_KEY` 或兼容 `OPENAI_API_KEY` 时可能展示本地演示兜底，但后端真实接口语义仍是 `503`，不代表 AI 接口真实生成成功。
