@@ -26,19 +26,27 @@ from app.schemas import (
 
 
 class AIServiceConfigurationError(RuntimeError):
+    """表示本地 AI 服务配置缺失或配置值非法。"""
+
     pass
 
 
 class AIServiceUnavailableError(RuntimeError):
+    """表示已配置 AI 服务但上游调用暂时不可用。"""
+
     pass
 
 
 class AIOutputStructureError(AIServiceUnavailableError):
+    """表示模型返回内容无法通过后端结构化响应校验。"""
+
     pass
 
 
 @dataclass(frozen=True)
 class AISettings:
+    """封装一次 LLM 调用所需的连接、模型和超时配置。"""
+
     api_key: str
     model: str
     base_url: str
@@ -46,10 +54,14 @@ class AISettings:
 
 
 class AIRunner(Protocol):
+    """定义 AI 运行器必须提供的三个结构化生成能力。"""
+
     def generate_simulation(self, request: SimulateRequest) -> SimulateResponse:
+        """根据沟通模拟请求生成三位虚拟舍友的结构化回复。"""
         raise NotImplementedError
 
     def generate_review(self, request: ReviewRequest) -> ReviewResponse:
+        """根据对话复盘请求生成结构化沟通复盘报告。"""
         raise NotImplementedError
 
     def generate_archive_insight(
@@ -57,6 +69,7 @@ class AIRunner(Protocol):
         events: list[EventRecord],
         analysis: ArchiveAnalysisResponse,
     ) -> ArchiveInsightResponse:
+        """根据事件档案和总压力分析生成结构化心晴见解。"""
         raise NotImplementedError
 
 
@@ -104,14 +117,19 @@ def load_ai_settings() -> AISettings:
 
 
 class LangChainDeepSeekRunner:
+    """通过 LangChain 调用 DeepSeek，并按 Pydantic schema 解析输出。"""
+
     def __init__(self, settings: AISettings | None = None) -> None:
+        """初始化 DeepSeek 调用配置；未传入时从环境变量加载。"""
         self._settings = settings or load_ai_settings()
         self.model = self._settings.model
 
     def generate_simulation(self, request: SimulateRequest) -> SimulateResponse:
+        """构造模拟 Prompt 并返回结构化沟通演练结果。"""
         return self._invoke_structured(SimulateResponse, build_simulate_messages(request))
 
     def generate_review(self, request: ReviewRequest) -> ReviewResponse:
+        """构造复盘 Prompt 并返回结构化沟通复盘结果。"""
         return self._invoke_structured(ReviewResponse, build_review_messages(request))
 
     def generate_archive_insight(
@@ -119,6 +137,7 @@ class LangChainDeepSeekRunner:
         events: list[EventRecord],
         analysis: ArchiveAnalysisResponse,
     ) -> ArchiveInsightResponse:
+        """构造档案见解 Prompt 并返回结构化心晴见解。"""
         return self._invoke_structured(
             ArchiveInsightResponse,
             build_archive_insight_messages(events, analysis),
@@ -127,6 +146,7 @@ class LangChainDeepSeekRunner:
     def _invoke_structured(
         self, schema: type[OutputModel], messages: Sequence[BaseMessage]
     ) -> OutputModel:
+        """调用模型的 JSON 模式，并把异常收敛为前端可理解的错误。"""
         public_error: AIServiceUnavailableError | None = None
         result: object | None = None
 
@@ -157,15 +177,20 @@ class LangChainDeepSeekRunner:
 
 
 class DormHarmonyAIService:
+    """FastAPI 依赖使用的 AI 服务门面，统一错误和结构校验语义。"""
+
     def __init__(self, runner: AIRunner | None = None) -> None:
+        """保存可替换的 AI 运行器，方便接口测试注入 fake runner。"""
         self._runner = runner
 
     def _get_runner(self) -> AIRunner:
+        """懒加载默认 LangChain Runner，避免无 Key 环境提前失败。"""
         if self._runner is None:
             self._runner = LangChainDeepSeekRunner()
         return self._runner
 
     def simulate(self, request: SimulateRequest) -> SimulateResponse:
+        """生成沟通模拟结果，并保证返回值符合 SimulateResponse。"""
         public_error: AIServiceUnavailableError | None = None
         result: object | None = None
 
@@ -188,6 +213,7 @@ class DormHarmonyAIService:
         return _ensure_model_instance(result, SimulateResponse)
 
     def review(self, request: ReviewRequest) -> ReviewResponse:
+        """生成沟通复盘结果，并保证返回值符合 ReviewResponse。"""
         public_error: AIServiceUnavailableError | None = None
         result: object | None = None
 
@@ -214,6 +240,7 @@ class DormHarmonyAIService:
         events: list[EventRecord],
         analysis: ArchiveAnalysisResponse,
     ) -> ArchiveInsightResponse:
+        """生成事件档案 AI 见解，并保证返回值符合 ArchiveInsightResponse。"""
         public_error: AIServiceUnavailableError | None = None
         result: object | None = None
 

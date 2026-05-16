@@ -66,11 +66,13 @@ def get_event_store() -> JsonEventStore:
 
 @app.get("/health")
 async def health() -> dict[str, str]:
+    """返回后端健康检查状态，不依赖 AI 服务配置。"""
     return {"status": "ok"}
 
 
 @app.post("/api/analyze", response_model=AnalyzeResponse)
 async def analyze(request: AnalyzeRequest) -> AnalyzeResponse:
+    """对单条宿舍事件执行规则评分并返回结构化分析结果。"""
     return analyze_pressure(request)
 
 
@@ -79,6 +81,7 @@ def create_event_record(
     request: EventRecordCreate,
     event_store: JsonEventStore = Depends(get_event_store),
 ) -> EventRecord:
+    """保存一条事件档案，并同步生成单条事件压力分析快照。"""
     return event_store.add(request)
 
 
@@ -86,6 +89,7 @@ def create_event_record(
 def list_event_records(
     event_store: JsonEventStore = Depends(get_event_store),
 ) -> EventArchiveResponse:
+    """返回当前事件档案列表，不调用 AI 服务。"""
     return EventArchiveResponse(events=event_store.list())
 
 
@@ -93,6 +97,7 @@ def list_event_records(
 def analyze_event_archive(
     event_store: JsonEventStore = Depends(get_event_store),
 ) -> ArchiveAnalysisResponse:
+    """汇总事件档案并返回总压力分析，不调用 AI 服务。"""
     return analyze_archive_pressure(event_store.list())
 
 
@@ -101,6 +106,7 @@ def archive_insight(
     event_store: JsonEventStore = Depends(get_event_store),
     ai_service: DormHarmonyAIService = Depends(get_ai_service),
 ) -> ArchiveInsightResponse:
+    """基于事件档案和总压力分析生成 AI 心晴见解。"""
     events = event_store.list()
     if not events:
         raise HTTPException(
@@ -124,6 +130,7 @@ def simulate(
     request: SimulateRequest,
     ai_service: DormHarmonyAIService = Depends(get_ai_service),
 ) -> SimulateResponse:
+    """调用 AI 服务生成三位虚拟舍友的结构化模拟回复。"""
     try:
         return ai_service.simulate(request)
     except AIServiceConfigurationError as exc:
@@ -135,6 +142,7 @@ def simulate(
 
 
 def _encode_ndjson_event(event: dict[str, object]) -> str:
+    """把一个流式响应事件编码为紧凑 NDJSON 行。"""
     return json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n"
 
 
@@ -143,6 +151,7 @@ def simulate_stream(
     request: SimulateRequest,
     ai_service: DormHarmonyAIService = Depends(get_ai_service),
 ) -> StreamingResponse:
+    """以 start、reply、final 顺序流式返回沟通模拟结果。"""
     try:
         result = ai_service.simulate(request)
     except AIServiceConfigurationError as exc:
@@ -153,6 +162,7 @@ def simulate_stream(
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
     def event_stream():
+        """生成沟通模拟的 NDJSON 事件序列。"""
         yield _encode_ndjson_event({"type": "start"})
         for reply in result.replies:
             yield _encode_ndjson_event(
@@ -170,6 +180,7 @@ def review(
     request: ReviewRequest,
     ai_service: DormHarmonyAIService = Depends(get_ai_service),
 ) -> ReviewResponse:
+    """调用 AI 服务生成结构化沟通复盘报告。"""
     try:
         return ai_service.review(request)
     except AIServiceConfigurationError as exc:

@@ -8,6 +8,8 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 
 class EventType(StrEnum):
+    """用户可记录的宿舍关系事件类型。"""
+
     NOISE = "noise"
     SCHEDULE = "schedule"
     HYGIENE = "hygiene"
@@ -17,12 +19,16 @@ class EventType(StrEnum):
 
 
 class EventFrequency(StrEnum):
+    """宿舍关系事件在现实中发生的频率等级。"""
+
     OCCASIONAL = "occasional"
     WEEKLY_MULTIPLE = "weekly_multiple"
     DAILY = "daily"
 
 
 class Emotion(StrEnum):
+    """用户记录事件时可选择的主要情绪。"""
+
     IRRITABLE = "irritable"
     ANXIOUS = "anxious"
     WRONGED = "wronged"
@@ -32,6 +38,8 @@ class Emotion(StrEnum):
 
 
 class AnalyzeRequest(BaseModel):
+    """单条宿舍事件压力分析接口的请求体。"""
+
     event_type: EventType
     severity: int = Field(ge=1, le=5)
     frequency: EventFrequency
@@ -43,6 +51,7 @@ class AnalyzeRequest(BaseModel):
     @field_validator("description", mode="before")
     @classmethod
     def trim_and_require_description(cls, value: str) -> str:
+        """清理事件描述首尾空白，并拒绝空描述。"""
         if not isinstance(value, str):
             raise ValueError("description must be a string")
 
@@ -57,6 +66,8 @@ AnalyzeRiskLevel = Literal["stable", "pressure", "high", "severe"]
 
 
 class AnalyzeResponse(BaseModel):
+    """单条宿舍事件压力分析接口的结构化响应。"""
+
     pressure_score: int
     risk_level: AnalyzeRiskLevel
     risk_label: str
@@ -69,11 +80,14 @@ class AnalyzeResponse(BaseModel):
 
 
 class EventRecordCreate(AnalyzeRequest):
+    """创建事件档案记录时使用的请求体。"""
+
     event_date: date
 
     @field_validator("event_date")
     @classmethod
     def reject_future_event_date(cls, value: date) -> date:
+        """拒绝未来日期，避免档案趋势分析出现反向时间权重。"""
         if value > date.today():
             raise ValueError("event_date must not be in the future")
 
@@ -81,28 +95,38 @@ class EventRecordCreate(AnalyzeRequest):
 
 
 class EventRecord(EventRecordCreate):
+    """已持久化的事件档案记录，包含单条事件评分快照。"""
+
     id: str
     created_at: datetime
     single_analysis: AnalyzeResponse
 
 
 class EventArchiveResponse(BaseModel):
+    """事件档案列表接口的响应体。"""
+
     events: list[EventRecord]
 
 
 class SourceBreakdown(BaseModel):
+    """档案总压力中单个压力来源的贡献占比。"""
+
     label: str
     percent: int
     contribution: float
 
 
 class ArchiveAnalysisResponse(AnalyzeResponse):
+    """事件档案总压力分析接口的结构化响应。"""
+
     event_count: int
     active_30d_count: int
     source_breakdown: list[SourceBreakdown]
 
 
 class ArchiveInsightResponse(BaseModel):
+    """AI 基于事件档案生成的结构化心晴见解。"""
+
     insight: str
     care_suggestion: str
     communication_focus: list[str] = Field(min_length=1)
@@ -111,6 +135,7 @@ class ArchiveInsightResponse(BaseModel):
     @field_validator("insight", "care_suggestion", "safety_note", mode="before")
     @classmethod
     def trim_and_require_text(cls, value: str) -> str:
+        """清理 AI 文本字段首尾空白，并拒绝空字符串。"""
         if not isinstance(value, str):
             raise ValueError("field must be a string")
 
@@ -123,6 +148,7 @@ class ArchiveInsightResponse(BaseModel):
     @field_validator("communication_focus")
     @classmethod
     def require_non_empty_focus_items(cls, value: list[str]) -> list[str]:
+        """确保沟通重点列表中的每一项都是非空文本。"""
         cleaned_items: list[str] = []
         for item in value:
             if not isinstance(item, str):
@@ -138,6 +164,7 @@ class ArchiveInsightResponse(BaseModel):
     @field_validator("safety_note", mode="after")
     @classmethod
     def validate_safety_note(cls, value: str) -> str:
+        """校验档案见解保留非诊断和现实支持等安全边界。"""
         return _validate_safety_note_boundaries(value)
 
 
@@ -222,6 +249,8 @@ def _validate_safety_note_boundaries(value: str) -> str:
 
 
 class DialogueMessage(BaseModel):
+    """模拟或复盘中一条标准化对话消息。"""
+
     model_config = ConfigDict(extra="forbid")
 
     speaker: DialogueSpeaker
@@ -230,6 +259,7 @@ class DialogueMessage(BaseModel):
     @field_validator("speaker", mode="before")
     @classmethod
     def normalize_frontend_speaker_alias(cls, value: str) -> str:
+        """把前端展示用 speaker 文案归一为后端稳定枚举值。"""
         if not isinstance(value, str):
             raise ValueError("speaker must be a string")
 
@@ -239,6 +269,7 @@ class DialogueMessage(BaseModel):
     @field_validator("message", mode="before")
     @classmethod
     def trim_and_require_message(cls, value: str) -> str:
+        """清理对话内容首尾空白，并拒绝空消息。"""
         if not isinstance(value, str):
             raise ValueError("message must be a string")
 
@@ -250,6 +281,8 @@ class DialogueMessage(BaseModel):
 
 
 class SimulateRequest(BaseModel):
+    """AI 沟通模拟接口的请求体。"""
+
     scenario: str = Field(max_length=300)
     user_message: str = Field(max_length=500)
     risk_level: AnalyzeRiskLevel | None = None
@@ -259,6 +292,7 @@ class SimulateRequest(BaseModel):
     @field_validator("scenario", "user_message", mode="before")
     @classmethod
     def trim_and_require_text(cls, value: str) -> str:
+        """清理必填文本字段首尾空白，并拒绝空字符串。"""
         if not isinstance(value, str):
             raise ValueError("field must be a string")
 
@@ -271,6 +305,7 @@ class SimulateRequest(BaseModel):
     @field_validator("risk_level", mode="before")
     @classmethod
     def trim_optional_risk_level(cls, value: str | None) -> str | None:
+        """把空白风险等级视为未提供，非空值交给枚举校验。"""
         if value is None:
             return None
         if not isinstance(value, str):
@@ -282,6 +317,7 @@ class SimulateRequest(BaseModel):
     @field_validator("context", mode="before")
     @classmethod
     def trim_optional_context(cls, value: str | None) -> str | None:
+        """清理可选补充背景，空白内容统一归一为 None。"""
         if value is None:
             return None
         if not isinstance(value, str):
@@ -292,6 +328,8 @@ class SimulateRequest(BaseModel):
 
 
 class RoommateReply(BaseModel):
+    """AI 模拟中单个虚拟舍友的结构化回复。"""
+
     roommate: RoommateName
     personality: RoommatePersonality
     message: str = Field(max_length=500)
@@ -299,6 +337,7 @@ class RoommateReply(BaseModel):
     @field_validator("message", mode="before")
     @classmethod
     def trim_and_require_message(cls, value: str) -> str:
+        """清理虚拟舍友回复内容，并拒绝空回复。"""
         if not isinstance(value, str):
             raise ValueError("message must be a string")
 
@@ -310,12 +349,15 @@ class RoommateReply(BaseModel):
 
 
 class SimulateResponse(BaseModel):
+    """AI 沟通模拟接口的结构化响应。"""
+
     replies: list[RoommateReply]
     safety_note: str
 
     @field_validator("safety_note", mode="before")
     @classmethod
     def validate_safety_note(cls, value: str) -> str:
+        """校验模拟结果保留非诊断和虚拟舍友边界。"""
         return _validate_safety_note_boundaries(value)
 
     @model_validator(mode="after")
@@ -353,6 +395,7 @@ class ReviewOriginalEvent(BaseModel):
     @field_validator("event_type", mode="before")
     @classmethod
     def normalize_frontend_event_type_alias(cls, value: str | None) -> str | None:
+        """把前端旧事件类型别名归一为后端事件枚举。"""
         if value is None:
             return None
         if not isinstance(value, str):
@@ -367,6 +410,7 @@ class ReviewOriginalEvent(BaseModel):
     @field_validator("risk_label", "description", mode="before")
     @classmethod
     def trim_optional_text(cls, value: str | None) -> str | None:
+        """清理可选文本字段，空白内容统一归一为 None。"""
         if value is None:
             return None
         if not isinstance(value, str):
@@ -377,6 +421,8 @@ class ReviewOriginalEvent(BaseModel):
 
 
 class ReviewRequest(BaseModel):
+    """AI 沟通复盘接口的请求体。"""
+
     model_config = ConfigDict(extra="forbid")
 
     scenario: str = Field(max_length=300)
@@ -386,6 +432,7 @@ class ReviewRequest(BaseModel):
     @field_validator("scenario", mode="before")
     @classmethod
     def trim_and_require_scenario(cls, value: str) -> str:
+        """清理复盘场景文本首尾空白，并拒绝空场景。"""
         if not isinstance(value, str):
             raise ValueError("scenario must be a string")
 
@@ -397,6 +444,8 @@ class ReviewRequest(BaseModel):
 
 
 class ReviewResponse(BaseModel):
+    """AI 沟通复盘接口的结构化响应。"""
+
     summary: str
     strengths: list[str] = Field(min_length=1)
     risks: list[str] = Field(min_length=1)
@@ -407,6 +456,7 @@ class ReviewResponse(BaseModel):
     @field_validator("summary", "rewritten_message", "safety_note", mode="before")
     @classmethod
     def trim_and_require_text(cls, value: str) -> str:
+        """清理复盘文本字段首尾空白，并拒绝空字符串。"""
         if not isinstance(value, str):
             raise ValueError("field must be a string")
 
@@ -419,11 +469,13 @@ class ReviewResponse(BaseModel):
     @field_validator("safety_note", mode="after")
     @classmethod
     def validate_safety_note(cls, value: str) -> str:
+        """校验复盘结果保留非诊断和现实支持等安全边界。"""
         return _validate_safety_note_boundaries(value)
 
     @field_validator("strengths", "risks", "next_steps")
     @classmethod
     def require_non_empty_items(cls, value: list[str]) -> list[str]:
+        """确保复盘列表字段至少包含可展示的非空文本项。"""
         cleaned_items: list[str] = []
         for item in value:
             if not isinstance(item, str):

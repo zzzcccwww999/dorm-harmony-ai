@@ -111,6 +111,7 @@ def analyze_archive_pressure(
 
 
 def _recency_weight(days_since_event: int) -> float:
+    """根据事件距今天数返回档案汇总时使用的时间衰减权重。"""
     if days_since_event <= 7:
         return 1.0
     if days_since_event <= 14:
@@ -123,10 +124,12 @@ def _recency_weight(days_since_event: int) -> float:
 
 
 def _clamp_score(score: int) -> int:
+    """把汇总压力分数限制在公开展示的 0-100 区间内。"""
     return max(0, min(score, 100))
 
 
 def _risk_for_public_score(score: int) -> tuple[AnalyzeRiskLevel, str]:
+    """把档案总压力分数映射为公开风险等级和中文标签。"""
     if score <= 30:
         return "stable", "关系平稳"
     if score <= 60:
@@ -137,6 +140,7 @@ def _risk_for_public_score(score: int) -> tuple[AnalyzeRiskLevel, str]:
 
 
 def _source_breakdown(contributions: dict[str, float]) -> list[SourceBreakdown]:
+    """把压力来源贡献值转换为前三项百分比拆解。"""
     top_sources = sorted(
         contributions.items(),
         key=lambda item: item[1],
@@ -164,6 +168,7 @@ def _source_breakdown(contributions: dict[str, float]) -> list[SourceBreakdown]:
 
 
 def _suggestion(score: int) -> str:
+    """根据档案总压力分数生成下一步沟通或求助建议。"""
     if score >= 81:
         return "建议优先确保安全，必要时寻求辅导员、宿管或心理老师等现实支持。"
     if score >= 61:

@@ -73,6 +73,7 @@ def analyze_pressure(request: AnalyzeRequest) -> AnalyzeResponse:
 
 
 def _risk_for_score(score: int) -> tuple[str, str]:
+    """把压力分数映射为接口使用的风险等级和中文标签。"""
     if score <= 30:
         return "stable", "关系平稳"
     if score <= 60:
@@ -83,6 +84,7 @@ def _risk_for_score(score: int) -> tuple[str, str]:
 
 
 def _main_sources(request: AnalyzeRequest) -> list[str]:
+    """根据事件类型、频率、沟通状态和冲突状态提取主要压力来源。"""
     sources = [EVENT_SOURCE_LABELS[request.event_type]]
 
     if request.frequency in {EventFrequency.WEEKLY_MULTIPLE, EventFrequency.DAILY}:
@@ -96,6 +98,7 @@ def _main_sources(request: AnalyzeRequest) -> list[str]:
 
 
 def _trend_message(score: int, risk_label: str) -> str:
+    """根据压力分数和风险标签生成前端展示的趋势文案。"""
     if score <= 30:
         return f"当前压力值为 {score}，处于“{risk_label}”状态。整体关系较平稳，建议继续保持清晰、温和的沟通。"
     if score <= 60:
@@ -106,6 +109,7 @@ def _trend_message(score: int, risk_label: str) -> str:
 
 
 def _suggestion(recommend_simulation: bool) -> str:
+    """根据是否建议沟通演练生成下一步行动建议。"""
     if recommend_simulation:
         return "建议先进行沟通演练，练习表达方式，再选择双方情绪相对平稳的时间进行现实沟通。"
     return "建议继续保持现有沟通节奏，及时表达具体需求，避免小问题长期积累。"
