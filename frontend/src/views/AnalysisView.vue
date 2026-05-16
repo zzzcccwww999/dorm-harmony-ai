@@ -8,13 +8,17 @@ import {
 } from '@/data/week1'
 import {
   fetchArchiveAnalysis,
+  fetchEventArchive,
   fetchArchiveInsight,
   isAiUnavailableError,
   isConfiguredAiMissingError,
   normalizeArchiveAnalysisResponse,
   type ArchiveAnalysisResult,
+  type EventRecord,
   type ArchiveInsightResponse,
 } from '@/data/eventArchive'
+
+const ARCHIVE_INSIGHT_CACHE_KEY = 'dorm-harmony:archive-insight-cache:v1'
 
 const result = ref<ArchiveAnalysisResult>({
   ...mockAnalyzeResult,
@@ -61,13 +65,98 @@ const scoreGaugeStyle = computed(() => ({
 // Compatibility marker for the older phase-3 static gate: scoreRingCircumference scoreRingStyle.
 // Compatibility marker for the older phase-2 static gate: recommend_simulation.
 
-async function loadArchiveInsight() {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string')
+}
+
+function isArchiveInsightResponse(value: unknown): value is ArchiveInsightResponse {
+  return (
+    isRecord(value) &&
+    typeof value.insight === 'string' &&
+    typeof value.care_suggestion === 'string' &&
+    isStringArray(value.communication_focus) &&
+    typeof value.safety_note === 'string'
+  )
+}
+
+function buildArchiveSignature(events: EventRecord[]) {
+  return JSON.stringify(
+    events
+      .map((event) => ({
+        id: event.id,
+        created_at: event.created_at,
+        event_date: event.event_date,
+        event_type: event.event_type,
+        severity: event.severity,
+        frequency: event.frequency,
+        emotion: event.emotion,
+        has_communicated: event.has_communicated,
+        has_conflict: event.has_conflict,
+        description: event.description,
+      }))
+      .sort((left, right) => left.id.localeCompare(right.id)),
+  )
+}
+
+function readCachedArchiveInsight(archiveSignature: string) {
+  try {
+    const raw = localStorage.getItem(ARCHIVE_INSIGHT_CACHE_KEY)
+
+    if (!raw) {
+      return null
+    }
+
+    const parsed = JSON.parse(raw) as unknown
+
+    if (
+      isRecord(parsed) &&
+      parsed.archiveSignature === archiveSignature &&
+      isArchiveInsightResponse(parsed.insight)
+    ) {
+      return parsed.insight
+    }
+  } catch {
+    // Restricted browser sessions may block localStorage; live generation still works.
+  }
+
+  return null
+}
+
+function writeCachedArchiveInsight(archiveSignature: string, insight: ArchiveInsightResponse) {
+  try {
+    localStorage.setItem(
+      ARCHIVE_INSIGHT_CACHE_KEY,
+      JSON.stringify({
+        archiveSignature,
+        insight,
+      }),
+    )
+  } catch {
+    // Restricted browser sessions may block localStorage; the generated insight is still shown.
+  }
+}
+
+async function loadArchiveInsight(archiveSignature: string) {
+  const cachedInsight = readCachedArchiveInsight(archiveSignature)
+
+  if (cachedInsight) {
+    archiveInsight.value = cachedInsight
+    insightError.value = ''
+    insightStatus.value = 'ready'
+    return
+  }
+
   archiveInsight.value = null
   insightError.value = ''
   insightStatus.value = 'loading'
 
   try {
     archiveInsight.value = await fetchArchiveInsight()
+    writeCachedArchiveInsight(archiveSignature, archiveInsight.value)
     insightStatus.value = 'ready'
   } catch (error) {
     if (isConfiguredAiMissingError(error)) {
@@ -106,7 +195,8 @@ async function loadArchiveAnalysis() {
     }
 
     if (response.event_count > 0) {
-      await loadArchiveInsight()
+      const archive = await fetchEventArchive()
+      await loadArchiveInsight(buildArchiveSignature(archive.events))
     }
   } catch (error) {
     analysisError.value =
