@@ -313,7 +313,7 @@ onMounted(() => {
       </section>
     </div>
 
-    <section class="hero-section">
+    <section class="hero-section page-pop-in">
       <div class="hero-copy">
         <p class="eyebrow pill-label">
           <span class="material-symbol" aria-hidden="true">waving_hand</span>
@@ -352,7 +352,7 @@ onMounted(() => {
       </div>
     </section>
 
-    <section class="dashboard-card pop-card pop-shadow" aria-label="压力晴雨表示例">
+    <section class="dashboard-card pop-card pop-shadow page-pop-in" aria-label="压力晴雨表示例">
       <div class="dashboard-main">
         <span class="floating-icon material-symbol" aria-hidden="true">routine</span>
         <div class="meter-header">
@@ -378,7 +378,7 @@ onMounted(() => {
       </aside>
     </section>
 
-    <section id="safety-note" class="feature-grid" aria-label="功能重点">
+    <section id="safety-note" class="feature-grid page-pop-in" aria-label="功能重点">
       <article
         v-for="card in featureCards"
         :key="card.title"
