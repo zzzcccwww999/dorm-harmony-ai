@@ -45,11 +45,19 @@ export const ANALYSIS_RESULT_STORAGE_KEY = 'dorm-harmony:analysis-result'
 export const SIMULATION_RESULT_STORAGE_KEY = 'dorm-harmony:simulation-result'
 export const REVIEW_RESULT_STORAGE_KEY = 'dorm-harmony:review-result'
 
+export type ReviewDialogueSpeaker = 'user' | 'roommate_a' | 'roommate_b' | 'roommate_c' | 'system'
+
+export interface ReviewDialogueLine {
+  speaker: ReviewDialogueSpeaker
+  message: string
+}
+
 export interface SimulationRequest {
   scenario: string
   user_message: string
   risk_level?: AnalyzeRiskLevel
   context?: string
+  dialogue?: ReviewDialogueLine[]
 }
 
 export interface SimulationReply {
@@ -81,13 +89,7 @@ export interface SimulationStreamHandlers {
 export interface StoredSimulationResult {
   request: SimulationRequest
   response: SimulationResponse
-}
-
-export type ReviewDialogueSpeaker = 'user' | 'roommate_a' | 'roommate_b' | 'roommate_c' | 'system'
-
-export interface ReviewDialogueLine {
-  speaker: ReviewDialogueSpeaker
-  message: string
+  dialogue?: ReviewDialogueLine[]
 }
 
 export interface ReviewOriginalEvent {

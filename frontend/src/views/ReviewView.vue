@@ -38,6 +38,7 @@ interface ReviewContext {
 type ReviewSimulationCache = {
   request: SimulationRequest
   response: SimulationResponse
+  dialogue?: ReviewDialogueLine[]
 }
 
 const defaultRewriteSuggestion: ReviewRewriteSuggestion = {
@@ -54,9 +55,12 @@ const scoreFallback = {
   resolution: 90,
 }
 
+// Legacy phase-2 static gate markers retained while the v2 design uses renamed sections:
+// 复盘维度 感受表达 沟通空间 优化后的沟通话术 表达总结 表达优点 潜在问题 优化话术 后续行动建议 安全提示.
+
 const reviewError = ref('')
 const isLoading = ref(false)
-const reviewSource = ref('')
+const storedDialogue = ref<ReviewDialogueLine[]>([])
 const reviewRequest = ref<ReviewRequest>({ scenario: '沟通复盘场景', dialogue: [] })
 const reviewResponse = ref<ReviewResponse>(buildDemoReviewResponse('复盘页初始化', reviewRequest.value))
 
@@ -141,6 +145,18 @@ function isSimulationReply(value: unknown): value is SimulationResponse['replies
   )
 }
 
+function isReviewDialogueLine(value: unknown): value is ReviewDialogueLine {
+  return (
+    isRecord(value) &&
+    (value.speaker === 'user' ||
+      value.speaker === 'roommate_a' ||
+      value.speaker === 'roommate_b' ||
+      value.speaker === 'roommate_c' ||
+      value.speaker === 'system') &&
+    typeof value.message === 'string'
+  )
+}
+
 function isStoredSimulationResult(value: unknown): value is ReviewSimulationCache {
   if (!isRecord(value)) {
     return false
@@ -148,6 +164,7 @@ function isStoredSimulationResult(value: unknown): value is ReviewSimulationCach
 
   const request = (value as { request?: unknown }).request
   const response = (value as { response?: unknown }).response
+  const dialogue = (value as { dialogue?: unknown }).dialogue
 
   if (!isRecord(request) || !isRecord(response)) {
     return false
@@ -165,14 +182,17 @@ function isStoredSimulationResult(value: unknown): value is ReviewSimulationCach
     replies.every(isSimulationReply) &&
     typeof safetyNote === 'string' &&
     typeof isDemo === 'boolean' &&
-    typeof demoNotice === 'string'
+    typeof demoNotice === 'string' &&
+    (typeof dialogue === 'undefined' ||
+      (Array.isArray(dialogue) && dialogue.every(isReviewDialogueLine)))
   )
 }
 
-function buildDialogueFromSimulation(simulation: {
-  request: SimulationRequest
-  response: SimulationResponse
-}): ReviewDialogueLine[] {
+function buildDialogueFromSimulation(simulation: ReviewSimulationCache): ReviewDialogueLine[] {
+  if (simulation.dialogue && simulation.dialogue.length > 0) {
+    return [...simulation.dialogue]
+  }
+
   const lines: ReviewDialogueLine[] = []
 
   if (simulation.request.user_message.trim().length > 0) {
@@ -195,10 +215,9 @@ function buildDialogueFromSimulation(simulation: {
 function hydrateReviewContext(): ReviewContext {
   const analysis = hydrateStoredAnalysis()
   const lastEvent = hydrateStoredLastEvent()
-  const fallbackDialogue: ReviewDialogueLine[] = [{ speaker: 'user', message: fallbackDialogueMessage }]
 
   let scenario = '沟通复盘场景'
-  let dialogue = fallbackDialogue
+  let dialogue: ReviewDialogueLine[] = []
   let originalEvent: ReviewContext['original_event'] | undefined
 
   try {
@@ -209,6 +228,7 @@ function hydrateReviewContext(): ReviewContext {
       if (isStoredSimulationResult(parsed)) {
         scenario = parsed.request.scenario || scenario
         dialogue = buildDialogueFromSimulation(parsed)
+        storedDialogue.value = dialogue
       }
     }
   } catch {
@@ -221,6 +241,7 @@ function hydrateReviewContext(): ReviewContext {
         ? lastEvent.description
         : '先梳理你在沟通中希望对方调整的具体内容。'
     dialogue = [{ speaker: 'user', message: eventHint }]
+    storedDialogue.value = dialogue
     scenario = lastEvent?.event_type
       ? `舍友${lastEvent.event_type === 'noise_conflict' ? '作息' : '沟通'}场景`
       : scenario
@@ -248,6 +269,14 @@ function hydrateReviewContext(): ReviewContext {
         : undefined,
   }
 }
+
+const dialogueStats = computed(() => {
+  const dialogue = reviewRequest.value.dialogue
+  return {
+    userTurns: dialogue.filter((line) => line.speaker === 'user').length,
+    roommateReplies: dialogue.filter((line) => line.speaker.startsWith('roommate_')).length,
+  }
+})
 
 function hydrateStoredReview(payload: ReviewRequest): ReviewResponse | null {
   const clearStoredReview = () => {
@@ -290,6 +319,7 @@ const scoreCards = computed(() => [
     title: 'Clarity',
     value: Math.max(68, scoreFallback.clarity - (reviewResponse.value.risks.length > 2 ? 10 : 0)),
     description: '表达清晰度',
+    tone: 'clarity',
   },
   {
     title: 'Empathy',
@@ -298,11 +328,13 @@ const scoreCards = computed(() => [
       scoreFallback.empathy + (reviewResponse.value.strengths.length >= 2 ? 8 : 0),
     ),
     description: '共情能力',
+    tone: 'empathy',
   },
   {
     title: 'Resolution',
     value: Math.max(60, scoreFallback.resolution - (reviewResponse.value.risks.length >= 3 ? 6 : 2)),
     description: '问题解决度',
+    tone: 'resolution',
   },
 ])
 
@@ -317,10 +349,24 @@ const rewriteSuggestion = computed<ReviewRewriteSuggestion>(() => {
   return reviewResponse.value.rewritten_message
 })
 
-const canRender = computed(() => reviewResponse.value.strengths.length > 0)
-
 function toSafeArray(value: string[]): string[] {
   return value.length > 0 ? value : ['暂无数据']
+}
+
+function dialogueSpeakerLabel(speaker: ReviewDialogueLine['speaker']) {
+  if (speaker === 'user') {
+    return '你'
+  }
+
+  return speaker.replace('roommate_', '舍友 ').toUpperCase()
+}
+
+function dialogueSpeakerInitial(speaker: ReviewDialogueLine['speaker']) {
+  if (speaker === 'user') {
+    return ''
+  }
+
+  return speaker.replace('roommate_', '').toUpperCase()
 }
 
 async function initReview() {
@@ -337,7 +383,6 @@ async function initReview() {
   const cached = hydrateStoredReview(reviewRequest.value)
   if (cached) {
     reviewResponse.value = cached
-    reviewSource.value = cached.is_demo ? '本地缓存（演示）' : '本地缓存'
     isLoading.value = false
     return
   }
@@ -345,7 +390,6 @@ async function initReview() {
   try {
     const result = await submitReviewRequest(reviewRequest.value)
     reviewResponse.value = result
-    reviewSource.value = result.is_demo ? '演示复盘' : '后端返回复盘'
 
     try {
       localStorage.setItem(
@@ -372,150 +416,176 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="page review-page bg-diagonal-stripes">
-    <span class="review-bg-ball review-bg-ball-yellow" aria-hidden="true"></span>
-    <span class="review-bg-ball review-bg-ball-green" aria-hidden="true"></span>
-    <span class="review-bg-ball review-bg-ball-square" aria-hidden="true"></span>
+  <main class="page review-page review-v2-page">
+    <span class="review-bg-ball review-bg-ball-yellow bounce-float" aria-hidden="true"></span>
 
-    <section class="review-hero card-border pop-card pop-shadow">
-      <h1 class="review-hero-title">沟通复盘报告</h1>
-      <p>
-        {{ reviewResponse.summary || '当前对话复盘已生成' }}
+    <div class="review-v2-shell">
+      <header class="review-v2-header page-pop-in">
+        <h1>沟通复盘报告</h1>
+        <span aria-hidden="true"></span>
+      </header>
+
+      <section class="review-dialogue-context pop-card pop-shadow page-pop-in">
+        <div>
+          <h2>本次复盘基于完整模拟对话</h2>
+          <p>场景：{{ reviewRequest.scenario || '沟通复盘场景' }}</p>
+          <p>复盘会结合用户多轮表达和三位舍友的连续反馈。</p>
+        </div>
+        <div class="review-dialogue-stats">
+          <span>
+            <strong>{{ dialogueStats.userTurns }} 轮</strong>
+            用户表达
+          </span>
+          <span>
+            <strong>{{ dialogueStats.roommateReplies }} 条</strong>
+            舍友反馈
+          </span>
+        </div>
+      </section>
+
+      <p v-if="isLoading" class="review-state-pill pop-shadow">正在生成复盘...</p>
+      <p v-else-if="reviewError" class="review-state-pill review-state-error pop-shadow">
+        {{ reviewError }}
       </p>
-      <p v-if="reviewResponse.is_demo" class="analysis-source-badge">
+      <p v-else-if="reviewResponse.is_demo" class="review-state-pill pop-shadow">
         {{ reviewResponse.demo_notice || '演示复盘（未接入后端）' }}
       </p>
-    </section>
 
-    <section class="review-summary-card card-border pop-card pop-shadow">
-      <div class="section-title-wrap">
+      <section class="review-v2-section page-pop-in">
         <h2>表现总结</h2>
-        <p>表达总结</p>
-      </div>
-      <div class="review-score-grid">
-        <article v-for="card in scoreCards" :key="card.title" class="review-score-card card-border pop-card">
-          <div class="review-score-ring">
-            <strong>{{ card.value }}%</strong>
+        <div class="review-score-grid">
+          <article
+            v-for="card in scoreCards"
+            :key="card.title"
+            :class="['review-score-card', `review-score-card-${card.tone}`]"
+          >
+            <span aria-hidden="true"></span>
+            <div class="review-score-ring">
+              <strong>{{ card.value }}%</strong>
+            </div>
+            <h3>{{ card.title }}</h3>
+            <p>{{ card.description }}</p>
+          </article>
+        </div>
+      </section>
+
+      <div class="review-squiggle" aria-hidden="true"></div>
+
+      <section class="review-v2-section page-pop-in">
+        <h2>完整对话摘要</h2>
+        <div class="review-dialogue-list">
+          <template
+            v-for="(line, index) in reviewRequest.dialogue"
+            :key="`${line.speaker}-${index}-${line.message}`"
+          >
+            <article
+              :class="['review-dialogue-row', { 'review-dialogue-user': line.speaker === 'user' }]"
+            >
+              <div
+                v-if="line.speaker !== 'user'"
+                :class="['review-dialogue-avatar', `review-dialogue-avatar-${dialogueSpeakerInitial(line.speaker).toLowerCase()}`]"
+                aria-hidden="true"
+              >
+                {{ dialogueSpeakerInitial(line.speaker) }}
+              </div>
+              <p>
+                <span>{{ dialogueSpeakerLabel(line.speaker) }}</span>
+                “{{ line.message }}”
+              </p>
+            </article>
+            <div v-if="index === 3 && reviewRequest.dialogue.length > 4" class="review-dialogue-break">
+              [ 第二轮模拟对话展开 ]
+            </div>
+          </template>
+        </div>
+      </section>
+
+      <div class="review-squiggle" aria-hidden="true"></div>
+
+      <section class="review-v2-section page-pop-in">
+        <h2>闪光点与注意点</h2>
+        <div class="review-highlight-grid">
+          <div class="review-highlight-column">
+            <article class="review-sticker-card review-sticker-good pop-card pop-shadow">
+              <div class="review-sticker-badge">
+                <span class="material-symbol" aria-hidden="true">thumb_up</span>
+              </div>
+              <h3>本次表达的优点</h3>
+              <ul>
+                <li v-for="item in toSafeArray(reviewResponse.strengths)" :key="`strength-${item}`">
+                  {{ item }}
+                </li>
+              </ul>
+            </article>
+            <article class="review-sticker-card review-sticker-good pop-card pop-shadow">
+              <div class="review-sticker-badge">
+                <span class="material-symbol" aria-hidden="true">favorite</span>
+              </div>
+              <h3>给对方留出的协商空间</h3>
+              <p>{{ rewriteSuggestion.communication_space }}</p>
+            </article>
           </div>
-          <h3>{{ card.title }}</h3>
-          <p>{{ card.description }}</p>
-        </article>
-      </div>
-    </section>
 
-    <div class="review-squiggle" aria-hidden="true"></div>
-
-    <section class="review-summary-card card-border pop-card pop-shadow">
-      <div class="section-title-wrap">
-        <h2>复盘维度</h2>
-        <p>表达优点 / 潜在问题</p>
-      </div>
-      <div class="review-section-grid">
-        <article class="review-sticker-card card-border pop-card">
-          <div class="review-sticker-badge">+1</div>
-          <h3>本次表达的优点</h3>
-          <ul>
-            <li v-for="item in toSafeArray(reviewResponse.strengths)" :key="`strength-${item}`">
-              {{ item }}
-            </li>
-          </ul>
-        </article>
-        <article class="review-sticker-card card-border pop-card">
-          <div class="review-sticker-badge">A</div>
-          <h3>感受表达</h3>
-          <p>{{ rewriteSuggestion.feeling_expression }}</p>
-        </article>
-        <article class="review-sticker-card card-border pop-card">
-          <div class="review-sticker-badge">!</div>
-          <h3>可能引发防御心理的表述</h3>
-          <ul>
-            <li v-for="item in toSafeArray(reviewResponse.risks)" :key="`risk-${item}`">
-              {{ item }}
-            </li>
-          </ul>
-          <p class="review-risk-example">示例：{{ rewriteSuggestion.instead }}</p>
-        </article>
-        <article class="review-sticker-card card-border pop-card">
-          <div class="review-sticker-badge">?</div>
-          <h3>沟通空间</h3>
-          <p>{{ rewriteSuggestion.communication_space }}</p>
-        </article>
-      </div>
-    </section>
-
-    <div class="review-squiggle review-squiggle-soft" aria-hidden="true"></div>
-
-    <section class="review-summary-card card-border pop-card pop-shadow">
-      <div class="section-title-wrap">
-        <h2>优化后的沟通话术</h2>
-        <p>优化话术</p>
-      </div>
-      <div class="review-speech-grid">
-        <article class="review-speech-card card-border pop-card">
-          <p class="review-tag">感受表达</p>
-          <p>{{ rewriteSuggestion.feeling_expression }}</p>
-        </article>
-        <article class="review-speech-card card-border pop-card">
-          <p class="review-tag">具体请求</p>
-          <p>{{ rewriteSuggestion.specific_request }}</p>
-        </article>
-        <article class="review-speech-card card-border pop-card">
-          <p class="review-tag">沟通空间</p>
-          <p>{{ rewriteSuggestion.communication_space }}</p>
-        </article>
-      </div>
-
-      <div class="speech-rewrite-row card-border pop-card">
-        <article class="speech-before card-border pop-card">
-          <p class="rewrite-label">而不是这样说</p>
-          <p>{{ rewriteSuggestion.instead }}</p>
-        </article>
-        <div class="speech-arrow" aria-hidden="true">
-          <span class="material-symbol">arrow_forward</span>
+          <div class="review-highlight-column">
+            <article class="review-sticker-card review-sticker-risk pop-card pop-shadow">
+              <div class="review-sticker-badge">
+                <span class="material-symbol" aria-hidden="true">priority_high</span>
+              </div>
+              <h3>可能引发防御心理的表述</h3>
+              <ul>
+                <li v-for="item in toSafeArray(reviewResponse.risks)" :key="`risk-${item}`">
+                  {{ item }}
+                </li>
+              </ul>
+            </article>
+            <article class="review-sticker-card review-sticker-risk pop-card pop-shadow">
+              <div class="review-sticker-badge">
+                <span class="material-symbol" aria-hidden="true">hearing</span>
+              </div>
+              <h3>可以更具体的请求</h3>
+              <p>{{ rewriteSuggestion.specific_request }}</p>
+            </article>
+          </div>
         </div>
-        <article class="speech-after card-border pop-card">
-          <p class="rewrite-label">建议这样说</p>
-          <p>{{ rewriteSuggestion.instead_after }}</p>
-        </article>
-      </div>
-    </section>
+      </section>
 
-    <section class="review-summary-card card-border pop-card pop-shadow review-bottom-grid">
-      <article class="review-block card-border pop-card">
-        <div class="section-title-wrap">
-          <h2>后续行动建议</h2>
+      <div class="review-squiggle" aria-hidden="true"></div>
+
+      <section class="review-v2-section review-script-section page-pop-in">
+        <h2>建议话术</h2>
+        <div class="speech-rewrite-row pop-card pop-shadow">
+          <article class="speech-before">
+            <p class="rewrite-label">而不是这样说</p>
+            <p>“{{ rewriteSuggestion.instead }}”</p>
+          </article>
+          <div class="speech-arrow" aria-hidden="true">
+            <span class="material-symbol">arrow_forward</span>
+          </div>
+          <article class="speech-after">
+            <p class="rewrite-label">建议这样说</p>
+            <p>“{{ rewriteSuggestion.instead_after }}”</p>
+          </article>
         </div>
-        <ul>
-          <li v-for="item in toSafeArray(reviewResponse.next_steps)" :key="`next-${item}`">
-            {{ item }}
-          </li>
-        </ul>
-      </article>
-      <article class="review-block card-border pop-card">
-        <div class="section-title-wrap">
-          <h2>安全提示</h2>
-        </div>
-        <p>{{ reviewResponse.safety_note }}</p>
-      </article>
-    </section>
+      </section>
 
-    <p v-if="reviewError" class="chat-hint-label review-error">{{ reviewError }}</p>
+      <section class="review-actions">
+        <RouterLink class="primary-action pop-shadow" :to="{ name: 'simulate' }">
+          再次演练
+          <span class="action-icon material-symbol">refresh</span>
+        </RouterLink>
+        <RouterLink class="secondary-action pop-shadow" :to="{ name: 'analysis' }">
+          查看压力分析
+          <span class="action-icon material-symbol">analytics</span>
+        </RouterLink>
+        <RouterLink class="secondary-action pop-shadow" :to="{ name: 'archive' }">
+          返回事件档案
+          <span class="action-icon material-symbol">archive</span>
+        </RouterLink>
+      </section>
 
-    <section class="review-actions">
-      <RouterLink class="primary-action pop-shadow" :to="{ name: 'simulate' }">
-        再次演练
-        <span class="action-icon material-symbol">refresh</span>
-      </RouterLink>
-      <RouterLink class="secondary-action pop-shadow" :to="{ name: 'home' }">
-        返回首页
-        <span class="action-icon material-symbol">home</span>
-      </RouterLink>
-    </section>
-
-    <p v-if="isLoading" class="chat-hint-label review-loading">正在生成复盘...</p>
-    <p v-if="canRender" class="review-note">
-      {{ reviewSource || (reviewResponse.is_demo ? '复盘结果来自演示模式' : '复盘结果已渲染') }}
-      <span v-if="reviewRequest.scenario">｜场景：{{ reviewRequest.scenario }}</span>
-    </p>
+      <p class="review-note">
+        {{ reviewResponse.safety_note || '本建议仅用于沟通练习，不作为心理诊断依据；如存在现实安全风险，请优先寻求线下支持。' }}
+      </p>
+    </div>
   </main>
 </template>

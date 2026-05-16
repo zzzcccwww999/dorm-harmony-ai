@@ -9,10 +9,12 @@ import {
   buildDemoSimulationResponse,
   defaultSimulationRequest,
   isAnalyzeResult,
+  mapRoommateToReviewSpeaker,
   simulationScenarios,
   submitSimulationRequest,
   submitSimulationStreamRequest,
   type AnalyzeResult,
+  type ReviewDialogueLine,
   type SimulationReply,
   type SimulationRequest,
   type SimulationResponse,
@@ -32,6 +34,10 @@ const isDemoResult = ref(false)
 const simulationNotice = ref('')
 const safetyNote = ref('')
 const replies = ref<SimulationReply[]>([...designPreview.replies])
+const conversationMessages = ref<ReviewDialogueLine[]>([])
+const replyDelayMs = 750
+const generationStatus = ref('')
+const generationRunId = ref(0)
 const savedAnalysisRiskLevel = ref<AnalyzeResult['risk_level'] | undefined>()
 const savedAnalysisSources = ref<string[]>([])
 const savedAnalysisEmotionKeywords = ref<string[]>([])
@@ -77,6 +83,21 @@ function isSimulationResult(value: unknown): value is SimulationResponse {
   )
 }
 
+function isReviewDialogueLine(value: unknown): value is ReviewDialogueLine {
+  if (!isRecord(value)) {
+    return false
+  }
+
+  return (
+    (value.speaker === 'user' ||
+      value.speaker === 'roommate_a' ||
+      value.speaker === 'roommate_b' ||
+      value.speaker === 'roommate_c' ||
+      value.speaker === 'system') &&
+    typeof value.message === 'string'
+  )
+}
+
 function isStoredSimulationResult(value: unknown): value is StoredSimulationResult {
   if (!isRecord(value)) {
     return false
@@ -84,12 +105,15 @@ function isStoredSimulationResult(value: unknown): value is StoredSimulationResu
 
   const request = (value as { request?: unknown }).request
   const response = (value as { response?: unknown }).response
+  const dialogue = (value as { dialogue?: unknown }).dialogue
 
   return (
     isRecord(request) &&
     typeof request.scenario === 'string' &&
     typeof request.user_message === 'string' &&
-    isSimulationResult(response)
+    isSimulationResult(response) &&
+    (typeof dialogue === 'undefined' ||
+      (Array.isArray(dialogue) && dialogue.every(isReviewDialogueLine)))
   )
 }
 
@@ -132,6 +156,8 @@ function setDefaultSimulationState() {
   currentScene.value = defaultScene
   userMessage.value = defaultSpeech
   replies.value = [...designPreview.replies]
+  conversationMessages.value = []
+  generationStatus.value = ''
   submitError.value = ''
   isDemoResult.value = false
   simulationNotice.value = ''
@@ -217,7 +243,8 @@ function hydrateFromSimulationCache() {
     if (isStoredSimulationResult(parsed)) {
       currentScene.value = parsed.request.scenario || defaultScene
       userMessage.value = parsed.request.user_message || defaultSpeech
-      replies.value = parsed.response.replies
+      replies.value = [...parsed.response.replies]
+      conversationMessages.value = parsed.dialogue ? [...parsed.dialogue] : []
       isDemoResult.value = parsed.response.is_demo
       simulationNotice.value = parsed.response.demo_notice
       safetyNote.value = parsed.response.safety_note
@@ -227,7 +254,8 @@ function hydrateFromSimulationCache() {
     }
 
     if (isSimulationResult(parsed)) {
-      replies.value = parsed.replies
+      replies.value = [...parsed.replies]
+      conversationMessages.value = []
       isDemoResult.value = parsed.is_demo
       simulationNotice.value = parsed.demo_notice
       safetyNote.value = parsed.safety_note
@@ -251,6 +279,51 @@ const reviewGateMessage = computed(() =>
   canEnterReview.value ? '已有本次演练结果，可生成复盘报告。' : '请先发送一次模拟对话，再进入复盘。',
 )
 
+function speakerLabel(speaker: ReviewDialogueLine['speaker']) {
+  if (speaker === 'user') {
+    return '你'
+  }
+  if (speaker === 'roommate_a') {
+    return '舍友 A'
+  }
+  if (speaker === 'roommate_b') {
+    return '舍友 B'
+  }
+  if (speaker === 'roommate_c') {
+    return '舍友 C'
+  }
+
+  return '系统'
+}
+
+function messageClass(speaker: ReviewDialogueLine['speaker']) {
+  return speaker === 'user' ? 'conversation-message-user' : 'conversation-message-roommate'
+}
+
+function resetGeneratingState() {
+  generationStatus.value = ''
+}
+
+async function appendReplyWithDelay(reply: SimulationReply, index: number, runId: number) {
+  const nextRoommate = reply.roommate.replace(/\s+/g, ' ')
+  generationStatus.value = `正在生成${nextRoommate} 的回复`
+
+  await new Promise((resolve) => window.setTimeout(resolve, replyDelayMs * index))
+
+  if (runId !== generationRunId.value) {
+    return
+  }
+
+  replies.value = [...replies.value, reply]
+  conversationMessages.value = [
+    ...conversationMessages.value,
+    {
+      speaker: mapRoommateToReviewSpeaker(reply.roommate),
+      message: reply.message,
+    },
+  ]
+}
+
 function selectScenario(scene: string) {
   currentScene.value = scene
 }
@@ -265,42 +338,73 @@ async function sendMessage() {
 
   isSubmitting.value = true
   submitError.value = ''
+  resetGeneratingState()
 
   try {
+    const priorDialogue = [...conversationMessages.value]
+    const currentTurnDialogue: ReviewDialogueLine[] = [
+      ...priorDialogue,
+      {
+        speaker: 'user',
+        message,
+      },
+    ]
+    conversationMessages.value = [...currentTurnDialogue]
+
     const request: SimulationRequest = {
       scenario: currentScene.value,
       user_message: message,
       risk_level: savedAnalysisRiskLevel.value,
       context: buildRequestContext(),
+      dialogue: priorDialogue,
     }
-    const applyResult = (result: SimulationResponse) => {
-      replies.value = result.replies
-      isDemoResult.value = result.is_demo
-      simulationNotice.value = result.demo_notice
-      safetyNote.value = result.safety_note
-      storedSimulationMeta.value = result.is_demo ? '演示数据' : '后端返回'
-      hasUsableSimulation.value = result.replies.length > 0
+    const applyResultMeta = (response: SimulationResponse) => {
+      isDemoResult.value = response.is_demo
+      simulationNotice.value = response.demo_notice
+      safetyNote.value = response.safety_note
+      storedSimulationMeta.value = response.is_demo ? '演示数据' : '后端返回'
+      hasUsableSimulation.value = response.replies.length > 0
     }
 
     let result: SimulationResponse
     try {
+      const streamRunId = generationRunId.value + 1
+      generationRunId.value = streamRunId
+      const appendTasks: Array<Promise<void>> = []
       result = await submitSimulationStreamRequest(request, {
         onStart: () => {
           replies.value = []
           isDemoResult.value = false
           simulationNotice.value = 'AI 正在按顺序生成舍友回复'
+          generationStatus.value = '正在生成舍友 A 的回复'
           safetyNote.value = ''
           storedSimulationMeta.value = '后端顺序返回'
           hasUsableSimulation.value = false
         },
         onReply: (reply) => {
-          replies.value = [...replies.value, reply]
+          appendTasks.push(appendReplyWithDelay(reply, appendTasks.length, streamRunId))
         },
       })
-      applyResult(result)
+      if (appendTasks.length === 0) {
+        appendTasks.push(
+          ...result.replies.map((reply, index) =>
+            appendReplyWithDelay(reply, index, streamRunId),
+          ),
+        )
+      }
+      await Promise.all(appendTasks)
+      applyResultMeta(result)
     } catch {
+      const fallbackRunId = generationRunId.value + 1
+      generationRunId.value = fallbackRunId
+      replies.value = []
+      conversationMessages.value = [...currentTurnDialogue]
+      generationStatus.value = '正在生成舍友回复...'
       result = await submitSimulationRequest(request)
-      applyResult(result)
+      await Promise.all(
+        result.replies.map((reply, index) => appendReplyWithDelay(reply, index, fallbackRunId)),
+      )
+      applyResultMeta(result)
     }
 
     try {
@@ -309,6 +413,7 @@ async function sendMessage() {
         JSON.stringify({
           request,
           response: result,
+          dialogue: conversationMessages.value,
         }),
       )
     } catch {
@@ -317,6 +422,7 @@ async function sendMessage() {
   } catch {
     submitError.value = '发送失败，请检查网络后重试'
   } finally {
+    resetGeneratingState()
     isSubmitting.value = false
   }
 }
@@ -334,11 +440,9 @@ function resetConversation() {
 
 <template>
   <main class="page simulation-page bg-diagonal-stripes">
-    <span class="simulation-decoration simulation-decoration-dot" aria-hidden="true"></span>
     <span class="simulation-decoration simulation-decoration-squiggle" aria-hidden="true"></span>
-    <span class="simulation-decoration simulation-decoration-slice" aria-hidden="true"></span>
 
-    <section class="simulation-header-card card-border pop-card pop-shadow">
+    <section class="simulation-header-card card-border pop-card pop-shadow page-pop-in">
       <div class="simulation-title-block">
         <h1>夜间噪音冲突</h1>
         <div class="simulation-subtitle-chip card-border">场景演练</div>
@@ -346,7 +450,7 @@ function resetConversation() {
       <p>AI 沟通模拟演练，先选场景，再在下方输入你的沟通话术。</p>
     </section>
 
-    <section class="simulation-scene-card card-border pop-card pop-shadow">
+    <section class="simulation-scene-card card-border pop-card pop-shadow page-pop-in">
       <div class="simulation-section-heading">
         <span class="material-symbol" aria-hidden="true">rule</span>
         <h2>选择演练场景</h2>
@@ -366,7 +470,7 @@ function resetConversation() {
       </div>
     </section>
 
-    <section class="simulation-layout">
+    <section class="simulation-layout page-pop-in">
       <aside class="simulation-left-column">
         <h2 class="panel-title">
           <span class="material-symbol" aria-hidden="true">groups</span>
@@ -444,7 +548,26 @@ function resetConversation() {
             {{ currentScenePrompt }}
           </p>
 
-          <article class="chat-user" :class="{ 'chat-user-empty': !hasUserMessage }">
+          <div v-if="conversationMessages.length > 0" class="conversation-thread">
+            <article
+              v-for="(line, index) in conversationMessages"
+              :key="`${line.speaker}-${index}-${line.message}`"
+              :class="['conversation-message', messageClass(line.speaker)]"
+            >
+              <span>{{ speakerLabel(line.speaker) }}</span>
+              <p>{{ line.message }}</p>
+            </article>
+            <article v-if="isSubmitting" class="conversation-message conversation-message-roommate">
+              <span>{{ generationStatus || '正在生成舍友回复...' }}</span>
+              <p class="typing-indicator" aria-live="polite">
+                <i></i>
+                <i></i>
+                <i></i>
+              </p>
+            </article>
+          </div>
+
+          <article v-else class="chat-user" :class="{ 'chat-user-empty': !hasUserMessage }">
             <img
               class="chat-avatar"
               alt=""
@@ -458,7 +581,7 @@ function resetConversation() {
             </p>
           </article>
 
-          <div class="chat-message-list">
+          <div v-if="conversationMessages.length === 0" class="chat-message-list">
             <article
               v-for="reply in replies"
               :key="`${reply.roommate}-${reply.personality}`"
@@ -494,14 +617,15 @@ function resetConversation() {
               v-model="userMessage"
               placeholder="输入你的回复..."
               type="text"
+              :disabled="isSubmitting"
               aria-label="输入你的回复"
             />
-            <button class="microphone-btn" type="button" aria-label="麦克风">
+            <button class="microphone-btn" type="button" :disabled="isSubmitting" aria-label="麦克风">
               <span class="material-symbol" aria-hidden="true">mic</span>
             </button>
           </div>
           <button class="primary-action pop-shadow" type="submit" :disabled="isSubmitting">
-            <span v-if="isSubmitting">发送中...</span>
+            <span v-if="isSubmitting">{{ generationStatus || '正在生成' }}</span>
             <span v-else>发送</span>
             <span class="material-symbol" aria-hidden="true">send</span>
           </button>
