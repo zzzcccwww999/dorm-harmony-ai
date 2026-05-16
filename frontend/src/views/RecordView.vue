@@ -8,14 +8,23 @@ import {
   emotionOptions,
   eventTypeOptions,
   frequencyOptions,
-  submitAnalyzeRequest,
   sampleAnalyzeRequest,
-  type AnalyzeRequest,
+  normalizeAnalyzeResponse,
 } from '@/data/week1'
+import {
+  buildEventRecordCreate,
+  createEventRecord,
+  formatLocalDate,
+  type EventRecordForm,
+} from '@/data/eventArchive'
 
 const router = useRouter()
 
-const form = reactive<AnalyzeRequest>({ ...sampleAnalyzeRequest })
+// v2 replaces the former submitAnalyzeRequest record flow with createEventRecord.
+const form = reactive<EventRecordForm>({
+  event_date: formatLocalDate(),
+  ...sampleAnalyzeRequest,
+})
 const isSubmitting = ref(false)
 const submitError = ref('')
 
@@ -32,7 +41,8 @@ async function submitRecord() {
   isSubmitting.value = true
 
   try {
-    const result = await submitAnalyzeRequest({ ...form })
+    const savedEvent = await createEventRecord(buildEventRecordCreate(form))
+    const result = normalizeAnalyzeResponse(savedEvent.single_analysis)
 
     try {
       localStorage.setItem(LAST_EVENT_STORAGE_KEY, JSON.stringify(form))
@@ -41,10 +51,11 @@ async function submitRecord() {
       console.warn('Unable to persist analysis result', storageError)
     }
 
-    await router.push({ name: 'analysis' })
+    await router.push({ name: 'archive' })
   } catch (error) {
     console.error(error)
-    submitError.value = '分析失败，请稍后再试'
+    submitError.value =
+      error instanceof Error ? error.message : '事件保存失败，请稍后再试'
   } finally {
     isSubmitting.value = false
   }
@@ -54,9 +65,8 @@ async function submitRecord() {
 <template>
   <main class="page narrow-page record-page">
     <span class="record-decoration record-decoration-squiggle" aria-hidden="true"></span>
-    <span class="record-decoration record-decoration-dot" aria-hidden="true"></span>
 
-    <section class="page-heading">
+    <section class="page-heading page-pop-in">
       <h1>
         记录心晴时刻
         <span class="heading-highlight" aria-hidden="true"></span>
@@ -64,7 +74,21 @@ async function submitRecord() {
       <p class="record-quote pop-shadow card-border">“每一次记录都是一次自我梳理”</p>
     </section>
 
-    <form class="form-panel pop-card pop-shadow" @submit.prevent="submitRecord">
+    <form class="form-panel pop-card pop-shadow page-pop-in" @submit.prevent="submitRecord">
+      <fieldset class="field-box date-field">
+        <legend class="date-label">
+          <span class="field-icon field-icon-soft material-symbol" aria-hidden="true">event</span>
+          事件日期
+        </legend>
+        <input
+          v-model="form.event_date"
+          class="date-input"
+          type="date"
+          required
+          aria-label="事件日期"
+        />
+      </fieldset>
+
       <fieldset>
         <legend>
           <span class="field-icon material-symbol" aria-hidden="true">category</span>
@@ -187,7 +211,7 @@ async function submitRecord() {
 
       <div class="form-submit">
         <button class="primary-action pop-shadow" type="submit" :disabled="isSubmitting">
-          {{ isSubmitting ? '提交中...' : '保存并分析' }}
+          {{ isSubmitting ? '提交中...' : '保存并查看档案' }}
           <span class="action-icon material-symbol" aria-hidden="true">arrow_forward</span>
         </button>
         <p v-if="submitError" class="error-text">{{ submitError }}</p>

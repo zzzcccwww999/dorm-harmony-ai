@@ -4,6 +4,7 @@ import { RouterLink, RouterView } from 'vue-router'
 const navItems = [
   { name: 'home', label: '首页', icon: 'dashboard', mobileIcon: 'dashboard' },
   { name: 'record', label: '事件记录', icon: 'edit_note', mobileIcon: 'edit_note' },
+  { name: 'archive', label: '事件档案', icon: 'history', mobileIcon: 'history' },
   { name: 'analysis', label: '压力分析', icon: 'analytics', mobileIcon: 'analytics' },
   { name: 'simulate', label: '沟通模拟', icon: 'forum', mobileIcon: 'forum' },
   { name: 'review', label: '沟通复盘', icon: 'assignment', mobileIcon: 'assignment' },
@@ -55,10 +56,6 @@ const brandAvatarSrc =
           <img class="mobile-avatar" :src="brandAvatarSrc" alt="" aria-hidden="true" />
         </div>
       </header>
-
-      <span class="shape-confetti shape-confetti-pink" aria-hidden="true"></span>
-      <span class="shape-confetti shape-confetti-yellow" aria-hidden="true"></span>
-      <span class="shape-confetti shape-confetti-green" aria-hidden="true"></span>
 
       <RouterView />
     </div>
