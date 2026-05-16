@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Phase 2 Aggregate Pressure Analysis Page - DormHarmony</title>
+<!-- Google Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800;900&amp;family=Plus+Jakarta+Sans:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#2c1700",
+                    "primary-container": "#8455ef",
+                    "quaternary": "#34D399",
+                    "on-tertiary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "tertiary-container": "#a76500",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed": "#e9ddff",
+                    "on-surface-variant": "#494454",
+                    "surface-container": "#f3ebf8",
+                    "on-primary-container": "#fffbff",
+                    "on-primary-fixed": "#23005c",
+                    "muted-foreground": "#64748B",
+                    "inverse-surface": "#322f39",
+                    "surface-bright": "#fef7ff",
+                    "outline": "#7b7486",
+                    "on-secondary-fixed-variant": "#85145a",
+                    "secondary": "#F472B6",
+                    "primary": "#6b38d4",
+                    "surface-container-highest": "#e7e0ed",
+                    "surface-dim": "#ded7e4",
+                    "on-tertiary-container": "#fffbff",
+                    "muted": "#F1F5F9",
+                    "inverse-primary": "#d0bcff",
+                    "on-primary-fixed-variant": "#5516be",
+                    "tertiary-fixed-dim": "#ffb869",
+                    "on-secondary-container": "#76014e",
+                    "border": "#E2E8F0",
+                    "surface": "#fef7ff",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed": "#ffdcbb",
+                    "on-background": "#1d1a23",
+                    "background": "#FFFDF5",
+                    "accent": "#8B5CF6",
+                    "surface-container-high": "#ede5f3",
+                    "inverse-on-surface": "#f5eefb",
+                    "surface-variant": "#e7e0ed",
+                    "secondary-fixed": "#ffd8e7",
+                    "on-surface": "#1d1a23",
+                    "on-primary": "#ffffff",
+                    "outline-variant": "#cbc3d7",
+                    "shadow-dark": "#1E293B",
+                    "on-error": "#ffffff",
+                    "foreground": "#1E293B",
+                    "secondary-fixed-dim": "#ffafd3",
+                    "secondary-container": "#fc79bd",
+                    "surface-tint": "#6d3bd7",
+                    "on-secondary": "#ffffff",
+                    "card": "#FFFFFF",
+                    "primary-fixed-dim": "#d0bcff",
+                    "error-container": "#ffdad6",
+                    "tertiary": "#FBBF24",
+                    "surface-container-low": "#f8f1fe",
+                    "on-tertiary-fixed-variant": "#673d00",
+                    "on-secondary-fixed": "#3d0026"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "1.5rem",
+                    "container-max": "1152px",
+                    "unit-md": "1.5rem",
+                    "shadow-offset-hover": "6px",
+                    "shadow-offset": "4px",
+                    "unit-sm": "1rem",
+                    "unit-xs": "0.5rem",
+                    "section-padding": "6rem",
+                    "unit-lg": "2rem"
+            },
+            "fontFamily": {
+                    "headline-xl": ["Outfit"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "label-bold": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Outfit"],
+                    "headline-md": ["Outfit"],
+                    "body-md": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-xl": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-bold": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-lg": ["48px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "headline-md": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Base specific utility for geometric playful motion */
+        .spring-bounce {
+            transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        /* Polka dot background pattern */
+        .bg-dots {
+            background-image: radial-gradient(var(--tw-colors-outline-variant) 2px, transparent 2px);
+            background-size: 32px 32px;
+        }
+
+        /* Material symbol base styling */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex bg-dots selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- Global Decoration Shapes (Background) -->
+<div class="fixed top-20 right-20 w-24 h-24 rounded-full border-4 border-on-surface bg-secondary-container shadow-[4px_4px_0px_0px] shadow-on-surface hidden lg:block -z-10 animate-bounce" style="animation-duration: 3s;"></div>
+<div class="fixed bottom-40 left-80 w-24 h-24 bg-secondary rounded-full border-4 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface -z-10 opacity-30 transform rotate-12"></div>
+<!-- SideNavBar (Desktop Fixed) -->
+<aside class="hidden lg:flex flex-col gap-6 p-6 top-0 left-0 w-64 h-screen border-r-2 border-on-surface bg-surface dark:bg-inverse-surface shadow-[4px_0px_0px_0px] shadow-on-surface z-40 flex-shrink-0 fixed">
+  <a class="flex items-center gap-3 mb-5" href="/" aria-label="回到舍友心晴首页">
+    <img
+      alt=""
+      aria-hidden="true"
+      class="w-12 h-12 rounded-full border-2 border-on-surface object-cover"
+      src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoIeE3fuGST0i8AH2TVFnjVGh_ghmeHMgRw6uUv0F6XHs-tGfTxBIOxOxQ9caVd2NzLnFXtlExYdqzmzWd5bDU1m65ZFQH1vroL-ebUGb6tEbeJ4yl3p6alHBVf0b4XtMOtvzRdRPCQAlFENmTXT0sOQQ_bDMWNAO2d13Qkg81Bnv4wY6WsSXjTKLxhv5act4Ak_2Q0Sj7xQ1lkpf4Bu7GCRJrqmQ1UAJr6F_hmuC0ZPir2-Z1lCASlOr_EmvP01FgTRlACAuJzXo"
+    />
+    <span class="leading-tight">
+      <strong class="block text-xl font-black text-on-surface">舍友心晴</strong>
+      <small class="block text-label-bold font-bold text-on-surface-variant">Harmony Hub</small>
+    </span>
+  </a>
+  <div class="flex flex-col gap-2 flex-grow">
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl bg-primary-container text-on-primary-container border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface text-body-md font-bold" href="/" aria-current="page">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+      <span>首页</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/record">
+      <span class="material-symbols-outlined">edit_note</span>
+      <span>事件记录</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/archive">
+      <span class="material-symbols-outlined">history</span>
+      <span>事件档案</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/analysis">
+      <span class="material-symbols-outlined">analytics</span>
+      <span>压力分析</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/simulate">
+      <span class="material-symbols-outlined">forum</span>
+      <span>沟通模拟</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/review">
+      <span class="material-symbols-outlined">assignment</span>
+      <span>沟通复盘</span>
+    </a>
+  </div>
+  <a class="mt-auto flex items-center justify-center gap-2 w-full px-5 py-3 rounded-full bg-primary text-on-primary border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface font-bold hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px] transition-all duration-200" href="/record">
+    <span class="inline-flex w-6 h-6 items-center justify-center rounded-full border-2 border-on-surface bg-card text-primary">
+      <span class="material-symbols-outlined text-[16px] font-bold">add</span>
+    </span>
+    <span>记录事件</span>
+  </a>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 lg:ml-64 pb-24 lg:pb-0 relative">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center w-full px-gutter h-16 sticky top-0 z-30 bg-background dark:bg-inverse-surface border-b-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface">
+<div class="text-headline-md font-headline-md font-extrabold text-primary">
+            </div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 rounded-full border-2 border-on-surface bg-surface flex items-center justify-center hover:bg-secondary-container hover:text-on-secondary-container transition-all text-on-surface-variant shadow-[2px_2px_0px_0px] shadow-on-surface active:translate-y-[2px] active:shadow-none">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 rounded-full border-2 border-on-surface bg-surface flex items-center justify-center hover:bg-secondary-container hover:text-on-secondary-container transition-all text-on-surface-variant shadow-[2px_2px_0px_0px] shadow-on-surface active:translate-y-[2px] active:shadow-none">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-10 h-10 rounded-full border-2 border-on-surface bg-tertiary-container overflow-hidden shadow-[2px_2px_0px_0px] shadow-on-surface ml-2">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A brightly lit close-up portrait of a user avatar, styled with pop-art vibrant colors. The background is a solid flat yellow. The portrait features thick graphic black outlines and a warm, optimistic atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnicXHFf2C6WPDZx7C82qbbM3ep7qfEr_RV8_qLBBakiInJyFV1tEFVk-PndP_GjTJSAIrYkOxyRg4TNJJHuW-XFlCJQd0RL2B0PcHQlI7kvxsLXHuw376bQV2dj7y6usmmMBrM7j-s2uW_f97cUyn4yEwsE-28sL_v1QgJ1QzzKo2igwifQa0599737SV4JwDfP88n7AfJqnbm4J2O2885gaE5CYTpk52Ar9LaOU98o0J1Qeqe-HA53gaTA_3EJh_jRLFYy3azQ4"/>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="w-full max-w-container-max mx-auto px-gutter py-12 space-y-unit-lg flex-1">
+<!-- Header Section -->
+<div class="relative z-10 mb-12 border-b-4 border-on-surface pb-6 border-dashed">
+<h1 class="text-headline-xl font-headline-xl text-on-background mb-4 drop-shadow-[2px_2px_0px_var(--tw-colors-secondary)]">宿舍总压力分析报告</h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant max-w-3xl bg-surface-container inline-block px-4 py-2 rounded-lg border-2 border-on-surface">
+                    基于事件档案内的所有记录，综合事件日期、频率、严重程度和沟通状态生成趋势提示。
+                </p>
+</div>
+<!-- Bento Grid Main Content -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-unit-md">
+<!-- Pressure Gauge Card (Main) -->
+<div class="lg:col-span-5 bg-surface border-2 border-on-surface rounded-xl shadow-[4px_4px_0px_0px] shadow-on-surface p-6 flex flex-col items-center justify-center relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-24 h-24 bg-error-container rounded-bl-full -mr-4 -mt-4 opacity-50 z-0"></div>
+<h2 class="text-headline-md font-headline-md self-start w-full mb-6 z-10 flex items-center gap-2">
+<span class="material-symbols-outlined p-2 bg-secondary text-on-secondary rounded-full border-2 border-on-surface">speed</span>
+                        压力指数
+                    </h2>
+<!-- CSS Conic Gauge -->
+<div class="relative w-48 h-48 rounded-full border-4 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface mb-6 z-10 flex items-center justify-center" style="background: conic-gradient(var(--tw-colors-secondary) 0% 82%, var(--tw-colors-surface-container) 82% 100%);">
+<div class="w-32 h-32 bg-surface rounded-full border-4 border-on-surface flex flex-col items-center justify-center shadow-inner">
+<span class="text-[48px] font-headline-xl font-black text-secondary leading-none">82</span>
+<span class="text-label-bold font-label-bold text-on-surface-variant">/ 100</span>
+</div>
+</div>
+<div class="z-10 flex flex-col items-center text-center space-y-3">
+<div class="bg-error text-on-error px-4 py-1 border-2 border-on-surface rounded-full text-label-bold font-label-bold shadow-[2px_2px_0px_0px] shadow-on-surface uppercase transform -rotate-2">
+                            严重冲突风险
+                        </div>
+<p class="text-body-md font-body-md text-on-surface">
+                            近期事件较集中，建议优先处理反复出现的问题
+                        </p>
+</div>
+</div>
+<!-- Right Column (Stats + Breakdown) -->
+<div class="lg:col-span-7 flex flex-col gap-unit-md">
+<!-- Stats Row -->
+<div class="grid grid-cols-2 gap-unit-md">
+<!-- Stat 1 -->
+<div class="bg-surface border-2 border-on-surface rounded-xl shadow-[4px_4px_0px_0px] shadow-on-surface p-5 flex items-center gap-4 hover:-translate-y-1 transition-transform spring-bounce">
+<div class="w-14 h-14 bg-primary-container text-on-primary-container rounded-full border-2 border-on-surface flex items-center justify-center shadow-[2px_2px_0px_0px] shadow-on-surface flex-shrink-0">
+<span class="material-symbols-outlined text-3xl">folder_open</span>
+</div>
+<div>
+<p class="text-label-bold font-label-bold text-on-surface-variant">档案事件数</p>
+<p class="text-headline-lg font-headline-lg text-primary">6</p>
+</div>
+</div>
+<!-- Stat 2 -->
+<div class="bg-surface border-2 border-on-surface rounded-xl shadow-[4px_4px_0px_0px] shadow-on-surface p-5 flex items-center gap-4 hover:-translate-y-1 transition-transform spring-bounce">
+<div class="w-14 h-14 bg-tertiary text-on-tertiary rounded-full border-2 border-on-surface flex items-center justify-center shadow-[2px_2px_0px_0px] shadow-on-surface flex-shrink-0">
+<span class="material-symbols-outlined text-3xl">event_upcoming</span>
+</div>
+<div>
+<p class="text-label-bold font-label-bold text-on-surface-variant">近 30 天事件</p>
+<p class="text-headline-lg font-headline-lg text-on-surface">3</p>
+</div>
+</div>
+</div>
+<!-- Source Breakdown Bar Chart -->
+<div class="bg-surface border-2 border-on-surface rounded-xl shadow-[4px_4px_0px_0px] shadow-on-surface p-6 flex-1 flex flex-col">
+<h3 class="text-headline-md font-headline-md mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined p-2 bg-primary-container text-on-primary-container rounded-lg border-2 border-on-surface">pie_chart</span>
+                            矛盾溯源分析
+                        </h3>
+<div class="space-y-4 flex-1 justify-center flex flex-col">
+<!-- Bar 1 -->
+<div class="space-y-1">
+<div class="flex justify-between text-label-bold font-label-bold">
+<span>噪音冲突</span>
+<span>45%</span>
+</div>
+<div class="h-6 bg-surface-container border-2 border-on-surface rounded-full overflow-hidden w-full relative">
+<div class="absolute top-0 left-0 h-full bg-secondary border-r-2 border-on-surface" style="width: 45%;"></div>
+</div>
+</div>
+<!-- Bar 2 -->
+<div class="space-y-1">
+<div class="flex justify-between text-label-bold font-label-bold">
+<span>尚未有效沟通</span>
+<span>35%</span>
+</div>
+<div class="h-6 bg-surface-container border-2 border-on-surface rounded-full overflow-hidden w-full relative">
+<div class="absolute top-0 left-0 h-full bg-tertiary border-r-2 border-on-surface" style="width: 35%;"></div>
+</div>
+</div>
+<!-- Bar 3 -->
+<div class="space-y-1">
+<div class="flex justify-between text-label-bold font-label-bold">
+<span>已出现争吵或冷战</span>
+<span>20%</span>
+</div>
+<div class="h-6 bg-surface-container border-2 border-on-surface rounded-full overflow-hidden w-full relative">
+<div class="absolute top-0 left-0 h-full bg-primary border-r-2 border-on-surface" style="width: 20%;"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Decorative Divider -->
+<div class="w-full flex justify-center py-4">
+<svg fill="none" height="20" viewbox="0 0 200 20" width="200" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 10C20 10 20 2 40 2C60 2 60 18 80 18C100 18 100 2 120 2C140 2 140 18 160 18C180 18 180 10 200 10" stroke="var(--tw-colors-on-surface)" stroke-linecap="round" stroke-width="4"></path>
+</svg>
+</div>
+<!-- AI Insights Section -->
+<div class="space-y-8">
+<h2 class="text-headline-lg font-headline-lg text-on-background flex items-center gap-3">
+<span class="material-symbols-outlined text-[40px] text-primary">auto_awesome</span>
+                    AI 心晴见解
+                </h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-unit-md gap-y-12 pt-6">
+<!-- Block 1: Observation -->
+<div class="relative bg-surface border-2 border-on-surface rounded-xl p-6 shadow-[4px_4px_0px_0px] shadow-on-surface">
+<div class="absolute -top-6 left-6 w-12 h-12 bg-primary-container border-2 border-on-surface rounded-full flex items-center justify-center shadow-[2px_2px_0px_0px] shadow-on-surface text-on-primary-container">
+<span class="material-symbols-outlined">visibility</span>
+</div>
+<h3 class="text-headline-sm font-headline-sm mt-4 text-on-surface">整体观察</h3>
+<p class="text-body-md font-body-md mt-2 text-on-surface-variant">
+                            目前宿舍内存在一定的紧张气氛，主要集中在作息时间和个人空间界限上。成员间的直接沟通较少，多以回避为主。
+                        </p>
+</div>
+<!-- Block 2: Care -->
+<div class="relative bg-surface border-2 border-on-surface rounded-xl p-6 shadow-[4px_4px_0px_0px] shadow-on-surface">
+<div class="absolute -top-6 left-6 w-12 h-12 bg-secondary border-2 border-on-surface rounded-full flex items-center justify-center shadow-[2px_2px_0px_0px] shadow-on-surface text-on-secondary">
+<span class="material-symbols-outlined">favorite</span>
+</div>
+<h3 class="text-headline-sm font-headline-sm mt-4 text-on-surface">自我照顾建议</h3>
+<p class="text-body-md font-body-md mt-2 text-on-surface-variant">
+                            建议在感到压抑时，多去图书馆或户外散步，保证个人的情绪缓冲空间。使用耳塞和眼罩保障基础睡眠质量。
+                        </p>
+</div>
+<!-- Block 3: Communication -->
+<div class="relative bg-surface border-2 border-on-surface rounded-xl p-6 shadow-[4px_4px_0px_0px] shadow-on-surface">
+<div class="absolute -top-6 left-6 w-12 h-12 bg-tertiary border-2 border-on-surface rounded-full flex items-center justify-center shadow-[2px_2px_0px_0px] shadow-on-surface text-on-tertiary">
+<span class="material-symbols-outlined">forum</span>
+</div>
+<h3 class="text-headline-sm font-headline-sm mt-4 text-on-surface">沟通重点列表</h3>
+<ul class="text-body-md font-body-md mt-2 text-on-surface-variant space-y-2 list-disc list-inside">
+<li>明确晚间熄灯后的活动边界。</li>
+<li>以“我感觉”句式表达困扰，避免指责。</li>
+<li>提议制定共同认可的寝室公约。</li>
+</ul>
+</div>
+<!-- Block 4: Safety -->
+<div class="relative bg-surface border-2 border-on-surface rounded-xl p-6 shadow-[4px_4px_0px_0px] shadow-on-surface border-l-8 border-l-error">
+<div class="absolute -top-6 left-6 w-12 h-12 bg-error text-on-error border-2 border-on-surface rounded-full flex items-center justify-center shadow-[2px_2px_0px_0px] shadow-on-surface">
+<span class="material-symbols-outlined">warning</span>
+</div>
+<h3 class="text-headline-sm font-headline-sm mt-4 text-on-surface">安全提示</h3>
+<p class="text-body-md font-body-md mt-2 text-on-surface-variant">
+                            若冲突有升级为肢体接触或严重言语暴力的趋势，请立即停止沟通并联系辅导员介入。
+                        </p>
+</div>
+</div>
+</div>
+<!-- AI API States (Dev Reference) -->
+<div class="mt-16 pt-8 border-t-4 border-dashed border-outline-variant space-y-6">
+<h3 class="text-headline-md font-headline-md text-outline">Dev Reference: AI API States</h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- State 1 -->
+<div class="bg-surface-container border-2 border-outline-variant rounded-xl p-4 flex items-center gap-3 border-dashed">
+<span class="material-symbols-outlined text-primary animate-spin">progress_activity</span>
+<p class="text-body-md font-body-md text-on-surface-variant">正在生成：AI 心晴见解生成中……</p>
+</div>
+<!-- State 2 -->
+<div class="bg-surface-container border-2 border-outline-variant rounded-xl p-4 flex items-center gap-3 border-dashed">
+<span class="material-symbols-outlined text-tertiary">key</span>
+<p class="text-body-md font-body-md text-on-surface-variant">未配置：AI 心晴见解需要配置 DEEPSEEK_API_KEY 后生成</p>
+</div>
+<!-- State 3 -->
+<div class="bg-surface-container border-2 border-outline-variant rounded-xl p-4 flex items-center gap-3 border-dashed">
+<span class="material-symbols-outlined text-error">cloud_off</span>
+<p class="text-body-md font-body-md text-on-surface-variant">暂不可用：AI 心晴见解暂时不可用，请稍后重试</p>
+</div>
+</div>
+</div>
+<!-- Empty State Variant (Dev Reference) -->
+<div class="mt-16 pt-8 border-t-4 border-dashed border-outline-variant space-y-6">
+<h3 class="text-headline-md font-headline-md text-outline">Dev Reference: Empty State</h3>
+<div class="bg-surface border-2 border-on-surface rounded-xl shadow-[4px_4px_0px_0px] shadow-on-surface p-12 flex flex-col items-center justify-center text-center">
+<div class="w-32 h-32 bg-surface-container rounded-full border-4 border-on-surface flex items-center justify-center mb-6 shadow-[4px_4px_0px_0px] shadow-on-surface">
+<span class="material-symbols-outlined text-[64px] text-quaternary">sentiment_satisfied</span>
+</div>
+<div class="bg-quaternary text-on-surface px-4 py-1 border-2 border-on-surface rounded-full text-label-bold font-label-bold shadow-[2px_2px_0px_0px] shadow-on-surface uppercase mb-4">
+                        关系平稳 (Score 0)
+                    </div>
+<h3 class="text-headline-sm font-headline-sm text-on-surface mb-2">还没有事件记录</h3>
+<p class="text-body-md font-body-md text-on-surface-variant mb-8">请先记录一条宿舍事件以生成分析。</p>
+<div class="flex gap-4">
+<button class="bg-primary text-on-primary border-2 border-on-surface rounded-full py-2 px-6 shadow-[4px_4px_0px_0px] shadow-on-surface font-label-bold text-label-bold flex items-center justify-center gap-2 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px] transition-all">
+                            去记录事件
+                        </button>
+<button class="bg-surface text-on-surface border-2 border-on-surface rounded-full py-2 px-6 shadow-[4px_4px_0px_0px] shadow-on-surface font-label-bold text-label-bold flex items-center justify-center gap-2 hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px] transition-all">
+                            查看事件档案
+                        </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="w-full text-center py-6 border-t-2 border-on-surface bg-surface-container mt-auto">
+<p class="text-label-bold font-label-bold text-on-surface-variant flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">info</span>
+                本结果仅用于压力趋势提示，不作为心理诊断依据。
+            </p>
+</footer>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="lg:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 bg-surface-container dark:bg-inverse-surface border-t-2 border-on-surface shadow-[0px_-4px_0px_0px] shadow-on-surface rounded-t-xl pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant text-label-bold font-label-bold w-16" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+            Home
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant text-label-bold font-label-bold w-16" href="#">
+<span class="material-symbols-outlined mb-1">history_edu</span>
+            Record
+        </a>
+<!-- Active State -->
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-2 border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface text-label-bold font-label-bold active:translate-y-1 transition-all" href="#">
+<span class="material-symbols-outlined mb-1 icon-fill">equalizer</span>
+            Analysis
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant text-label-bold font-label-bold w-16" href="#">
+<span class="material-symbols-outlined mb-1">forum</span>
+            Sandbox
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant text-label-bold font-label-bold w-16" href="#">
+<span class="material-symbols-outlined mb-1">assessment</span>
+            Report
+        </a>
+</nav>
+</body></html>

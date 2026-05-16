@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+
+<html lang="zh"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DormHarmony - 记录心晴时刻</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&amp;family=Outfit:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-container": "#fc79bd",
+                    "on-primary-container": "#fffbff",
+                    "on-secondary-fixed-variant": "#85145a",
+                    "secondary-fixed": "#ffd8e7",
+                    "card": "#FFFFFF",
+                    "on-surface": "#1d1a23",
+                    "surface-dim": "#ded7e4",
+                    "surface-tint": "#6d3bd7",
+                    "on-tertiary-container": "#fffbff",
+                    "on-primary-fixed": "#23005c",
+                    "surface-variant": "#e7e0ed",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "shadow-dark": "#1E293B",
+                    "surface-container": "#f3ebf8",
+                    "inverse-primary": "#d0bcff",
+                    "on-tertiary-fixed-variant": "#673d00",
+                    "on-surface-variant": "#494454",
+                    "on-background": "#1d1a23",
+                    "error": "#ba1a1a",
+                    "muted": "#F1F5F9",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed-variant": "#5516be",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed": "#2c1700",
+                    "secondary-fixed-dim": "#ffafd3",
+                    "surface-container-high": "#ede5f3",
+                    "inverse-surface": "#322f39",
+                    "surface": "#fef7ff",
+                    "inverse-on-surface": "#f5eefb",
+                    "surface-container-low": "#f8f1fe",
+                    "primary": "#6b38d4",
+                    "secondary": "#F472B6",
+                    "primary-fixed-dim": "#d0bcff",
+                    "primary-container": "#8455ef",
+                    "tertiary-container": "#a76500",
+                    "tertiary-fixed": "#ffdcbb",
+                    "outline": "#7b7486",
+                    "border": "#E2E8F0",
+                    "tertiary-fixed-dim": "#ffb869",
+                    "on-secondary": "#ffffff",
+                    "surface-container-highest": "#e7e0ed",
+                    "tertiary": "#FBBF24",
+                    "background": "#FFFDF5",
+                    "quaternary": "#34D399",
+                    "accent": "#8B5CF6",
+                    "surface-bright": "#fef7ff",
+                    "outline-variant": "#cbc3d7",
+                    "primary-fixed": "#e9ddff",
+                    "foreground": "#1E293B",
+                    "on-secondary-fixed": "#3d0026",
+                    "on-secondary-container": "#76014e",
+                    "muted-foreground": "#64748B"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit-md": "1.5rem",
+                    "container-max": "1152px",
+                    "gutter": "1.5rem",
+                    "unit-lg": "2rem",
+                    "unit-sm": "1rem",
+                    "shadow-offset": "4px",
+                    "shadow-offset-hover": "6px",
+                    "unit-xs": "0.5rem",
+                    "section-padding": "6rem"
+            },
+            "fontFamily": {
+                    "body-md": ["Plus Jakarta Sans"],
+                    "label-bold": ["Plus Jakarta Sans"],
+                    "headline-md": ["Outfit"],
+                    "headline-lg": ["Outfit"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "headline-xl": ["Outfit"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-bold": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-md": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "headline-lg": ["48px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-xl": ["64px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            background-image: radial-gradient(theme('colors.outline-variant') 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .pop-shadow {
+            box-shadow: theme('spacing.shadow-offset') theme('spacing.shadow-offset') 0px 0px theme('colors.shadow-dark');
+        }
+        .pop-shadow:hover {
+            box-shadow: theme('spacing.shadow-offset-hover') theme('spacing.shadow-offset-hover') 0px 0px theme('colors.shadow-dark');
+            transform: translate(calc(-1 * (theme('spacing.shadow-offset-hover') - theme('spacing.shadow-offset'))), calc(-1 * (theme('spacing.shadow-offset-hover') - theme('spacing.shadow-offset'))));
+        }
+        .pop-shadow:active {
+            box-shadow: 2px 2px 0px 0px theme('colors.shadow-dark');
+            transform: translate(2px, 2px);
+        }
+        .card-border {
+            border: 2px solid theme('colors.on-surface');
+        }
+        .squiggle-bg {
+            position: absolute;
+            z-index: -1;
+            opacity: 0.1;
+        }
+        :root {
+            --surface-low: #f8f1fe;
+            --surface-high: #ede5f3;
+            --surface-container: #f3ebf8;
+            --surface-variant: #e7e0ed;
+            --ink: #1d1a23;
+            --ink-soft: #494454;
+            --shadow-dark: #1e293b;
+            --primary: #6b38d4;
+            --secondary: #f472b6;
+            --secondary-container: #fc79bd;
+            --tertiary: #fbbf24;
+            --quaternary: #34d399;
+            --accent: #8b5cf6;
+            --error: #ba1a1a;
+            --font-body-md: 16px;
+            --font-body-lg: 18px;
+            --font-label-bold: 14px;
+            --font-headline-lg: 48px;
+        }
+        .vue-record {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            margin: 0;
+            padding: 76px 0 96px;
+            overflow: visible;
+        }
+        .vue-record .record-decoration {
+            position: absolute;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .vue-record .record-decoration-squiggle {
+            top: 72px;
+            right: -48px;
+            width: 176px;
+            height: 96px;
+            border-top: 10px solid var(--secondary);
+            border-radius: 50%;
+            opacity: 0.32;
+            transform: rotate(-16deg);
+        }
+        .vue-record .record-decoration-dot {
+            right: 18%;
+            bottom: 180px;
+            width: 72px;
+            height: 72px;
+            border: 2px solid var(--ink);
+            border-radius: 999px;
+            background: var(--quaternary);
+            box-shadow: 4px 4px 0 0 var(--shadow-dark);
+            opacity: 0.28;
+        }
+        .vue-record .page-heading {
+            width: min(1120px, calc(100% - 48px));
+            margin-bottom: 30px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .vue-record .page-heading h1 {
+            position: relative;
+            display: inline-block;
+            margin: 0 0 14px;
+            font-family: Outfit, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+            font-size: var(--font-headline-lg);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: 0;
+            color: var(--ink);
+        }
+        .vue-record .heading-highlight {
+            position: absolute;
+            right: 0;
+            bottom: 4px;
+            left: 0;
+            z-index: -1;
+            height: 14px;
+            border: 2px solid var(--ink);
+            border-radius: 999px;
+            background: var(--tertiary);
+        }
+        .vue-record .record-quote {
+            display: inline-block;
+            border-radius: 14px;
+            background: var(--surface-high);
+            color: var(--ink-soft);
+            padding: 10px 14px;
+            font-size: var(--font-body-lg);
+            line-height: 1.6;
+            font-weight: 700;
+        }
+        .vue-record .pop-card {
+            position: relative;
+            border: 2px solid var(--ink);
+            border-radius: 22px;
+            background: #ffffff;
+            box-shadow: 4px 4px 0 0 var(--shadow-dark);
+        }
+        .vue-record .form-panel {
+            display: grid;
+            gap: 34px;
+            width: min(1120px, calc(100% - 48px));
+            margin: 0 auto;
+            padding: 30px;
+        }
+        .vue-record fieldset {
+            min-width: 0;
+            margin: 0;
+            border: 0;
+            padding: 0;
+        }
+        .vue-record legend,
+        .vue-record label > span:first-child,
+        .vue-record .date-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            color: var(--ink);
+            font-size: var(--font-label-bold);
+            font-weight: 700;
+            letter-spacing: 0;
+        }
+        .vue-record .field-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border: 2px solid var(--ink);
+            border-radius: 999px;
+            background: var(--primary);
+            color: #ffffff;
+            box-shadow: 2px 2px 0 0 var(--shadow-dark);
+            font-family: 'Material Symbols Outlined', 'Plus Jakarta Sans', system-ui, sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .vue-record .field-icon-green {
+            background: var(--quaternary);
+        }
+        .vue-record .field-icon-yellow {
+            background: var(--tertiary);
+            color: var(--ink);
+        }
+        .vue-record .field-icon-pink {
+            background: var(--secondary-container);
+        }
+        .vue-record .field-icon-red {
+            background: var(--error);
+        }
+        .vue-record .field-icon-soft {
+            background: #d0bcff;
+            color: #23005c;
+        }
+        .vue-record .option-grid {
+            display: grid;
+            gap: 14px;
+        }
+        .vue-record .event-type-grid {
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+        }
+        .vue-record .record-option {
+            position: relative;
+            display: block;
+        }
+        .vue-record .record-option input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+        }
+        .vue-record .record-option-body {
+            display: flex;
+            min-height: 96px;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 2px solid var(--ink);
+            border-radius: 16px;
+            background: var(--surface-container);
+            color: var(--ink);
+            font-size: var(--font-body-md);
+            padding: 14px;
+            font-weight: 700;
+            text-align: center;
+            transition:
+                transform 160ms ease,
+                box-shadow 160ms ease,
+                background 160ms ease,
+                color 160ms ease;
+        }
+        .vue-record .record-option-body .material-symbols-outlined {
+            font-size: 1.55rem;
+        }
+        .vue-record .event-type-grid .record-option-body {
+            flex-direction: column;
+        }
+        .vue-record .record-option input:checked + .record-option-body {
+            background: var(--primary);
+            box-shadow: 4px 4px 0 0 var(--shadow-dark);
+            color: #ffffff;
+        }
+        .vue-record .record-option:hover .record-option-body {
+            transform: translateY(-3px);
+        }
+        .vue-record .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+        }
+        .vue-record .field-box {
+            border: 2px solid var(--ink);
+            border-radius: 18px;
+            background: var(--surface-low);
+            padding: 22px;
+        }
+        .vue-record .date-field {
+            max-width: 420px;
+        }
+        .vue-record .date-input {
+            width: 100%;
+            min-height: 50px;
+            border: 2px solid var(--ink);
+            border-radius: 16px;
+            background: #ffffff;
+            color: var(--ink);
+            padding: 12px 16px;
+            font-size: var(--font-body-md);
+            font-weight: 700;
+            outline: none;
+        }
+        .vue-record .date-input:focus {
+            border-color: var(--primary);
+            box-shadow: 4px 4px 0 0 var(--primary);
+        }
+        .vue-record .range-field input[type='range'] {
+            width: 100%;
+            height: 16px;
+            margin: 12px 0;
+            border: 2px solid var(--ink);
+            border-radius: 999px;
+            appearance: none;
+            background: #ffffff;
+            box-shadow: 2px 2px 0 0 var(--shadow-dark);
+            outline: none;
+        }
+        .vue-record .range-field input[type='range']::-webkit-slider-thumb {
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--ink);
+            border-radius: 999px;
+            appearance: none;
+            background: var(--secondary);
+            box-shadow: 2px 2px 0 0 var(--shadow-dark);
+        }
+        .vue-record .range-labels {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            color: var(--ink-soft);
+            font-size: var(--font-label-bold);
+            font-weight: 700;
+        }
+        .vue-record .range-tick-list {
+            padding: 0 2px;
+        }
+        .vue-record .range-current {
+            display: block;
+            margin-top: 10px;
+            color: var(--primary);
+            font-size: var(--font-body-md);
+            text-align: center;
+        }
+        .vue-record .pill-row,
+        .vue-record .emotion-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .vue-record .emotion-row {
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            padding: 2px 4px 10px;
+        }
+        .vue-record .pill-option {
+            min-width: 92px;
+            min-height: 48px;
+            border-radius: 999px;
+            background: #ffffff;
+            padding: 12px 18px;
+        }
+        .vue-record .record-option input:checked + .frequency-option {
+            background: var(--accent);
+            color: #ffffff;
+        }
+        .vue-record .record-option input:checked + .emotion-option {
+            background: var(--tertiary);
+            color: var(--ink);
+        }
+        .vue-record .record-option input:checked + .communication-yes,
+        .vue-record .record-option input:checked + .conflict-no {
+            background: var(--quaternary);
+            color: var(--ink);
+        }
+        .vue-record .record-option input:checked + .communication-no {
+            background: var(--secondary);
+            color: #ffffff;
+        }
+        .vue-record .record-option input:checked + .conflict-yes {
+            background: var(--error);
+            color: #ffffff;
+        }
+        .vue-record .full-field {
+            display: grid;
+            gap: 10px;
+        }
+        .vue-record textarea {
+            width: 100%;
+            min-height: 132px;
+            border: 2px solid var(--ink);
+            border-radius: 16px;
+            background: #ffffff;
+            color: var(--ink);
+            padding: 16px;
+            resize: vertical;
+            outline: none;
+        }
+        .vue-record textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 4px 4px 0 0 var(--primary);
+        }
+        .vue-record .form-submit {
+            border-top: 2px dashed #cbc3d7;
+            padding-top: 26px;
+            text-align: center;
+        }
+        .vue-record .primary-action {
+            display: inline-flex;
+            min-height: 50px;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            border: 2px solid var(--ink);
+            border-radius: 999px;
+            background: var(--primary);
+            color: #ffffff;
+            padding: 12px 22px;
+            font-size: var(--font-label-bold);
+            font-weight: 700;
+            letter-spacing: 0;
+        }
+        .vue-record .action-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--ink);
+            border-radius: 999px;
+            background: #ffffff;
+            color: var(--primary);
+            font-size: 0.82rem;
+        }
+        @media (max-width: 900px) {
+            .vue-record {
+                padding: 42px 0 120px;
+            }
+            .vue-record .event-type-grid,
+            .vue-record .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .vue-record .form-panel {
+                padding: 22px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased min-h-screen flex relative overflow-x-hidden">
+<!-- Decorative Elements -->
+<div class="absolute top-20 right-10 w-24 h-24 rounded-full border-4 border-on-surface bg-secondary-container shadow-[4px_4px_0px_0px] shadow-on-surface hidden lg:block -z-10 animate-bounce" style="animation-duration: 3s;"></div>
+<svg class="squiggle-bg top-10 right-10 text-secondary w-64 h-64" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="8" viewbox="0 0 200 200">
+<path d="M10,100 Q40,50 70,100 T130,100 T190,100"></path>
+</svg>
+<svg class="squiggle-bg bottom-20 left-64 text-tertiary w-48 h-48" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="8" viewbox="0 0 200 200">
+<circle cx="100" cy="100" fill="currentColor" r="50"></circle>
+</svg>
+<div class="absolute top-1/3 right-1/4 w-16 h-16 bg-quaternary rounded-full opacity-20 -z-10"></div>
+<div class="absolute bottom-1/4 right-1/3 w-24 h-8 bg-accent rounded-full opacity-20 -z-10 rotate-45"></div>
+<!-- SideNavBar (Desktop Fixed) -->
+<aside class="hidden lg:flex flex-col gap-6 p-6 top-0 left-0 w-64 h-screen border-r-2 border-on-surface bg-surface dark:bg-inverse-surface shadow-[4px_0px_0px_0px] shadow-on-surface z-40 flex-shrink-0 fixed">
+  <a class="flex items-center gap-3 mb-5" href="/" aria-label="回到舍友心晴首页">
+    <img
+      alt=""
+      aria-hidden="true"
+      class="w-12 h-12 rounded-full border-2 border-on-surface object-cover"
+      src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoIeE3fuGST0i8AH2TVFnjVGh_ghmeHMgRw6uUv0F6XHs-tGfTxBIOxOxQ9caVd2NzLnFXtlExYdqzmzWd5bDU1m65ZFQH1vroL-ebUGb6tEbeJ4yl3p6alHBVf0b4XtMOtvzRdRPCQAlFENmTXT0sOQQ_bDMWNAO2d13Qkg81Bnv4wY6WsSXjTKLxhv5act4Ak_2Q0Sj7xQ1lkpf4Bu7GCRJrqmQ1UAJr6F_hmuC0ZPir2-Z1lCASlOr_EmvP01FgTRlACAuJzXo"
+    />
+    <span class="leading-tight">
+      <strong class="block text-xl font-black text-on-surface">舍友心晴</strong>
+      <small class="block text-label-bold font-bold text-on-surface-variant">Harmony Hub</small>
+    </span>
+  </a>
+  <div class="flex flex-col gap-2 flex-grow">
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/">
+      <span class="material-symbols-outlined">dashboard</span>
+      <span>首页</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl bg-primary-container text-on-primary-container border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface text-body-md font-bold" href="/record" aria-current="page">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+      <span>事件记录</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/archive">
+      <span class="material-symbols-outlined">history</span>
+      <span>事件档案</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/analysis">
+      <span class="material-symbols-outlined">analytics</span>
+      <span>压力分析</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/simulate">
+      <span class="material-symbols-outlined">forum</span>
+      <span>沟通模拟</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/review">
+      <span class="material-symbols-outlined">assignment</span>
+      <span>沟通复盘</span>
+    </a>
+  </div>
+  <a class="mt-auto flex items-center justify-center gap-2 w-full px-5 py-3 rounded-full bg-primary text-on-primary border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface font-bold hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px] transition-all duration-200" href="/record">
+    <span class="inline-flex w-6 h-6 items-center justify-center rounded-full border-2 border-on-surface bg-card text-primary">
+      <span class="material-symbols-outlined text-[16px] font-bold">add</span>
+    </span>
+    <span>记录事件</span>
+  </a>
+</aside>
+<main class="flex-1 flex flex-col min-w-0 lg:ml-64 pb-24 lg:pb-0 relative">
+<header class="flex justify-between items-center w-full px-gutter h-16 sticky top-0 z-30 bg-background dark:bg-inverse-surface border-b-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface">
+      <div class="text-headline-md font-headline-md font-extrabold text-primary">事件记录</div>
+      <div class="flex items-center gap-4">
+        <button class="w-10 h-10 rounded-full border-2 border-on-surface bg-surface flex items-center justify-center hover:bg-secondary-container hover:text-on-secondary-container transition-all text-on-surface-variant shadow-[2px_2px_0px_0px] shadow-on-surface active:translate-y-[2px] active:shadow-none">
+          <span class="material-symbols-outlined">notifications</span>
+        </button>
+        <button class="w-10 h-10 rounded-full border-2 border-on-surface bg-surface flex items-center justify-center hover:bg-secondary-container hover:text-on-secondary-container transition-all text-on-surface-variant shadow-[2px_2px_0px_0px] shadow-on-surface active:translate-y-[2px] active:shadow-none">
+          <span class="material-symbols-outlined">settings</span>
+        </button>
+        <div class="w-10 h-10 rounded-full border-2 border-on-surface bg-tertiary-container overflow-hidden shadow-[2px_2px_0px_0px] shadow-on-surface ml-2">
+          <img alt="User profile" class="w-full h-full object-cover" data-alt="A bright, clear, professional headshot of a young woman smiling, well-lit studio photography, light background, wearing a casual colorful top." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1nEA4NgZocuauwJPy8f7trsp9xJ4oJL2KiR84kFdqSA34y3VqjPd9FF9YC6_KSGlx8JtRlouG9d8hrulLeawcKCgva7SQZvijCspy3dM9sA7uL-u_DAhfIjjY73Fr6yWKm2sF8DaX7P8wKXzrcZWb9U2HqFpLkSFzqaGW_-hWKrzfgJS8Vun-arB5xB4PUAExdhn8JkY7JVUXoU8WMJTq_mdfzfRyI9CyaEJieRTuX2-zsU7HkLsIsAXh4o_y4ORztXtvUz-_yiI"/>
+        </div>
+      </div>
+</header>
+<!-- Main Content Canvas -->
+<section class="vue-record">
+<span class="record-decoration record-decoration-squiggle" aria-hidden="true"></span>
+<span class="record-decoration record-decoration-dot" aria-hidden="true"></span>
+<section class="page-heading">
+<h1>
+记录心晴时刻
+<span class="heading-highlight" aria-hidden="true"></span>
+</h1>
+<p class="record-quote pop-shadow card-border">“每一次记录都是一次自我梳理”</p>
+</section>
+<form class="form-panel pop-card pop-shadow" action="#" method="POST">
+<fieldset class="field-box date-field">
+<legend>
+<span class="field-icon field-icon-soft material-symbols-outlined" aria-hidden="true">calendar_today</span>
+事件日期
+</legend>
+<input class="date-input" type="date" value="2026-05-16"/>
+</fieldset>
+<fieldset>
+<legend>
+<span class="field-icon material-symbols-outlined" aria-hidden="true">category</span>
+事件类型
+</legend>
+<div class="option-grid event-type-grid">
+<label class="record-option">
+<input type="radio" name="event_type" value="schedule_conflict"/>
+<span class="record-option-body">
+<span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+<span>作息冲突</span>
+</span>
+</label>
+<label class="record-option">
+<input type="radio" name="event_type" value="hygiene_conflict"/>
+<span class="record-option-body">
+<span class="material-symbols-outlined" aria-hidden="true">cleaning_services</span>
+<span>卫生冲突</span>
+</span>
+</label>
+<label class="record-option">
+<input checked type="radio" name="event_type" value="noise_conflict"/>
+<span class="record-option-body">
+<span class="material-symbols-outlined" aria-hidden="true">volume_up</span>
+<span>噪音冲突</span>
+</span>
+</label>
+<label class="record-option">
+<input type="radio" name="event_type" value="expense_conflict"/>
+<span class="record-option-body">
+<span class="material-symbols-outlined" aria-hidden="true">payments</span>
+<span>费用冲突</span>
+</span>
+</label>
+<label class="record-option">
+<input type="radio" name="event_type" value="privacy_boundary"/>
+<span class="record-option-body">
+<span class="material-symbols-outlined" aria-hidden="true">visibility_off</span>
+<span>隐私边界</span>
+</span>
+</label>
+<label class="record-option">
+<input type="radio" name="event_type" value="emotional_conflict"/>
+<span class="record-option-body">
+<span class="material-symbols-outlined" aria-hidden="true">mood_bad</span>
+<span>情绪冲突</span>
+</span>
+</label>
+</div>
+</fieldset>
+<div class="form-grid">
+<fieldset class="field-box">
+<legend>
+<span class="field-icon field-icon-green material-symbols-outlined" aria-hidden="true">trending_up</span>
+严重程度
+</legend>
+<div class="range-field">
+<input type="range" min="1" max="5" value="4"/>
+<div class="range-labels range-tick-list" aria-label="严重程度刻度">
+<span>1 (轻微)</span>
+<span>2</span>
+<span>3</span>
+<span>4</span>
+<span>5 (严重)</span>
+</div>
+<strong class="range-current">当前：4 分</strong>
+</div>
+</fieldset>
+<fieldset class="field-box">
+<legend>
+<span class="field-icon field-icon-yellow material-symbols-outlined" aria-hidden="true">update</span>
+发生频率
+</legend>
+<div class="pill-row">
+<label class="record-option">
+<input type="radio" name="frequency" value="occasionally"/>
+<span class="record-option-body pill-option frequency-option">
+<span class="material-symbols-outlined" aria-hidden="true">looks_one</span>
+<span>偶尔</span>
+</span>
+</label>
+<label class="record-option">
+<input checked type="radio" name="frequency" value="weekly"/>
+<span class="record-option-body pill-option frequency-option">
+<span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+<span>每周多次</span>
+</span>
+</label>
+<label class="record-option">
+<input type="radio" name="frequency" value="daily"/>
+<span class="record-option-body pill-option frequency-option">
+<span class="material-symbols-outlined" aria-hidden="true">event_repeat</span>
+<span>几乎每天</span>
+</span>
+</label>
+</div>
+</fieldset>
+</div>
+<fieldset>
+<legend>
+<span class="field-icon field-icon-pink material-symbols-outlined" aria-hidden="true">sentiment_satisfied</span>
+当前情绪
+</legend>
+<div class="emotion-row">
+<label class="record-option">
+<input checked type="radio" name="emotion" value="irritated"/>
+<span class="record-option-body pill-option emotion-option">
+<span class="material-symbols-outlined" aria-hidden="true">sentiment_dissatisfied</span>
+<span>烦躁</span>
+</span>
+</label>
+<label class="record-option">
+<input type="radio" name="emotion" value="anxious"/>
+<span class="record-option-body pill-option emotion-option">
+<span class="material-symbols-outlined" aria-hidden="true">psychology</span>
+<span>焦虑</span>
+</span>
+</label>
+<label class="record-option">
+<input type="radio" name="emotion" value="wronged"/>
+<span class="record-option-body pill-option emotion-option">
+<span class="material-symbols-outlined" aria-hidden="true">sentiment_sad</span>
+<span>委屈</span>
+</span>
+</label>
+<label class="record-option">
+<input type="radio" name="emotion" value="angry"/>
+<span class="record-option-body pill-option emotion-option">
+<span class="material-symbols-outlined" aria-hidden="true">sentiment_extremely_dissatisfied</span>
+<span>愤怒</span>
+</span>
+</label>
+<label class="record-option">
+<input type="radio" name="emotion" value="helpless"/>
+<span class="record-option-body pill-option emotion-option">
+<span class="material-symbols-outlined" aria-hidden="true">sentiment_neutral</span>
+<span>无奈</span>
+</span>
+</label>
+<label class="record-option">
+<input type="radio" name="emotion" value="repressed"/>
+<span class="record-option-body pill-option emotion-option">
+<span class="material-symbols-outlined" aria-hidden="true">sentiment_stressed</span>
+<span>压抑</span>
+</span>
+</label>
+</div>
+</fieldset>
+<div class="form-grid">
+<fieldset class="field-box">
+<legend>
+<span class="field-icon field-icon-green material-symbols-outlined" aria-hidden="true">forum</span>
+是否已经沟通
+</legend>
+<div class="pill-row">
+<label class="record-option">
+<input type="radio" name="has_communicated" value="true"/>
+<span class="record-option-body pill-option communication-yes">是</span>
+</label>
+<label class="record-option">
+<input checked type="radio" name="has_communicated" value="false"/>
+<span class="record-option-body pill-option communication-no">否</span>
+</label>
+</div>
+</fieldset>
+<fieldset class="field-box">
+<legend>
+<span class="field-icon field-icon-red material-symbols-outlined" aria-hidden="true">warning</span>
+是否出现争吵或冷战
+</legend>
+<div class="pill-row">
+<label class="record-option">
+<input checked type="radio" name="has_conflict" value="true"/>
+<span class="record-option-body pill-option conflict-yes">是</span>
+</label>
+<label class="record-option">
+<input type="radio" name="has_conflict" value="false"/>
+<span class="record-option-body pill-option conflict-no">否</span>
+</label>
+</div>
+</fieldset>
+</div>
+<label class="full-field">
+<span>
+<span class="field-icon field-icon-soft material-symbols-outlined" aria-hidden="true">notes</span>
+简要描述
+</span>
+<textarea rows="4" placeholder="写下当时的具体情况...">舍友晚上打游戏声音比较大，最近一周影响了睡眠，也不知道怎么开口说。</textarea>
+</label>
+<div class="form-submit">
+<button class="primary-action pop-shadow" type="submit">
+保存并分析
+<span class="action-icon material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+</button>
+</div>
+</form>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 lg:hidden bg-surface-container border-t-2 border-on-surface shadow-[0px_-4px_0px_0px] shadow-on-surface rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-secondary-fixed transition-colors rounded-lg p-2" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-label-bold font-label-bold mt-1 text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface active:translate-y-1 transition-all" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="text-label-bold font-label-bold mt-1 text-[10px]">Record</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-secondary-fixed transition-colors rounded-lg p-2" href="#">
+<span class="material-symbols-outlined">equalizer</span>
+<span class="text-label-bold font-label-bold mt-1 text-[10px]">Analysis</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-secondary-fixed transition-colors rounded-lg p-2" href="#">
+<span class="material-symbols-outlined">forum</span>
+<span class="text-label-bold font-label-bold mt-1 text-[10px]">AI Sandbox</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-secondary-fixed transition-colors rounded-lg p-2" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span class="text-label-bold font-label-bold mt-1 text-[10px]">Performance</span>
+</a>
+</nav>
+</body></html>

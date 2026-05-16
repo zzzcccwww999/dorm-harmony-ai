@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DormHarmony / 舍友心晴 - Phase 2</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#ffb869",
+                        "inverse-surface": "#322f39",
+                        "primary": "#6b38d4",
+                        "border": "#E2E8F0",
+                        "primary-container": "#8455ef",
+                        "on-secondary-fixed": "#3d0026",
+                        "tertiary-container": "#a76500",
+                        "card": "#FFFFFF",
+                        "surface-container": "#f3ebf8",
+                        "surface-dim": "#ded7e4",
+                        "surface": "#fef7ff",
+                        "surface-bright": "#fef7ff",
+                        "on-primary-container": "#fffbff",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-container": "#fffbff",
+                        "primary-fixed": "#e9ddff",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#d0bcff",
+                        "on-surface": "#1d1a23",
+                        "on-tertiary-fixed": "#2c1700",
+                        "shadow-dark": "#1E293B",
+                        "foreground": "#1E293B",
+                        "outline-variant": "#cbc3d7",
+                        "muted": "#F1F5F9",
+                        "accent": "#8B5CF6",
+                        "secondary-fixed": "#ffd8e7",
+                        "on-secondary-fixed-variant": "#85145a",
+                        "on-secondary-container": "#76014e",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#ffdcbb",
+                        "error-container": "#ffdad6",
+                        "on-secondary": "#ffffff",
+                        "on-background": "#1d1a23",
+                        "muted-foreground": "#64748B",
+                        "secondary-container": "#fc79bd",
+                        "outline": "#7b7486",
+                        "surface-tint": "#6d3bd7",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#d0bcff",
+                        "on-primary-fixed-variant": "#5516be",
+                        "background": "#FFFDF5",
+                        "quaternary": "#34D399",
+                        "secondary-fixed-dim": "#ffafd3",
+                        "tertiary": "#FBBF24",
+                        "surface-container-low": "#f8f1fe",
+                        "surface-variant": "#e7e0ed",
+                        "surface-container-highest": "#e7e0ed",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface-variant": "#494454",
+                        "on-tertiary-fixed-variant": "#673d00",
+                        "error": "#ba1a1a",
+                        "inverse-on-surface": "#f5eefb",
+                        "surface-container-high": "#ede5f3",
+                        "secondary": "#F472B6",
+                        "on-primary-fixed": "#23005c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "section-padding": "6rem",
+                        "gutter": "1.5rem",
+                        "unit-xs": "0.5rem",
+                        "unit-sm": "1rem",
+                        "unit-md": "1.5rem",
+                        "container-max": "1152px",
+                        "shadow-offset": "4px",
+                        "unit-lg": "2rem",
+                        "shadow-offset-hover": "6px"
+                    },
+                    "fontFamily": {
+                        "headline-xl": ["Outfit"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-bold": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Outfit"],
+                        "headline-md": ["Outfit"],
+                        "body-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-xl": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "label-bold": ["14px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "headline-lg": ["48px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "headline-md": ["32px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-image: radial-gradient(#cbc3d7 2px, transparent 2px);
+            background-size: 24px 24px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex selection:bg-primary selection:text-on-primary">
+<!-- SideNavBar (Desktop Fixed) -->
+<aside class="hidden lg:flex flex-col gap-6 p-6 top-0 left-0 w-64 h-screen border-r-2 border-on-surface bg-surface dark:bg-inverse-surface shadow-[4px_0px_0px_0px] shadow-on-surface z-40 flex-shrink-0 fixed">
+  <a class="flex items-center gap-3 mb-5" href="/" aria-label="回到舍友心晴首页">
+    <img
+      alt=""
+      aria-hidden="true"
+      class="w-12 h-12 rounded-full border-2 border-on-surface object-cover"
+      src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoIeE3fuGST0i8AH2TVFnjVGh_ghmeHMgRw6uUv0F6XHs-tGfTxBIOxOxQ9caVd2NzLnFXtlExYdqzmzWd5bDU1m65ZFQH1vroL-ebUGb6tEbeJ4yl3p6alHBVf0b4XtMOtvzRdRPCQAlFENmTXT0sOQQ_bDMWNAO2d13Qkg81Bnv4wY6WsSXjTKLxhv5act4Ak_2Q0Sj7xQ1lkpf4Bu7GCRJrqmQ1UAJr6F_hmuC0ZPir2-Z1lCASlOr_EmvP01FgTRlACAuJzXo"
+    />
+    <span class="leading-tight">
+      <strong class="block text-xl font-black text-on-surface">舍友心晴</strong>
+      <small class="block text-label-bold font-bold text-on-surface-variant">Harmony Hub</small>
+    </span>
+  </a>
+  <div class="flex flex-col gap-2 flex-grow">
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl bg-primary-container text-on-primary-container border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface text-body-md font-bold" href="/" aria-current="page">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+      <span>首页</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/record">
+      <span class="material-symbols-outlined">edit_note</span>
+      <span>事件记录</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/archive">
+      <span class="material-symbols-outlined">history</span>
+      <span>事件档案</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/analysis">
+      <span class="material-symbols-outlined">analytics</span>
+      <span>压力分析</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/simulate">
+      <span class="material-symbols-outlined">forum</span>
+      <span>沟通模拟</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/review">
+      <span class="material-symbols-outlined">assignment</span>
+      <span>沟通复盘</span>
+    </a>
+  </div>
+  <a class="mt-auto flex items-center justify-center gap-2 w-full px-5 py-3 rounded-full bg-primary text-on-primary border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface font-bold hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px] transition-all duration-200" href="/record">
+    <span class="inline-flex w-6 h-6 items-center justify-center rounded-full border-2 border-on-surface bg-card text-primary">
+      <span class="material-symbols-outlined text-[16px] font-bold">add</span>
+    </span>
+    <span>记录事件</span>
+  </a>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-w-0 lg:ml-64 pb-24 lg:pb-0 relative">
+<header class="flex justify-between items-center w-full px-gutter h-16 sticky top-0 z-30 bg-background dark:bg-inverse-surface border-b-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface">
+      <div class="text-headline-md font-headline-md font-extrabold text-primary">首页</div>
+      <div class="flex items-center gap-4">
+        <button class="w-10 h-10 rounded-full border-2 border-on-surface bg-surface flex items-center justify-center hover:bg-secondary-container hover:text-on-secondary-container transition-all text-on-surface-variant shadow-[2px_2px_0px_0px] shadow-on-surface active:translate-y-[2px] active:shadow-none">
+          <span class="material-symbols-outlined">notifications</span>
+        </button>
+        <button class="w-10 h-10 rounded-full border-2 border-on-surface bg-surface flex items-center justify-center hover:bg-secondary-container hover:text-on-secondary-container transition-all text-on-surface-variant shadow-[2px_2px_0px_0px] shadow-on-surface active:translate-y-[2px] active:shadow-none">
+          <span class="material-symbols-outlined">settings</span>
+        </button>
+        <div class="w-10 h-10 rounded-full border-2 border-on-surface bg-tertiary-container overflow-hidden shadow-[2px_2px_0px_0px] shadow-on-surface ml-2">
+          <img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoIeE3fuGST0i8AH2TVFnjVGh_ghmeHMgRw6uUv0F6XHs-tGfTxBIOxOxQ9caVd2NzLnFXtlExYdqzmzWd5bDU1m65ZFQH1vroL-ebUGb6tEbeJ4yl3p6alHBVf0b4XtMOtvzRdRPCQAlFENmTXT0sOQQ_bDMWNAO2d13Qkg81Bnv4wY6WsSXjTKLxhv5act4Ak_2Q0Sj7xQ1lkpf4Bu7GCRJrqmQ1UAJr6F_hmuC0ZPir2-Z1lCASlOr_EmvP01FgTRlACAuJzXo"/>
+        </div>
+      </div>
+</header>
+<!-- Decorative squiggles background elements -->
+<div class="absolute top-24 right-28 w-24 h-24 rounded-full border-4 border-on-surface bg-secondary-container shadow-[4px_4px_0px_0px] shadow-on-surface hidden lg:block -z-10 animate-bounce" style="animation-duration: 3s;"></div>
+<svg class="absolute top-20 right-10 w-24 h-24 text-secondary opacity-50 -z-10" fill="none" viewbox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<path d="M10 50 C 30 10, 70 90, 90 50" stroke="currentColor" stroke-linecap="round" stroke-width="8"></path>
+</svg>
+<div class="w-full max-w-container-max mx-auto px-gutter py-8 space-y-unit-lg flex-1">
+<!-- Header -->
+<header class="relative flex flex-col gap-unit-xs pr-0 md:pr-28">
+<div class="absolute right-6 top-20 hidden h-14 w-14 rotate-12 border-4 border-on-surface bg-tertiary shadow-[4px_4px_0px_0px] shadow-on-surface md:block"></div>
+<p class="inline-flex w-fit items-center gap-2 rounded-full border-4 border-on-surface bg-secondary-fixed px-4 py-2 text-label-bold font-label-bold text-on-secondary-container shadow-[4px_4px_0px_0px] shadow-on-surface">
+<span class="material-symbols-outlined text-[20px]">waving_hand</span>
+Welcome back to harmony
+</p>
+<h2 class="text-headline-xl font-headline-xl text-on-surface">舍友心晴：<br/><span class="relative inline-block text-primary">宿舍压力预警与沟通演练助手<span class="absolute -bottom-2 left-0 h-3 w-full rounded-full bg-secondary opacity-70"></span></span></h2>
+<p class="text-body-lg font-body-lg text-on-surface-variant max-w-3xl">记录宿舍事件，识别压力来源，通过 AI 多角色沟通演练，在真实沟通前练习更温和、具体、可执行的表达方式。</p>
+<div class="mt-5 flex flex-wrap items-center gap-4">
+<a class="inline-flex min-h-12 items-center gap-3 rounded-full border-4 border-on-surface bg-primary px-7 py-3 text-body-md font-bold text-on-primary shadow-[6px_6px_0px_0px] shadow-on-surface transition-all duration-200 hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px]" href="/record">
+开始记录
+<span class="inline-flex h-7 w-7 items-center justify-center rounded-full border-2 border-on-surface bg-card text-primary">
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</span>
+</a>
+<button class="inline-flex min-h-12 items-center rounded-full border-4 border-on-surface bg-card px-6 py-3 text-body-md font-bold text-on-surface transition-all duration-200 hover:bg-tertiary" type="button">安全说明</button>
+</div>
+</header>
+<!-- Stress Overview Card (晴雨表) -->
+<section class="bg-card rounded-xl border-4 border-on-surface shadow-[8px_8px_0px_0px] shadow-on-surface p-unit-lg relative overflow-hidden">
+<div class="absolute -top-4 -right-4 h-10 w-20 rotate-12 rounded-full border-4 border-on-surface bg-quaternary"></div>
+<div class="absolute -bottom-8 right-16 h-24 w-24 rounded-full bg-surface-container"></div>
+<div class="relative z-10 flex flex-col gap-unit-md">
+<div class="flex flex-wrap items-start justify-between gap-unit-sm">
+<div>
+<h3 class="text-headline-md font-headline-md text-on-surface">宿舍压力晴雨表</h3>
+<p class="text-body-md font-body-md text-on-surface-variant">当前环境氛围评估</p>
+</div>
+<span class="inline-flex rotate-2 items-center gap-2 rounded-full border-4 border-on-surface bg-error px-4 py-2 text-label-bold font-label-bold text-on-error shadow-[4px_4px_0px_0px] shadow-on-surface">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+冲突风险较高
+</span>
+</div>
+<div class="grid grid-cols-1 items-center gap-unit-lg md:grid-cols-[0.9fr_0.85fr_1.15fr]">
+<div class="flex flex-col items-start gap-unit-xs">
+<span class="rounded-full border-2 border-on-surface bg-surface-variant px-3 py-1 text-label-bold font-label-bold uppercase tracking-widest text-on-surface-variant">Total Pressure Index</span>
+<div class="flex items-baseline gap-2">
+<span class="text-[88px] font-headline-xl font-black leading-none text-error drop-shadow-[4px_4px_0_rgba(29,26,35,1)]">76</span>
+<span class="text-headline-md font-headline-md text-on-surface-variant">/100</span>
+</div>
+</div>
+<div class="flex flex-col gap-unit-sm border-l-4 border-on-surface pl-unit-lg">
+<strong class="text-headline-md font-headline-md leading-tight text-on-surface">轻微紧张</strong>
+<div class="w-fit rounded-md border-2 border-on-surface bg-tertiary px-3 py-1 text-body-lg font-bold text-on-surface">已记录 6 条事件</div>
+<div class="text-body-md font-body-md text-on-surface-variant">近 30 天 3 条</div>
+</div>
+<div class="relative rounded-xl border-4 border-on-surface bg-surface-container p-unit-sm shadow-[4px_4px_0px_0px] shadow-on-surface">
+<div class="absolute -left-4 -top-4 flex h-10 w-10 items-center justify-center rounded-full border-4 border-on-surface bg-primary">
+<span class="material-symbols-outlined text-[20px] text-on-primary">notifications_active</span>
+</div>
+<div class="mt-2">
+<span class="mb-1 block text-label-bold font-label-bold text-primary">Latest Snippet</span>
+<p class="text-body-md font-body-md text-on-surface">"昨天 23:30 关于空调温度的轻微摩擦"</p>
+</div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="h-6 overflow-hidden rounded-full border-4 border-on-surface bg-surface-variant">
+<div class="h-full w-[76%] border-r-4 border-on-surface bg-tertiary"></div>
+</div>
+<div class="flex justify-between text-label-bold font-label-bold text-on-surface-variant">
+<span>和谐融洽</span>
+<span>需干预</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- 1. Event Record (Yellow) -->
+<div class="bg-tertiary rounded-xl border-4 border-on-surface shadow-[8px_8px_0px_0px] shadow-on-surface p-unit-lg flex flex-col gap-unit-md hover:-translate-y-2 hover:shadow-[12px_12px_0px_0px] hover:shadow-on-surface transition-all duration-300 relative group cursor-pointer">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-card rounded-full border-4 border-on-surface flex items-center justify-center shadow-[4px_4px_0px_0px] shadow-on-surface group-hover:rotate-12 transition-transform">
+<span class="material-symbols-outlined text-[48px] text-tertiary-container font-bold" style="font-variation-settings: 'FILL' 1;">edit_document</span>
+</div>
+<h3 class="text-headline-lg font-headline-lg text-on-surface w-2/3">事件记录<br/><span class="text-headline-md font-headline-md">Event Record</span></h3>
+<p class="text-body-lg font-body-lg text-on-surface mt-auto font-bold bg-card px-4 py-2 rounded-lg border-2 border-on-surface self-start">Log date, type, severity</p>
+</div>
+<!-- 2. Event Archive (Pink) -->
+<div class="bg-secondary-fixed rounded-xl border-4 border-on-surface shadow-[8px_8px_0px_0px] shadow-on-surface p-unit-lg flex flex-col gap-unit-md hover:-translate-y-2 hover:shadow-[12px_12px_0px_0px] hover:shadow-on-surface transition-all duration-300 relative group cursor-pointer">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-card border-4 border-on-surface flex items-center justify-center shadow-[4px_4px_0px_0px] shadow-on-surface transform rotate-6 group-hover:-rotate-6 transition-transform">
+<span class="material-symbols-outlined text-[48px] text-secondary font-bold" style="font-variation-settings: 'FILL' 1;">history</span>
+</div>
+<h3 class="text-headline-lg font-headline-lg text-on-surface w-2/3">事件档案<br/><span class="text-headline-md font-headline-md">Event Archive</span></h3>
+<p class="text-body-lg font-body-lg text-on-surface mt-auto font-bold bg-card px-4 py-2 rounded-lg border-2 border-on-surface self-start">Timeline view of history</p>
+</div>
+<!-- 3. Pressure Analysis (Green) -->
+<div class="bg-quaternary rounded-xl border-4 border-on-surface shadow-[8px_8px_0px_0px] shadow-on-surface p-unit-lg flex flex-col gap-unit-md hover:-translate-y-2 hover:shadow-[12px_12px_0px_0px] hover:shadow-on-surface transition-all duration-300 relative group cursor-pointer">
+<div class="absolute -right-6 -bottom-6 w-24 h-24 bg-card rounded-full border-4 border-on-surface flex items-center justify-center shadow-[4px_4px_0px_0px] shadow-on-surface group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[48px] text-quaternary font-bold" style="font-variation-settings: 'FILL' 1;">monitoring</span>
+</div>
+<h3 class="text-headline-lg font-headline-lg text-on-surface w-2/3">总压力分析<br/><span class="text-headline-md font-headline-md">Pressure Analysis</span></h3>
+<p class="text-body-lg font-body-lg text-on-surface mt-auto font-bold bg-card px-4 py-2 rounded-lg border-2 border-on-surface self-start">Trend &amp; source breakdown</p>
+</div>
+<!-- 4. Comm Simulator (Violet) -->
+<div class="bg-primary-fixed rounded-xl border-4 border-on-surface shadow-[8px_8px_0px_0px] shadow-on-surface p-unit-lg flex flex-col gap-unit-md hover:-translate-y-2 hover:shadow-[12px_12px_0px_0px] hover:shadow-on-surface transition-all duration-300 relative group cursor-pointer">
+<div class="absolute -left-6 -top-6 w-24 h-24 bg-card rounded-[2rem] border-4 border-on-surface flex items-center justify-center shadow-[4px_4px_0px_0px] shadow-on-surface transform -rotate-12 group-hover:rotate-0 transition-transform">
+<span class="material-symbols-outlined text-[48px] text-primary font-bold" style="font-variation-settings: 'FILL' 1;">forum</span>
+</div>
+<h3 class="text-headline-lg font-headline-lg text-on-surface w-2/3 ml-auto text-right">沟通模拟<br/><span class="text-headline-md font-headline-md">Comm Simulator</span></h3>
+<p class="text-body-lg font-body-lg text-on-surface mt-auto font-bold bg-card px-4 py-2 rounded-lg border-2 border-on-surface self-end">Continuous AI practice</p>
+</div>
+</section>
+</div>
+</main>
+</body></html>

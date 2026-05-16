@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>事件档案 - DormHarmony</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "muted-foreground": "#64748B",
+                      "card": "#FFFFFF",
+                      "secondary-fixed-dim": "#ffafd3",
+                      "secondary": "#F472B6",
+                      "outline": "#7b7486",
+                      "on-surface": "#1d1a23",
+                      "border": "#E2E8F0",
+                      "shadow-dark": "#1E293B",
+                      "on-primary-fixed": "#23005c",
+                      "on-secondary-fixed": "#3d0026",
+                      "on-primary-fixed-variant": "#5516be",
+                      "inverse-surface": "#322f39",
+                      "quaternary": "#34D399",
+                      "error": "#ba1a1a",
+                      "on-error-container": "#93000a",
+                      "muted": "#F1F5F9",
+                      "outline-variant": "#cbc3d7",
+                      "surface-container": "#f3ebf8",
+                      "on-background": "#1d1a23",
+                      "on-primary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-fixed": "#2c1700",
+                      "on-tertiary-container": "#fffbff",
+                      "on-tertiary": "#ffffff",
+                      "secondary-fixed": "#ffd8e7",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container-low": "#f8f1fe",
+                      "on-secondary-fixed-variant": "#85145a",
+                      "background": "#FFFDF5",
+                      "on-secondary-container": "#76014e",
+                      "on-secondary": "#ffffff",
+                      "tertiary-container": "#a76500",
+                      "primary-fixed-dim": "#d0bcff",
+                      "surface-variant": "#e7e0ed",
+                      "on-surface-variant": "#494454",
+                      "surface": "#fef7ff",
+                      "primary-container": "#8455ef",
+                      "inverse-on-surface": "#f5eefb",
+                      "surface-container-highest": "#e7e0ed",
+                      "surface-container-high": "#ede5f3",
+                      "tertiary-fixed-dim": "#ffb869",
+                      "secondary-container": "#fc79bd",
+                      "surface-dim": "#ded7e4",
+                      "on-primary-container": "#fffbff",
+                      "primary": "#6b38d4",
+                      "tertiary": "#FBBF24",
+                      "on-error": "#ffffff",
+                      "primary-fixed": "#e9ddff",
+                      "accent": "#8B5CF6",
+                      "foreground": "#1E293B",
+                      "inverse-primary": "#d0bcff",
+                      "surface-bright": "#fef7ff",
+                      "on-tertiary-fixed-variant": "#673d00",
+                      "tertiary-fixed": "#ffdcbb",
+                      "surface-tint": "#6d3bd7"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "gutter": "1.5rem",
+                      "shadow-offset-hover": "6px",
+                      "container-max": "1152px",
+                      "unit-lg": "2rem",
+                      "unit-sm": "1rem",
+                      "unit-xs": "0.5rem",
+                      "shadow-offset": "4px",
+                      "section-padding": "6rem",
+                      "unit-md": "1.5rem"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Outfit"
+                      ],
+                      "headline-lg": [
+                              "Outfit"
+                      ],
+                      "label-bold": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-xl": [
+                              "Outfit"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-bold": [
+                              "14px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-xl": [
+                              "64px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "800"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            background-image: radial-gradient(#1d1a23 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .sticker-wall-radio {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .sticker-wall-label {
+            cursor: pointer;
+            user-select: none;
+        }
+        .sticker-wall-stage {
+            position: relative;
+            min-height: 820px;
+            overflow: hidden;
+            isolation: isolate;
+        }
+        .sticker-wall-stage::before {
+            position: absolute;
+            inset: 18px;
+            border: 2px dashed rgba(29, 26, 35, 0.22);
+            border-radius: 22px;
+            background:
+                linear-gradient(90deg, rgba(107, 56, 212, 0.05) 1px, transparent 1px),
+                linear-gradient(rgba(107, 56, 212, 0.05) 1px, transparent 1px);
+            background-size: 32px 32px;
+            content: '';
+        }
+        .sticker-wall {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 24px;
+            padding: 42px;
+            pointer-events: none;
+        }
+        .event-sticker {
+            position: relative;
+            display: flex;
+            min-height: 304px;
+            flex-direction: column;
+            gap: 10px;
+            border: 2px solid #1d1a23;
+            border-radius: 18px;
+            background: #ffffff;
+            box-shadow: 8px 8px 0 0 #1e293b;
+            color: #1d1a23;
+            padding: 18px;
+            transform-origin: 50% -24px;
+            animation: sticker-wind-away 720ms ease both;
+        }
+        .event-sticker::before {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            width: 78px;
+            height: 28px;
+            border: 2px solid #1d1a23;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.72);
+            box-shadow: 2px 2px 0 0 #1e293b;
+            content: '';
+            transform: translateX(-50%) rotate(var(--tape-rotate, -4deg));
+        }
+        .event-sticker::after {
+            position: absolute;
+            right: 16px;
+            bottom: 14px;
+            width: 42px;
+            height: 42px;
+            border: 2px solid #1d1a23;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.52);
+            content: '';
+            opacity: 0.7;
+        }
+        .sticker-yellow {
+            background: #ffdcbb;
+        }
+        .sticker-pink {
+            background: #ffd8e7;
+        }
+        .sticker-purple {
+            background: #e9ddff;
+        }
+        .sticker-green {
+            background: #d8f7e9;
+        }
+        .sticker-blue {
+            background: #dde9ff;
+        }
+        .sticker-cream {
+            background: #fff8d8;
+        }
+        .sticker-date {
+            display: inline-flex;
+            width: fit-content;
+            align-items: center;
+            gap: 6px;
+            border: 2px solid #1d1a23;
+            border-radius: 999px;
+            background: #ffffff;
+            box-shadow: 2px 2px 0 0 #1e293b;
+            padding: 5px 9px;
+            font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .sticker-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .sticker-title h3 {
+            margin: 0;
+            font-family: Outfit, system-ui, sans-serif;
+            font-size: 23px;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+        .sticker-pressure {
+            flex-shrink: 0;
+            border: 2px solid #1d1a23;
+            border-radius: 14px;
+            background: #6b38d4;
+            box-shadow: 3px 3px 0 0 #1e293b;
+            color: #ffffff;
+            padding: 7px 9px;
+            font-family: Outfit, system-ui, sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .sticker-desc {
+            min-height: 52px;
+            margin: 0;
+            border: 2px solid rgba(29, 26, 35, 0.18);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.48);
+            color: #494454;
+            padding: 8px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.35;
+            display: -webkit-box;
+            overflow: hidden;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+        }
+        .sticker-meta {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 7px;
+            margin-top: auto;
+        }
+        .sticker-meta span {
+            display: grid;
+            gap: 2px;
+            border: 2px solid #1d1a23;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.72);
+            padding: 6px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            min-width: 0;
+        }
+        .sticker-meta b {
+            color: #6b38d4;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .sticker-wall-one .event-sticker:nth-child(1),
+        .sticker-wall-two .event-sticker:nth-child(4) {
+            --sticker-rotate: -2.5deg;
+            --tape-rotate: -7deg;
+        }
+        .sticker-wall-one .event-sticker:nth-child(2),
+        .sticker-wall-two .event-sticker:nth-child(6) {
+            --sticker-rotate: 2deg;
+            --tape-rotate: 5deg;
+        }
+        .sticker-wall-one .event-sticker:nth-child(3),
+        .sticker-wall-two .event-sticker:nth-child(1) {
+            --sticker-rotate: -1deg;
+            --tape-rotate: 3deg;
+        }
+        .sticker-wall-one .event-sticker:nth-child(4),
+        .sticker-wall-two .event-sticker:nth-child(2) {
+            --sticker-rotate: 1.8deg;
+            --tape-rotate: -5deg;
+        }
+        .sticker-wall-one .event-sticker:nth-child(5),
+        .sticker-wall-two .event-sticker:nth-child(3) {
+            --sticker-rotate: -1.6deg;
+            --tape-rotate: 6deg;
+        }
+        .sticker-wall-one .event-sticker:nth-child(6),
+        .sticker-wall-two .event-sticker:nth-child(5) {
+            --sticker-rotate: 2.8deg;
+            --tape-rotate: -2deg;
+        }
+        #sticker-wall-1:checked ~ .sticker-wall-stage .sticker-wall-one,
+        #sticker-wall-2:checked ~ .sticker-wall-stage .sticker-wall-two {
+            z-index: 3;
+            pointer-events: auto;
+        }
+        #sticker-wall-1:checked ~ .sticker-wall-stage .sticker-wall-two,
+        #sticker-wall-2:checked ~ .sticker-wall-stage .sticker-wall-one {
+            z-index: 2;
+            pointer-events: none;
+        }
+        #sticker-wall-1:checked ~ .sticker-wall-stage .sticker-wall-one .event-sticker,
+        #sticker-wall-2:checked ~ .sticker-wall-stage .sticker-wall-two .event-sticker {
+            animation: sticker-paste-in 620ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        #sticker-wall-1:checked ~ .sticker-wall-stage .sticker-wall-two .event-sticker,
+        #sticker-wall-2:checked ~ .sticker-wall-stage .sticker-wall-one .event-sticker {
+            animation: sticker-wind-away 720ms ease both;
+        }
+        .sticker-wall .event-sticker:nth-child(1) {
+            animation-delay: 260ms;
+        }
+        .sticker-wall .event-sticker:nth-child(2) {
+            animation-delay: 80ms;
+        }
+        .sticker-wall .event-sticker:nth-child(3) {
+            animation-delay: 430ms;
+        }
+        .sticker-wall .event-sticker:nth-child(4) {
+            animation-delay: 160ms;
+        }
+        .sticker-wall .event-sticker:nth-child(5) {
+            animation-delay: 560ms;
+        }
+        .sticker-wall .event-sticker:nth-child(6) {
+            animation-delay: 340ms;
+        }
+        @keyframes sticker-paste-in {
+            0% {
+                opacity: 0;
+                transform: translateY(-46px) scale(0.72) rotate(calc(var(--sticker-rotate, 0deg) - 12deg));
+            }
+            68% {
+                opacity: 1;
+                transform: translateY(8px) scale(1.03) rotate(calc(var(--sticker-rotate, 0deg) + 2deg));
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1) rotate(var(--sticker-rotate, 0deg));
+            }
+        }
+        @keyframes sticker-wind-away {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) rotate(var(--sticker-rotate, 0deg));
+            }
+            100% {
+                opacity: 0;
+                transform: translate(74px, -96px) rotate(calc(var(--sticker-rotate, 0deg) + 24deg));
+            }
+        }
+        @media (max-width: 1100px) {
+            .sticker-wall-stage {
+                min-height: 1380px;
+            }
+            .sticker-wall {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 720px) {
+            .sticker-wall-stage {
+                min-height: 2540px;
+            }
+            .sticker-wall {
+                grid-template-columns: 1fr;
+                padding: 28px 18px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex">
+<!-- SideNavBar (Desktop Fixed) -->
+<aside class="hidden lg:flex flex-col gap-6 p-6 top-0 left-0 w-64 h-screen border-r-2 border-on-surface bg-surface dark:bg-inverse-surface shadow-[4px_0px_0px_0px] shadow-on-surface z-40 flex-shrink-0 fixed">
+  <a class="flex items-center gap-3 mb-5" href="/" aria-label="回到舍友心晴首页">
+    <img
+      alt=""
+      aria-hidden="true"
+      class="w-12 h-12 rounded-full border-2 border-on-surface object-cover"
+      src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoIeE3fuGST0i8AH2TVFnjVGh_ghmeHMgRw6uUv0F6XHs-tGfTxBIOxOxQ9caVd2NzLnFXtlExYdqzmzWd5bDU1m65ZFQH1vroL-ebUGb6tEbeJ4yl3p6alHBVf0b4XtMOtvzRdRPCQAlFENmTXT0sOQQ_bDMWNAO2d13Qkg81Bnv4wY6WsSXjTKLxhv5act4Ak_2Q0Sj7xQ1lkpf4Bu7GCRJrqmQ1UAJr6F_hmuC0ZPir2-Z1lCASlOr_EmvP01FgTRlACAuJzXo"
+    />
+    <span class="leading-tight">
+      <strong class="block text-xl font-black text-on-surface">舍友心晴</strong>
+      <small class="block text-label-bold font-bold text-on-surface-variant">Harmony Hub</small>
+    </span>
+  </a>
+  <div class="flex flex-col gap-2 flex-grow">
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/">
+      <span class="material-symbols-outlined">dashboard</span>
+      <span>首页</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/record">
+      <span class="material-symbols-outlined">edit_note</span>
+      <span>事件记录</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl bg-primary-container text-on-primary-container border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface text-body-md font-bold" href="/archive" aria-current="page">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">history</span>
+      <span>事件档案</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/analysis">
+      <span class="material-symbols-outlined">analytics</span>
+      <span>压力分析</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/simulate">
+      <span class="material-symbols-outlined">forum</span>
+      <span>沟通模拟</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-3 rounded-xl text-on-surface-variant border-2 border-transparent hover:border-on-surface hover:bg-surface-variant hover:shadow-[4px_4px_0px_0px] hover:shadow-on-surface font-bold" href="/review">
+      <span class="material-symbols-outlined">assignment</span>
+      <span>沟通复盘</span>
+    </a>
+  </div>
+  <a class="mt-auto flex items-center justify-center gap-2 w-full px-5 py-3 rounded-full bg-primary text-on-primary border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface font-bold hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px] transition-all duration-200" href="/record">
+    <span class="inline-flex w-6 h-6 items-center justify-center rounded-full border-2 border-on-surface bg-card text-primary">
+      <span class="material-symbols-outlined text-[16px] font-bold">add</span>
+    </span>
+    <span>记录事件</span>
+  </a>
+</aside>
+<main class="flex-1 flex flex-col min-w-0 lg:ml-64 pb-24 lg:pb-0 relative">
+<header class="flex justify-between items-center w-full px-gutter h-16 sticky top-0 z-30 bg-background dark:bg-inverse-surface border-b-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface">
+      <div class="text-headline-md font-headline-md font-extrabold text-primary">事件档案</div>
+      <div class="flex items-center gap-4">
+        <button class="w-10 h-10 rounded-full border-2 border-on-surface bg-surface flex items-center justify-center hover:bg-secondary-container hover:text-on-secondary-container transition-all text-on-surface-variant shadow-[2px_2px_0px_0px] shadow-on-surface active:translate-y-[2px] active:shadow-none">
+          <span class="material-symbols-outlined">notifications</span>
+        </button>
+        <button class="w-10 h-10 rounded-full border-2 border-on-surface bg-surface flex items-center justify-center hover:bg-secondary-container hover:text-on-secondary-container transition-all text-on-surface-variant shadow-[2px_2px_0px_0px] shadow-on-surface active:translate-y-[2px] active:shadow-none">
+          <span class="material-symbols-outlined">settings</span>
+        </button>
+        <div class="w-10 h-10 rounded-full border-2 border-on-surface bg-tertiary-container overflow-hidden shadow-[2px_2px_0px_0px] shadow-on-surface ml-2">
+          <img alt="User profile" class="w-full h-full object-cover" data-alt="A brightly lit, optimistic headshot of a young student in a pop-art style setting. The background is a flat, vibrant color. The lighting is even and flat, emphasizing the playful, sticker-book aesthetic of the DormHarmony app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCok3Htz5mnagFD4edyXp_HwL9ejekaGswgQgJ4EeFpx17j7YhFAq9trtFiAqRIClBK_rLnfj0CXpmlGcemdzt-z_iFasRATIEeOPlsaWRFUEdAiodJjKiKDl8qXQmj3Jr8u9X5LThDvgv157J_34jwtA557-l216NO81v8RJ78B8BNB3v9CboLOp6RdCTdQt88IZOqkFOibm2K9y3DWq7ivfCrRa6MVEyxEtcGx8a4gOiN5d39jGW3q9YAjnD-oh-9RFL8dqHyBjs"/>
+        </div>
+      </div>
+</header>
+
+<div class="absolute top-20 right-10 w-24 h-24 rounded-full border-4 border-on-surface bg-secondary-container shadow-[4px_4px_0px_0px] shadow-on-surface hidden lg:block -z-10 animate-bounce" style="animation-duration: 3s;"></div>
+<!-- Main Content -->
+<div class="w-full max-w-container-max mx-auto px-gutter py-12 flex-1 relative z-10">
+<!-- Header Section -->
+<section class="mb-12">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-16 h-16 bg-primary rounded-full border-2 border-on-surface flex items-center justify-center shadow-[4px_4px_0px_0px] shadow-on-surface">
+<span class="material-symbols-outlined text-on-primary text-3xl" style="font-variation-settings: 'FILL' 1;">folder_special</span>
+</div>
+<div>
+<span class="inline-block bg-secondary text-on-secondary px-3 py-1 rounded-full text-label-bold font-label-bold border-2 border-on-surface shadow-[2px_2px_0px_0px] mb-2 uppercase tracking-wide">Archive Timeline</span>
+<h1 class="text-headline-xl font-headline-xl text-on-surface">事件档案</h1>
+</div>
+</div>
+<p class="text-body-lg font-body-lg text-on-surface-variant max-w-2xl bg-surface p-4 rounded-xl border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface inline-block">
+                按时间查看已记录的宿舍事件，为总压力分析提供依据。
+            </p>
+<!-- Summary Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+<div class="bg-card border-2 border-on-surface rounded-xl p-6 shadow-[4px_4px_0px_0px] shadow-on-surface relative overflow-hidden group hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px] transition-all">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-primary-fixed-dim rounded-full opacity-50 border-2 border-on-surface group-hover:scale-110 transition-transform"></div>
+<span class="material-symbols-outlined text-primary mb-2 text-3xl">library_books</span>
+<div class="text-label-bold font-label-bold text-on-surface-variant mb-1">已记录事件数</div>
+<div class="text-headline-lg font-headline-lg text-on-surface">6</div>
+</div>
+<div class="bg-card border-2 border-on-surface rounded-xl p-6 shadow-[4px_4px_0px_0px] shadow-on-surface relative overflow-hidden group hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px] transition-all">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-secondary-fixed-dim rounded-full opacity-50 border-2 border-on-surface group-hover:scale-110 transition-transform"></div>
+<span class="material-symbols-outlined text-secondary mb-2 text-3xl">event_upcoming</span>
+<div class="text-label-bold font-label-bold text-on-surface-variant mb-1">近 30 天事件</div>
+<div class="text-headline-lg font-headline-lg text-on-surface">3</div>
+</div>
+<div class="bg-card border-2 border-on-surface rounded-xl p-6 shadow-[4px_4px_0px_0px] shadow-on-surface relative overflow-hidden group hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px] transition-all">
+<div class="absolute -right-6 -top-6 w-24 h-24 bg-tertiary-fixed-dim rounded-full opacity-50 border-2 border-on-surface group-hover:scale-110 transition-transform"></div>
+<span class="material-symbols-outlined text-tertiary mb-2 text-3xl">calendar_month</span>
+<div class="text-label-bold font-label-bold text-on-surface-variant mb-1">最近记录日期</div>
+<div class="text-headline-md font-headline-md text-on-surface mt-2">2026-05-15</div>
+</div>
+</div>
+</section>
+<!-- Action Bar -->
+<section class="bg-surface-container rounded-2xl border-2 border-on-surface p-6 mb-12 shadow-[4px_4px_0px_0px] shadow-on-surface flex flex-col md:flex-row items-center justify-between gap-6">
+<div class="flex-1">
+<p class="text-body-md font-body-md text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">info</span>
+                    压力分析将基于档案内所有事件计算，而不是只看单条事件。
+                </p>
+</div>
+<div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+<button class="px-6 py-3 bg-card text-on-surface rounded-full border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface text-label-bold font-label-bold hover:bg-tertiary hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px] active:translate-y-1 active:shadow-[2px_2px_0px_0px] transition-all text-center">
+                    生成压力分析报告
+                </button>
+<button class="px-6 py-3 bg-primary text-on-primary rounded-full border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface text-label-bold font-label-bold hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px] active:translate-y-1 active:shadow-[2px_2px_0px_0px] transition-all flex justify-center items-center gap-2">
+<span class="bg-card rounded-full p-1 border-2 border-on-surface">
+<span class="material-symbols-outlined text-primary text-sm">add</span>
+</span>
+                    记录新事件
+                </button>
+</div>
+</section>
+<!-- Sticker Wall Section -->
+<section class="relative">
+<input checked class="sticker-wall-radio" id="sticker-wall-1" name="sticker-wall" type="radio"/>
+<input class="sticker-wall-radio" id="sticker-wall-2" name="sticker-wall" type="radio"/>
+<div class="sticker-wall-header bg-card border-2 border-on-surface rounded-2xl p-5 mb-8 shadow-[4px_4px_0px_0px] shadow-on-surface flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+<div>
+<p class="text-label-bold font-label-bold text-secondary uppercase tracking-wide mb-2">Sticker Wall</p>
+<h2 class="text-headline-md font-headline-md text-on-surface">事件贴纸墙</h2>
+<p class="text-body-md font-body-md text-on-surface-variant mt-2">每面墙最多展示 6 张事件贴纸。切换时旧贴纸会被风吹掉，新贴纸会按不同顺序贴上。</p>
+</div>
+<div class="flex flex-wrap items-center gap-3">
+<label aria-label="上一面贴纸墙" class="sticker-wall-label w-12 h-12 bg-surface text-on-surface rounded-full border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface transition-all flex items-center justify-center hover:bg-tertiary hover:-translate-y-1" for="sticker-wall-1">
+<span class="material-symbols-outlined">arrow_back</span>
+</label>
+<span class="px-4 py-2 bg-secondary-fixed text-on-secondary-fixed-variant rounded-full border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface text-label-bold font-label-bold">1 / 2</span>
+<label aria-label="下一面贴纸墙" class="sticker-wall-label w-12 h-12 bg-primary text-on-primary rounded-full border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface transition-all flex items-center justify-center hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px]" for="sticker-wall-2">
+<span class="material-symbols-outlined">arrow_forward</span>
+</label>
+</div>
+</div>
+<div class="sticker-wall-stage bg-surface-container rounded-2xl border-2 border-on-surface shadow-[4px_4px_0px_0px] shadow-on-surface">
+<div class="sticker-wall sticker-wall-one">
+<article class="event-sticker sticker-pink">
+<span class="sticker-date"><span class="material-symbols-outlined text-sm">event</span>2026-05-15</span>
+<div class="sticker-title">
+<h3>噪音冲突</h3>
+<strong class="sticker-pressure">76</strong>
+</div>
+<p class="sticker-desc">舍友晚上打游戏声音比较大，最近一周影响了睡眠，也不知道怎么开口说。</p>
+<div class="sticker-meta">
+<span>严重程度<b>4/5</b></span>
+<span>发生频率<b>每周多次</b></span>
+<span>当前情绪<b>烦躁</b></span>
+<span>单次压力<b>76/100</b></span>
+<span>冲突/冷战<b>是</b></span>
+<span>沟通状态<b>未沟通</b></span>
+</div>
+</article>
+<article class="event-sticker sticker-yellow">
+<span class="sticker-date"><span class="material-symbols-outlined text-sm">event</span>2026-05-12</span>
+<div class="sticker-title">
+<h3>卫生冲突</h3>
+<strong class="sticker-pressure">68</strong>
+</div>
+<p class="sticker-desc">公共区域垃圾堆放时间较长，值日安排没有被认真执行。</p>
+<div class="sticker-meta">
+<span>严重程度<b>3/5</b></span>
+<span>发生频率<b>偶尔</b></span>
+<span>当前情绪<b>无奈</b></span>
+<span>单次压力<b>68/100</b></span>
+<span>冲突/冷战<b>否</b></span>
+<span>沟通状态<b>已沟通</b></span>
+</div>
+</article>
+<article class="event-sticker sticker-green">
+<span class="sticker-date"><span class="material-symbols-outlined text-sm">event</span>2026-05-10</span>
+<div class="sticker-title">
+<h3>作息冲突</h3>
+<strong class="sticker-pressure">72</strong>
+</div>
+<p class="sticker-desc">早起和晚睡作息差异明显，开灯和洗漱声音互相影响。</p>
+<div class="sticker-meta">
+<span>严重程度<b>4/5</b></span>
+<span>发生频率<b>每周多次</b></span>
+<span>当前情绪<b>焦虑</b></span>
+<span>单次压力<b>72/100</b></span>
+<span>冲突/冷战<b>否</b></span>
+<span>沟通状态<b>未沟通</b></span>
+</div>
+</article>
+<article class="event-sticker sticker-purple">
+<span class="sticker-date"><span class="material-symbols-outlined text-sm">event</span>2026-05-08</span>
+<div class="sticker-title">
+<h3>费用冲突</h3>
+<strong class="sticker-pressure">61</strong>
+</div>
+<p class="sticker-desc">水电费分摊时间拖延，有人觉得自己承担得更多。</p>
+<div class="sticker-meta">
+<span>严重程度<b>3/5</b></span>
+<span>发生频率<b>偶尔</b></span>
+<span>当前情绪<b>委屈</b></span>
+<span>单次压力<b>61/100</b></span>
+<span>冲突/冷战<b>否</b></span>
+<span>沟通状态<b>已沟通</b></span>
+</div>
+</article>
+<article class="event-sticker sticker-blue">
+<span class="sticker-date"><span class="material-symbols-outlined text-sm">event</span>2026-05-03</span>
+<div class="sticker-title">
+<h3>隐私边界</h3>
+<strong class="sticker-pressure">74</strong>
+</div>
+<p class="sticker-desc">私人物品被未经允许借用，之后双方都没有明确说明边界。</p>
+<div class="sticker-meta">
+<span>严重程度<b>4/5</b></span>
+<span>发生频率<b>偶尔</b></span>
+<span>当前情绪<b>愤怒</b></span>
+<span>单次压力<b>74/100</b></span>
+<span>冲突/冷战<b>是</b></span>
+<span>沟通状态<b>未沟通</b></span>
+</div>
+</article>
+<article class="event-sticker sticker-cream">
+<span class="sticker-date"><span class="material-symbols-outlined text-sm">event</span>2026-04-29</span>
+<div class="sticker-title">
+<h3>情绪冲突</h3>
+<strong class="sticker-pressure">58</strong>
+</div>
+<p class="sticker-desc">一次小误会之后语气变冷，宿舍氛围持续有些尴尬。</p>
+<div class="sticker-meta">
+<span>严重程度<b>2/5</b></span>
+<span>发生频率<b>偶尔</b></span>
+<span>当前情绪<b>压抑</b></span>
+<span>单次压力<b>58/100</b></span>
+<span>冲突/冷战<b>是</b></span>
+<span>沟通状态<b>未沟通</b></span>
+</div>
+</article>
+</div>
+<div class="sticker-wall sticker-wall-two">
+<article class="event-sticker sticker-green">
+<span class="sticker-date"><span class="material-symbols-outlined text-sm">event</span>2026-04-25</span>
+<div class="sticker-title">
+<h3>噪音冲突</h3>
+<strong class="sticker-pressure">63</strong>
+</div>
+<p class="sticker-desc">午休期间外放短视频声音较大，提醒后对方短暂降低音量。</p>
+<div class="sticker-meta">
+<span>严重程度<b>3/5</b></span>
+<span>发生频率<b>每周多次</b></span>
+<span>当前情绪<b>烦躁</b></span>
+<span>单次压力<b>63/100</b></span>
+<span>冲突/冷战<b>否</b></span>
+<span>沟通状态<b>已沟通</b></span>
+</div>
+</article>
+<article class="event-sticker sticker-pink">
+<span class="sticker-date"><span class="material-symbols-outlined text-sm">event</span>2026-04-21</span>
+<div class="sticker-title">
+<h3>卫生冲突</h3>
+<strong class="sticker-pressure">66</strong>
+</div>
+<p class="sticker-desc">浴室台面长期有积水和头发，轮值提醒后没有持续改善。</p>
+<div class="sticker-meta">
+<span>严重程度<b>3/5</b></span>
+<span>发生频率<b>几乎每天</b></span>
+<span>当前情绪<b>无奈</b></span>
+<span>单次压力<b>66/100</b></span>
+<span>冲突/冷战<b>否</b></span>
+<span>沟通状态<b>已沟通</b></span>
+</div>
+</article>
+<article class="event-sticker sticker-purple">
+<span class="sticker-date"><span class="material-symbols-outlined text-sm">event</span>2026-04-18</span>
+<div class="sticker-title">
+<h3>作息冲突</h3>
+<strong class="sticker-pressure">70</strong>
+</div>
+<p class="sticker-desc">临近考试周，夜间复习开灯影响睡眠，双方都比较疲惫。</p>
+<div class="sticker-meta">
+<span>严重程度<b>4/5</b></span>
+<span>发生频率<b>每周多次</b></span>
+<span>当前情绪<b>焦虑</b></span>
+<span>单次压力<b>70/100</b></span>
+<span>冲突/冷战<b>否</b></span>
+<span>沟通状态<b>未沟通</b></span>
+</div>
+</article>
+<article class="event-sticker sticker-yellow">
+<span class="sticker-date"><span class="material-symbols-outlined text-sm">event</span>2026-04-13</span>
+<div class="sticker-title">
+<h3>费用冲突</h3>
+<strong class="sticker-pressure">52</strong>
+</div>
+<p class="sticker-desc">公共用品采购记录不清楚，大家对金额分摊有不同理解。</p>
+<div class="sticker-meta">
+<span>严重程度<b>2/5</b></span>
+<span>发生频率<b>偶尔</b></span>
+<span>当前情绪<b>委屈</b></span>
+<span>单次压力<b>52/100</b></span>
+<span>冲突/冷战<b>否</b></span>
+<span>沟通状态<b>已沟通</b></span>
+</div>
+</article>
+<article class="event-sticker sticker-blue">
+<span class="sticker-date"><span class="material-symbols-outlined text-sm">event</span>2026-04-09</span>
+<div class="sticker-title">
+<h3>隐私边界</h3>
+<strong class="sticker-pressure">69</strong>
+</div>
+<p class="sticker-desc">学习桌区域被临时占用，事后没有约定公共空间使用规则。</p>
+<div class="sticker-meta">
+<span>严重程度<b>3/5</b></span>
+<span>发生频率<b>偶尔</b></span>
+<span>当前情绪<b>愤怒</b></span>
+<span>单次压力<b>69/100</b></span>
+<span>冲突/冷战<b>是</b></span>
+<span>沟通状态<b>未沟通</b></span>
+</div>
+</article>
+<article class="event-sticker sticker-cream">
+<span class="sticker-date"><span class="material-symbols-outlined text-sm">event</span>2026-04-05</span>
+<div class="sticker-title">
+<h3>情绪冲突</h3>
+<strong class="sticker-pressure">57</strong>
+</div>
+<p class="sticker-desc">群聊里一句玩笑被误解，之后几天互动明显变少。</p>
+<div class="sticker-meta">
+<span>严重程度<b>2/5</b></span>
+<span>发生频率<b>偶尔</b></span>
+<span>当前情绪<b>压抑</b></span>
+<span>单次压力<b>57/100</b></span>
+<span>冲突/冷战<b>是</b></span>
+<span>沟通状态<b>未沟通</b></span>
+</div>
+</article>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 lg:hidden bg-surface-container border-t-2 border-on-surface shadow-[0px_-4px_0px_0px] shadow-on-surface">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-secondary-fixed transition-colors rounded-lg p-2" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-label-bold font-label-bold mt-1 text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 border-2 border-on-surface shadow-[2px_2px_0px_0px] shadow-on-surface" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="text-label-bold font-label-bold mt-1 text-[10px]">Record</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-secondary-fixed transition-colors rounded-lg p-2" href="#">
+<span class="material-symbols-outlined">equalizer</span>
+<span class="text-label-bold font-label-bold mt-1 text-[10px]">Analysis</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-secondary-fixed transition-colors rounded-lg p-2" href="#">
+<span class="material-symbols-outlined">forum</span>
+<span class="text-label-bold font-label-bold mt-1 text-[10px]">AI Sandbox</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-secondary-fixed transition-colors rounded-lg p-2" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span class="text-label-bold font-label-bold mt-1 text-[10px]">Performance</span>
+</a>
+</nav>
+</body></html>
