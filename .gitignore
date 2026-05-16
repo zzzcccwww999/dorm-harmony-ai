@@ -4,6 +4,7 @@ AGENTS.md
 .worktrees/
 .env
 .env:Zone.Identifier
+*:Zone.Identifier
 
 # Python backend
 __pycache__/
