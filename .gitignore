@@ -6,6 +6,8 @@ AGENTS.md
 .env:Zone.Identifier
 *:Zone.Identifier
 /node_modules/
+.agents/
+skills-lock.json
 
 # Python backend
 __pycache__/
